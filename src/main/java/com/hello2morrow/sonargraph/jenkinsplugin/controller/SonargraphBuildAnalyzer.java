@@ -3,9 +3,12 @@ package com.hello2morrow.sonargraph.jenkinsplugin.controller;
 import hudson.model.Result;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.logging.Level;
 
+import com.hello2morrow.sonargraph.jenkinsplugin.foundation.RecorderLogger;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.IMetricHistoryProvider;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.IReportReader;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
@@ -36,22 +39,26 @@ class SonargraphBuildAnalyzer
     private final HashMap<String, Result> m_buildResults = new HashMap<String, Result>();
 
     /** Final result of the build process after being affected by the metrics analysis.s */
-    private Result overallBuildResult;
+    private Result m_overallBuildResult;
+
+    private OutputStream m_logger = null;
 
     /**
      * Constructor.
      * @param architectReportPath Absolute path to the Sonargraph architect report.
      */
-    public SonargraphBuildAnalyzer(TFile architectReportPath)
+    public SonargraphBuildAnalyzer(TFile architectReportPath, OutputStream logger)
     {
         assert architectReportPath != null : "The path for the Sonargraph architect report must not be null";
+        assert logger != null : "Parameter 'logger' of method 'SonargraphBuildAnalyzer' must not be null";
+        m_logger = logger;
         IReportReader reportReader = new ReportFileReader();
         m_report = reportReader.readSonargraphReport(architectReportPath);
 
         m_buildResults.put(BuildActionsEnum.UNSTABLE.getActionCode(), Result.UNSTABLE);
         m_buildResults.put(BuildActionsEnum.FAILED.getActionCode(), Result.FAILURE);
 
-        overallBuildResult = null;
+        m_overallBuildResult = null;
     }
 
     /**
@@ -77,20 +84,32 @@ class SonargraphBuildAnalyzer
 
     public void changeBuildResultIfMetricValueNotZero(SonargraphMetrics metric, String userDefinedAction)
     {
+        if (m_report.getSystemMetricValue(metric) == null)
+        {
+            RecorderLogger.logToConsoleOutput((PrintStream) m_logger, Level.WARNING, "Metric '" + metric.getStandardName()
+                    + "' not present in analysis");
+            return;
+        }
         Integer metricValue = Integer.parseInt(m_report.getSystemMetricValue(metric));
         if (metricValue > 0)
         {
             if (userDefinedAction.equals(BuildActionsEnum.FAILED.getActionCode()))
             {
-                overallBuildResult = m_buildResults.get(BuildActionsEnum.FAILED.getActionCode());
+                m_overallBuildResult = m_buildResults.get(BuildActionsEnum.FAILED.getActionCode());
+                RecorderLogger.logToConsoleOutput((PrintStream) m_logger, Level.INFO, "Changing build result to " + m_overallBuildResult.toString()
+                        + " because value for " + metric.getDescription() + " is " + metricValue);
             }
             else if (userDefinedAction.equals(BuildActionsEnum.UNSTABLE.getActionCode()))
             {
-                if (overallBuildResult == null || !overallBuildResult.equals(Result.FAILURE))
+                if (m_overallBuildResult == null || !m_overallBuildResult.equals(Result.FAILURE))
                 {
-                    overallBuildResult = m_buildResults.get(BuildActionsEnum.UNSTABLE.getActionCode());
+                    m_overallBuildResult = m_buildResults.get(BuildActionsEnum.UNSTABLE.getActionCode());
+                    RecorderLogger.logToConsoleOutput((PrintStream) m_logger, Level.INFO,
+                            "Changing build result to " + m_overallBuildResult.toString() + " because value for " + metric.getDescription() + " is "
+                                    + metricValue);
                 }
             }
+
         }
     }
 
@@ -101,15 +120,22 @@ class SonargraphBuildAnalyzer
         {
             if (userDefinedAction.equals(BuildActionsEnum.FAILED.getActionCode()))
             {
-                overallBuildResult = m_buildResults.get(BuildActionsEnum.FAILED.getActionCode());
+                m_overallBuildResult = m_buildResults.get(BuildActionsEnum.FAILED.getActionCode());
+                RecorderLogger.logToConsoleOutput((PrintStream) m_logger, Level.INFO, "Changing build result to " + m_overallBuildResult.toString()
+                        + " because value for " + metric.getDescription() + " is " + metricValue);
+
             }
             else if (userDefinedAction.equals(BuildActionsEnum.UNSTABLE.getActionCode()))
             {
-                if (overallBuildResult == null || !overallBuildResult.equals(Result.FAILURE))
+                if (m_overallBuildResult == null || !m_overallBuildResult.equals(Result.FAILURE))
                 {
-                    overallBuildResult = m_buildResults.get(BuildActionsEnum.UNSTABLE.getActionCode());
+                    m_overallBuildResult = m_buildResults.get(BuildActionsEnum.UNSTABLE.getActionCode());
+                    RecorderLogger.logToConsoleOutput((PrintStream) m_logger, Level.INFO,
+                            "Changing build result to " + m_overallBuildResult.toString() + " because value for " + metric.getDescription() + " is "
+                                    + metricValue);
                 }
             }
+
         }
     }
 
@@ -119,19 +145,18 @@ class SonargraphBuildAnalyzer
     public void saveMetricsToCSV(TFile metricHistoryFile, Integer buildNumber) throws IOException
     {
         IMetricHistoryProvider fileHandler = new CSVFileHandler(metricHistoryFile);
-        LinkedHashMap<SonargraphMetrics, String> buildMetricValues = new LinkedHashMap<SonargraphMetrics, String>();
+        HashMap<SonargraphMetrics, String> buildMetricValues = new HashMap<SonargraphMetrics, String>();
 
         for (SonargraphMetrics metric : SonargraphMetrics.values())
         {
             buildMetricValues.put(metric, m_report.getSystemMetricValue(metric));
         }
 
-        //TODO [IK -> EA] make a pendant to Map<> readMetrics() and save all metrics in one go to the persistence
         fileHandler.writeMetrics(buildNumber, buildMetricValues);
     }
 
     public Result getOverallBuildResult()
     {
-        return overallBuildResult;
+        return m_overallBuildResult;
     }
 }

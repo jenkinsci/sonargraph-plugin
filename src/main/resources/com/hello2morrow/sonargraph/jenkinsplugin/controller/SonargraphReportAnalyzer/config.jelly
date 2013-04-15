@@ -1,16 +1,9 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-  <!--
-    This jelly script is used for per-project configuration.
-
-    See global.jelly for a general discussion about jelly script.
-  -->
-
-  <!--
-    Creates a text field that shows the value of the "name" property.
-    When submitted, it will be passed to the corresponding constructor parameter.
-  -->
     <f:section title="Report Processing Configuration">
-	    <f:entry title="Sonargraph Report File" field="sonargraphReportPath">
+	    <f:entry title="Report Directory (relative to the project's root)" field="reportDirectory" help="/plugin/sonargraph-plugin/html/html-report-directory.html">
+	       <f:textbox/>
+	    </f:entry>
+	    <f:entry title="Report Name" field="reportName" help="/plugin/sonargraph-plugin/html/html-report-name.html">
 	       <f:textbox/>
 	    </f:entry>
     </f:section>

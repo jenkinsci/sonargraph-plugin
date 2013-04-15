@@ -30,25 +30,6 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.15</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.sun.jmx</groupId>
-					<artifactId>jmxri</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sun.jdmk</groupId>
-					<artifactId>jmxtools</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>javax.jms</groupId>
-					<artifactId>jms</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
 			<groupId>javax.xml.bind</groupId>
 			<artifactId>jaxb-api</artifactId>
 			<version>2.0</version>
@@ -174,4 +155,32 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+	<url>https://wiki.jenkins-ci.org/display/JENKINS/Sonargraph+Plugin</url>
+	<organization>
+		<name>hello2morrow GmbH, hello2morrow Inc., hello2morrow S.A.S</name>
+		<url>https://www.hello2morrow.com</url>
+	</organization>
+	<scm>
+		<connection>scm:git:ssh://github.com/jenkinsci/sonargraph-plugin.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/jenkinsci/sonargraph-plugin.git</developerConnection>
+		<url>https://github.com/jenkinsci/sonargraph-plugin</url>
+	</scm>
+
+	<licenses>
+		<license>
+			<name>Apache License 2</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0</url>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<id>ingmarkellner</id>
+			<name>Ingmar Kellner</name>
+		</developer>
+		<developer>
+            <id>esteban-h2m</id>
+            <name>Esteban Angee</name>
+        </developer>
+	</developers>
 </project>

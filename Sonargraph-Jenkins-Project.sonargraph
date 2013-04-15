@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<context version="7.1.9.199">
+<context version="7.1.9.0">
     <scope type="Project" name="sonargraph-jenkins-project">
         <element type="TypeFilterReferenceOverridden" name="Filter">
             <element type="IncludeTypePattern" name="**"/>
@@ -9,6 +9,11 @@
             <element type="Layer" name="Foundation">
                 <element type="TypeFilter" name="Assignment">
                     <element type="IncludeTypePattern" name="com.hello2morrow.sonargraph.jenkinsplugin.foundation.**"/>
+                </element>
+                <element type="Subsystem" name="Logger">
+                    <element type="TypeFilter" name="Assignment">
+                        <element type="IncludeTypePattern" name="com.hello2morrow.sonargraph.jenkinsplugin.foundation.*Logger*"/>
+                    </element>
                 </element>
                 <stereotype name="Public"/>
             </element>
@@ -78,6 +83,27 @@
                 <property value="Constructor" name="ElementType"/>
                 <property value="com.hello2morrow.sonargraph.jenkinsplugin.controller.SonargraphReportBuilder::SonargraphReportBuilder(String, String, String, String, String, String, String, String, String, String, String, String, String, String){}" name="Pattern"/>
             </item>
+            <item type="IgnoreWarningFilterItem">
+                <property value="NumberOfParameters" name="AttributeId"/>
+                <property value="This is due to the infrastructure of Jenkins. Not sure, if we can do anything about it." name="Comment"/>
+                <property value="2013-04-15 10:58:36" name="Date"/>
+                <property value="Constructor" name="ElementType"/>
+                <property value="com.hello2morrow.sonargraph.jenkinsplugin.controller.SonargraphReportAnalyzer::SonargraphReportAnalyzer(String, String, String, String, String, String, String, String, String, String){}" name="Pattern"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property value="NumberOfParameters" name="AttributeId"/>
+                <property value="This is due to the infrastructure of Jenkins. Not sure, if we can do anything about it." name="Comment"/>
+                <property value="2013-04-15 10:58:55" name="Date"/>
+                <property value="Constructor" name="ElementType"/>
+                <property value="com.hello2morrow.sonargraph.jenkinsplugin.controller.AbstractSonargraphRecorder::AbstractSonargraphRecorder(String, String, String, String, String, String, String, String, String){}" name="Pattern"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property value="NumberOfParameters" name="AttributeId"/>
+                <property value="This is due to the infrastructure of Jenkins. Not sure, if we can do anything about it." name="Comment"/>
+                <property value="2013-04-15 10:58:55" name="Date"/>
+                <property value="Constructor" name="ElementType"/>
+                <property value="com.hello2morrow.sonargraph.jenkinsplugin.controller.SonargraphReportBuilder::SonargraphReportBuilder(String, String, String, String, String, String, String, String, String, String, String, String, String){}" name="Pattern"/>
+            </item>
         </itemDefinition>
     </scope>
     <scope type="External" name="External">
@@ -131,11 +157,6 @@
             </element>
             <element type="Layer" name="Common">
                 <element type="TypeFilter" name="Assignment"/>
-                <element type="Subsystem" name="log4j">
-                    <element type="TypeFilter" name="Assignment">
-                        <element type="IncludeTypePattern" name="org.apache.log4j.*"/>
-                    </element>
-                </element>
                 <element type="Subsystem" name="Java IO File">
                     <element type="TypeFilter" name="Assignment">
                         <element type="IncludeTypePattern" name="java.io.*ile*"/>

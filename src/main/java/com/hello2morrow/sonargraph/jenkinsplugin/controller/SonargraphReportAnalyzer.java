@@ -22,31 +22,43 @@ import de.schlichtherle.truezip.file.TFile;
  */
 public class SonargraphReportAnalyzer extends AbstractSonargraphRecorder
 {
-    private String sonargraphReportPath;
+
+    private final String reportName;
 
     @DataBoundConstructor
-    public SonargraphReportAnalyzer(String sonargraphReportPath, String architectureViolationsAction, String unassignedTypesAction,
+    public SonargraphReportAnalyzer(String reportDirectory, String reportName, String architectureViolationsAction, String unassignedTypesAction,
             String cyclicElementsAction, String thresholdViolationsAction, String architectureWarningsAction, String workspaceWarningsAction,
             String workItemsAction, String emptyWorkspaceAction)
     {
-        super(architectureViolationsAction, unassignedTypesAction, cyclicElementsAction, thresholdViolationsAction, architectureWarningsAction,
-                workspaceWarningsAction, workItemsAction, emptyWorkspaceAction);
+        super(reportDirectory, architectureViolationsAction, unassignedTypesAction, cyclicElementsAction, thresholdViolationsAction,
+                architectureWarningsAction, workspaceWarningsAction, workItemsAction, emptyWorkspaceAction);
 
-        assert sonargraphReportPath != null && sonargraphReportPath.length() > 0 : "Parameter 'sonargraphReportPath' of method 'SonargraphReportAnalyzer' must not be empty";
-        this.sonargraphReportPath = sonargraphReportPath;
+        assert (reportName != null) && (reportName.length() > 0) : "Parameter 'sonargraphReportName' of method 'SonargraphReportAnalyzer' must not be empty";
+        this.reportName = reportName;
     }
 
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException
     {
-        TFile sonargraphReportFile = new TFile(build.getWorkspace().getRemote(), sonargraphReportPath).getNormalizedAbsoluteFile();
-        super.processSonargraphReport(build, sonargraphReportFile);
+        assert listener != null : "Parameter 'listener' of method 'perform' must not be null";
+        logExecutionStart(build, listener, SonargraphReportAnalyzer.class);
+        String absoluteReportFolder = new TFile(build.getWorkspace().getRemote(), getReportDirectory()).getNormalizedAbsolutePath();
+        if (super.processSonargraphReport(build, absoluteReportFolder, reportName, listener.getLogger()))
+        {
+            addActions(build);
+        }
         return true;
     }
 
-    public String getSonargraphReportPath()
+    public String getReportName()
     {
-        return this.sonargraphReportPath;
+        return reportName;
+    }
+
+    @Override
+    public DescriptorImpl getDescriptor()
+    {
+        return (DescriptorImpl) super.getDescriptor();
     }
 
     @Extension
@@ -64,11 +76,10 @@ public class SonargraphReportAnalyzer extends AbstractSonargraphRecorder
             return ConfigParameters.REPORT_ANALYZER_DISPLAY_NAME.getValue();
         }
 
-        public FormValidation doCheckReportDirectory(@QueryParameter
-        String value)
+        public FormValidation doCheckReportName(@QueryParameter String value)
         {
             return StringUtility.validateNotNullAndRegexp(value, "[\\/\\\\a-zA-Z0-9_.-]+") ? FormValidation.ok() : FormValidation
-                    .error("Please enter a valid path for the report directory");
+                    .error("Please enter a valid name for the report");
         }
     }
 }

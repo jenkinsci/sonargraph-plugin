@@ -1,28 +1,19 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-  <!--
-    This jelly script is used for per-project configuration.
 
-    See global.jelly for a general discussion about jelly script.
-  -->
-
-  <!--
-    Creates a text field that shows the value of the "name" property.
-    When submitted, it will be passed to the corresponding constructor parameter.
-  -->
     <f:section title="Build Configuration">
-    	<f:entry title="Maven Installation" field="mavenInstallation">
+    	<f:entry title="Maven Installation" field="mavenInstallation" help="/plugin/sonargraph-plugin/html/html-maven-installation.html">
 	       <f:select />
 	    </f:entry>
-	    <f:entry title="Sonargraph System File" field="systemFile">
+	    <f:entry title="Sonargraph System File" field="systemFile" help="/plugin/sonargraph-plugin/html/html-system-file.html">
 	       <f:textbox/>
 	    </f:entry>
-	    <f:entry title="Report directory (relative to the project's root)" field="reportDirectory">
+	    <f:entry title="Report directory (relative to the project's root)" field="reportDirectory" help="/plugin/sonargraph-plugin/html/html-report-directory.html">
 	       <f:textbox default="./target/sonargraph-report"/>
         </f:entry>
-        <f:entry title="Use Sonargraph Workspace" field="useSonargraphWorkspace">
+        <f:entry title="Use Sonargraph Workspace" field="useSonargraphWorkspace" help="/plugin/sonargraph-plugin/html/html-sonargraph-workspace.html">
             <f:checkbox default="true"/>
         </f:entry>
-        <f:entry title="Prepare for Sonar" field="prepareForSonar">
+        <f:entry title="Prepare for Sonar" field="prepareForSonar" help="/plugin/sonargraph-plugin/html/html-prepare-for-sonar.html">
             <f:checkbox default="true"/>
         </f:entry>
     </f:section>

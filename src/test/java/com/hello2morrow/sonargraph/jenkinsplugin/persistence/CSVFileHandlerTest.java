@@ -2,22 +2,23 @@ package com.hello2morrow.sonargraph.jenkinsplugin.persistence;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import au.com.bytecode.opencsv.CSVReader;
+
 import com.hello2morrow.sonargraph.jenkinsplugin.model.IMetricHistoryProvider;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
 
-import au.com.bytecode.opencsv.CSVReader;
 import de.schlichtherle.truezip.file.TFile;
 import de.schlichtherle.truezip.file.TFileReader;
 
@@ -25,6 +26,7 @@ public class CSVFileHandlerTest
 {
     private final String csvTestFilePath = "src/test/resources/sonargraph.csv";
     private final String nonExistingFilePath = "src/test/resources/non-existing.csv";
+    private final String corruptFilePath = "src/test/resources/corrupt.csv";
     private final HashMap<Integer, Integer> loadedHashMapInt = new HashMap<Integer, Integer>();
     private final HashMap<Integer, Double> loadedHashMapDouble = new HashMap<Integer, Double>();
     private TFile nowExistentFile;
@@ -38,10 +40,10 @@ public class CSVFileHandlerTest
         loadedHashMapInt.put(33, 3);
         loadedHashMapInt.put(34, 3);
         loadedHashMapInt.put(35, 3);
-        
-        for (Integer build :loadedHashMapInt.keySet())
+
+        for (Integer build : loadedHashMapInt.keySet())
         {
-            loadedHashMapDouble.put(build, (double)loadedHashMapInt.get(build));
+            loadedHashMapDouble.put(build, (double) loadedHashMapInt.get(build));
         }
 
         removeFiles();
@@ -55,11 +57,33 @@ public class CSVFileHandlerTest
 
     private void removeFiles() throws IOException
     {
+        TFile files[] = new TFile[] { new TFile(nonExistingFilePath), nowExistentFile };
 
-        if (nowExistentFile != null && nowExistentFile.exists())
+        for (TFile file : files)
         {
-            nowExistentFile.rm();
+            if ((file != null) && file.exists())
+            {
+                file.rm();
+            }
         }
+
+    }
+
+    @Test
+    public void testCSVFileCreation() throws IOException
+    {
+        CSVFileHandler fileHandler = new CSVFileHandler(new TFile(nonExistingFilePath));
+        String shoudBeTheFirstLine = "buildNumber;";
+        for (SonargraphMetrics metric : fileHandler.getColumnMapping().keySet())
+        {
+            shoudBeTheFirstLine += metric.getStandardName() + SEPARATOR;
+        }
+        shoudBeTheFirstLine = shoudBeTheFirstLine.substring(0, shoudBeTheFirstLine.length() - 1);
+
+        CSVReader csvReader = new CSVReader(new TFileReader(new TFile(nonExistingFilePath)), SEPARATOR);
+        assertArrayEquals(shoudBeTheFirstLine.split(String.valueOf(SEPARATOR)), csvReader.readNext());
+        csvReader.close();
+
     }
 
     @Test
@@ -76,20 +100,52 @@ public class CSVFileHandlerTest
         assertEquals(5, testDataset.size());
         assertEquals(loadedHashMapInt, testDataset);
     }
-    
+
     @Test
-    public void testReadMetrics()
+    public void testReadMetrics() throws IOException
     {
         HashMap<Integer, Double> testDataset = new HashMap<Integer, Double>();
         TFile nonExistingFile = new TFile(nonExistingFilePath);
         IMetricHistoryProvider csvFileHandler = new CSVFileHandler(nonExistingFile);
-        testDataset = csvFileHandler.readMetrics(1);
+
+        testDataset = csvFileHandler.readMetrics(SonargraphMetrics.STRUCTURAL_DEBT_INDEX);
         assertEquals(0, testDataset.size());
-        
+
         csvFileHandler = new CSVFileHandler(new TFile(csvTestFilePath));
-        testDataset = csvFileHandler.readMetrics(1);
+
+        testDataset = csvFileHandler.readMetrics(SonargraphMetrics.NUMBER_OF_VIOLATIONS);
+        assertEquals(0, testDataset.size());
+
+        testDataset = csvFileHandler.readMetrics(SonargraphMetrics.STRUCTURAL_DEBT_INDEX);
         assertEquals(5, testDataset.size());
         assertEquals(loadedHashMapDouble, testDataset);
+    }
+
+    @Test
+    public void testNoExceptionsExpectedReadingMetrics() throws IOException
+    {
+        HashMap<Integer, Double> testDataset = new HashMap<Integer, Double>();
+        TFile corruptFile = new TFile(corruptFilePath);
+        IMetricHistoryProvider csvFileHandler = new CSVFileHandler(corruptFile);
+        try
+        {
+            testDataset = csvFileHandler.readMetrics(SonargraphMetrics.HIGHEST_AVERAGE_COMPONENT_DEPENDENCY);
+        }
+        catch (Exception ex)
+        {
+            fail("No exception ParseException should be thrown");
+        }
+        assertNull(testDataset.get(83));
+
+        try
+        {
+            testDataset = csvFileHandler.readMetrics(SonargraphMetrics.NUMBER_OF_INTERNAL_TYPES);
+        }
+        catch (ArrayIndexOutOfBoundsException ex)
+        {
+            fail("No exception ArrayIndexOutOfBoundsException should be thrown");
+        }
+        assertNull(testDataset.get(83));
     }
 
     //TODO: Try to eliminate coupling with the filesystem for this test case.
@@ -97,7 +153,7 @@ public class CSVFileHandlerTest
     public void testWriteMetricToFile() throws IOException
     {
         nowExistentFile = new TFile(nonExistingFilePath);
-     
+
         IMetricHistoryProvider csvFileHandler = new CSVFileHandler(nowExistentFile);
         csvFileHandler.writeMetric(36, 3);
         assertTrue(nowExistentFile.exists());
@@ -105,6 +161,7 @@ public class CSVFileHandlerTest
         CSVReader csvReader = new CSVReader(new TFileReader(nowExistentFile), SEPARATOR);
         ArrayList<String[]> lines = new ArrayList<String[]>();
         String[] line;
+        csvReader.readNext(); //Do nothing with the first line
         while ((line = csvReader.readNext()) != null)
         {
             lines.add(line);
@@ -119,23 +176,21 @@ public class CSVFileHandlerTest
     @Test
     public void testWriteMetricsToFile() throws IOException
     {
-
         nowExistentFile = new TFile(nonExistingFilePath);
-        assertFalse(nowExistentFile.exists());
-
         IMetricHistoryProvider csvFileHandler = new CSVFileHandler(nowExistentFile);
-        assertTrue(nowExistentFile.exists());
 
-        LinkedHashMap<SonargraphMetrics, String> buildMetrics = new LinkedHashMap<SonargraphMetrics, String>();
+        HashMap<SonargraphMetrics, String> buildMetrics = new HashMap<SonargraphMetrics, String>();
         buildMetrics.put(SonargraphMetrics.NUMBER_OF_CONSISTENCY_PROBLEMS, "3");
         buildMetrics.put(SonargraphMetrics.NUMBER_OF_CYCLIC_ELEMENTS, "7");
-        buildMetrics.put(SonargraphMetrics.AVERAGE_COMPONENT_DEPENDENCY, "2.6");
-        buildMetrics.put(SonargraphMetrics.NUMBER_OF_STATEMENTS, "200");
+        buildMetrics.put(SonargraphMetrics.HIGHEST_AVERAGE_COMPONENT_DEPENDENCY, "2.6");
+        buildMetrics.put(SonargraphMetrics.NUMBER_OF_INSTRUCTIONS, "200");
         csvFileHandler.writeMetrics(1, buildMetrics);
         CSVReader csvReader = new CSVReader(new TFileReader(nowExistentFile), SEPARATOR);
+        csvReader.readNext(); //Do nothing with the first line
         String[] line = csvReader.readNext();
         csvReader.close();
-        String[] expectedLine = { "1", "3", "7", "2.6", "200" };
+        //1, -, -, 200, -, -, 7, -, 3, -, -, -, -, 2.6
+        String[] expectedLine = { "1", "-", "-", "200", "-", "-", "7", "-", "3", "-", "-", "-", "2.6", "-" };
         assertArrayEquals(expectedLine, line);
     }
 }

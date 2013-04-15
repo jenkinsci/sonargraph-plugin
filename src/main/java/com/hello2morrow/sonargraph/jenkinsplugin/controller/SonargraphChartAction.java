@@ -1,17 +1,28 @@
 package com.hello2morrow.sonargraph.jenkinsplugin.controller;
 
 import hudson.model.Action;
+import hudson.model.ProminentProjectAction;
 import hudson.model.Project;
 import hudson.util.ChartUtil;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.logging.Level;
 
+import jenkins.model.JenkinsLocationConfiguration;
+
+import org.jfree.chart.JFreeChart;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
+import com.hello2morrow.sonargraph.jenkinsplugin.controller.util.StaplerRequestUtil;
+import com.hello2morrow.sonargraph.jenkinsplugin.foundation.SonargraphLogger;
+import com.hello2morrow.sonargraph.jenkinsplugin.model.AbstractPlot;
+import com.hello2morrow.sonargraph.jenkinsplugin.model.AreaLinePlot;
+import com.hello2morrow.sonargraph.jenkinsplugin.model.BarPlot;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.DiscreteLinePlot;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.IMetricHistoryProvider;
+import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
 import com.hello2morrow.sonargraph.jenkinsplugin.persistence.CSVFileHandler;
 
 import de.schlichtherle.truezip.file.TFile;
@@ -21,28 +32,15 @@ import de.schlichtherle.truezip.file.TFile;
  * @author esteban
  *
  */
-public class SonargraphChartAction implements Action
+public class SonargraphChartAction implements Action, ProminentProjectAction
 {
     /** Project or build that is calling this action. */
     private final Project<?, ?> project;
 
-    /** Object that defines the post-build step associated with this action. */
-    //TODO: Is that needed?
-    //    private final AbstractSonargraphRecorder builder;
-
-    /** Plot to be displayed to the user */
-    private DiscreteLinePlot plot;
-
-    /** CSV file path relative to the build workspace */
-    private final String csvFilePath = "/sonargraph.csv";
-
-    private Integer defaultGraphicWidth = 512;
-
-    private Integer defaultGraphicHeight = 288;
+    private Integer defaultGraphicWidth = 350;
+    private Integer defaultGraphicHeight = 250;
 
     private static final String BUILD = "Build";
-
-    private static final String TREND = "Trend";
 
     public SonargraphChartAction(Project<?, ?> project, AbstractSonargraphRecorder builder)
     {
@@ -53,22 +51,65 @@ public class SonargraphChartAction implements Action
      * Method that generates the chart and adds it to the response object to allow jenkins to display it.
      * It is called in SonargraphChartAction/index.jelly in the src attribute of an img tag.  
      */
-    public synchronized void doGetPlot(StaplerRequest req, StaplerResponse rsp)
+    public void doGetPlot(StaplerRequest req, StaplerResponse rsp)
     {
-        TFile csvFile = new TFile(project.getRootDir(), csvFilePath);
-        IMetricHistoryProvider csvFileHandler = new CSVFileHandler(csvFile);
-        plot = new DiscreteLinePlot(csvFileHandler);
         //TODO: How to remove that warning?
-        Map<String, String[]> params = req.getParameterMap();
-        plot.createChart(params.get("name")[0], TREND, BUILD, params.get("yaxis")[0], Integer.parseInt(params.get("csvColumn")[0]));
+        Map<String, String[]> parameterMap = req.getParameterMap();
+        String metricName = StaplerRequestUtil.getSimpleValue("metric", parameterMap);
+
+        if (metricName == null)
+        {
+            SonargraphLogger.INSTANCE.log(Level.SEVERE, "No metric specified for creating a plot.");
+            return;
+        }
+
+        SonargraphMetrics metric = null;
+        try
+        {
+            metric = SonargraphMetrics.fromStandardName(metricName);
+        }
+        catch (IllegalArgumentException ex)
+        {
+            SonargraphLogger.INSTANCE.log(Level.SEVERE, "Specified metric '" + metricName + "' is not supported.");
+            return;
+        }
+
+        TFile csvFile = new TFile(project.getRootDir(), ConfigParameters.CSV_FILE_PATH.getValue());
+        SonargraphLogger.INSTANCE.log(Level.INFO,
+                "Generating chart for metric '" + metricName + "'. Reading values from '" + csvFile.getNormalizedAbsolutePath() + "'");
+        IMetricHistoryProvider csvFileHandler = new CSVFileHandler(csvFile);
+        AbstractPlot plot = null;
+
+        String plotType = StaplerRequestUtil.getSimpleValue("plotType", parameterMap);
+        if (plotType == null)
+        {
+            plot = new DiscreteLinePlot(csvFileHandler);
+        }
+        else
+        {
+            if (plotType.equals("bar"))
+            {
+                plot = new BarPlot(csvFileHandler);
+            }
+            else if (plotType.equals("area"))
+            {
+                plot = new AreaLinePlot(csvFileHandler);
+            }
+            else
+            {
+                plot = new DiscreteLinePlot(csvFileHandler);
+            }
+        }
+
+        JFreeChart chart = plot.createChart(metric, BUILD);
         try
         {
             //TODO: Do this without deprecated methods.
-            ChartUtil.generateGraph(req, rsp, plot.getChart(), defaultGraphicWidth, defaultGraphicHeight);
+            ChartUtil.generateGraph(req, rsp, chart, defaultGraphicWidth, defaultGraphicHeight);
         }
         catch (IOException ioe)
         {
-            //TODO: Handle exception
+            SonargraphLogger.INSTANCE.log(Level.SEVERE, "Error generating the graphic for metric '" + metric.getStandardName() + "'");
         }
     }
 
@@ -104,5 +145,12 @@ public class SonargraphChartAction implements Action
     public String getUrlName()
     {
         return ConfigParameters.ACTION_URL_NAME.getValue();
+    }
+
+    public String getReportURL()
+    {
+        JenkinsLocationConfiguration globalConfig = new JenkinsLocationConfiguration();
+        return globalConfig.getUrl() + ConfigParameters.JOB_FOLDER.getValue() + project.getName() + "/"
+                + ConfigParameters.HTML_REPORT_ACTION_URL.getValue();
     }
 }

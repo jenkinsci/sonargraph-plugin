@@ -15,6 +15,7 @@ import hudson.util.ListBoxModel;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
+import java.util.logging.Level;
 
 import net.sf.json.JSONObject;
 
@@ -22,6 +23,8 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
+import com.hello2morrow.sonargraph.jenkinsplugin.foundation.RecorderLogger;
+import com.hello2morrow.sonargraph.jenkinsplugin.foundation.SonargraphLogger;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.StringUtility;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.ProductVersion;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphProductType;
@@ -41,7 +44,6 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
 
     private final String mavenInstallation;
     private final String systemFile;
-    private final String reportDirectory;
     private final String useSonargraphWorkspace;
     private final String prepareForSonar;
 
@@ -52,7 +54,6 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
 
     private final String pathToExecutable = "/bin";
     private static final String M2_HOME = "M2_HOME";
-    private PrintStream logger;
 
     /**
      * Constructor. Fields in the config.jelly must match the parameters in this
@@ -64,12 +65,11 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
             String thresholdViolationsAction, String architectureWarningsAction, String workspaceWarningsAction, String workItemsAction,
             String emptyWorkspaceAction)
     {
-        super(architectureViolationsAction, unassignedTypesAction, cyclicElementsAction, thresholdViolationsAction, architectureWarningsAction,
-                workspaceWarningsAction, workItemsAction, emptyWorkspaceAction);
+        super(reportDirectory, architectureViolationsAction, unassignedTypesAction, cyclicElementsAction, thresholdViolationsAction,
+                architectureWarningsAction, workspaceWarningsAction, workItemsAction, emptyWorkspaceAction);
 
         this.mavenInstallation = mavenInstallation;
         this.systemFile = systemFile;
-        this.reportDirectory = reportDirectory;
         this.useSonargraphWorkspace = useSonargraphWorkspace;
         this.prepareForSonar = prepareForSonar;
     }
@@ -77,17 +77,10 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException
     {
-        // Badge should be added only once
-        if (build.getAction(SonargraphBadgeAction.class) == null)
-        {
-            build.addAction(new SonargraphBadgeAction());
-        }
-
-        this.logger = listener.getLogger();
-
-        String absoluteReportDir = new TFile(build.getWorkspace().getRemote(), reportDirectory).getNormalizedAbsolutePath();
+        super.logExecutionStart(build, listener, SonargraphReportBuilder.class);
+        String absoluteReportDir = new TFile(build.getWorkspace().getRemote(), getReportDirectory()).getNormalizedAbsolutePath();
         String mvnCommand = createMvnCommand(build.getWorkspace().getRemote(), System.getProperty("os.name", "unknown").trim().toLowerCase(),
-                getDescriptor());
+                getDescriptor(), listener.getLogger());
 
         ProcStarter procStarter = launcher.new ProcStarter();
         HashMap<String, String> envVars = new HashMap<String, String>();
@@ -101,13 +94,18 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
 
         if (processExitCode != 0)
         {
-            // TODO: how to log the error properly? Can it be displayed to the
-            // user as the status for the Sonargraph plugin?
+            RecorderLogger.logToConsoleOutput(listener.getLogger(), Level.SEVERE,
+                    "There was an error when executing Sonargraph's Maven goal. Check the global configuration"
+                            + " parameters and the relative paths to make sure that everything is in place.");
             return false;
         }
 
-        TFile sonargraphReportFile = new TFile(absoluteReportDir, SONARGRAPH_REPORT_FILE_NAME + ".xml");
-        processSonargraphReport(build, sonargraphReportFile);
+        String sonargraphReportDirectory = new TFile(absoluteReportDir).getAbsolutePath();
+        if (super.processSonargraphReport(build, sonargraphReportDirectory, SONARGRAPH_REPORT_FILE_NAME, listener.getLogger()))
+        {
+            //only add the actions after the processing has been successful
+            addActions(build);
+        }
 
         /*
          * Must return true for jenkins to mark the build as SUCCESS. Only then,
@@ -117,17 +115,22 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
         return true;
     }
 
-    private String createMvnCommand(String workspacePath, String operatingSystem, DescriptorImpl descriptor)
+    private String createMvnCommand(String workspacePath, String operatingSystem, DescriptorImpl descriptor, PrintStream logger)
     {
-        String absoluteReportDir = new TFile(workspacePath, reportDirectory).getNormalizedAbsolutePath();
-
+        String absoluteReportDir = new TFile(workspacePath, getReportDirectory()).getNormalizedAbsolutePath();
         String pathToMvn = null;
-        if (mavenInstallation != null)
+
+        if ((mavenInstallation != null) && !mavenInstallation.equals("\"null\""))
         {
             pathToMvn = new TFile(mavenInstallation + pathToExecutable, "mvn").getAbsolutePath();
         }
         else
         {
+            if (mavenInstallation.equals("\"null\""))
+            {
+                SonargraphLogger.INSTANCE.log(Level.WARNING, "Invalid path to maven installation '" + mavenInstallation
+                        + "' configured, using command 'mvn' without path.");
+            }
             pathToMvn = "mvn";
         }
 
@@ -138,7 +141,7 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
         }
 
         //FIXME: Why are some modules not found if goal is run on multi-module projects? "package" solves this at the cost of extra time needed.
-        mvnCommand.append(" package");
+        mvnCommand.append(" package -Dmaven.test.skip=true");
 
         mvnCommand.append(" ").append(GROUP_ID).append(":").append(ARTIFACT_ID).append(":").append(descriptor.getVersion()).append(":");
         if (descriptor.getProductType().equals(SonargraphProductType.ARCHITECT.getId()))
@@ -150,33 +153,37 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
             mvnCommand.append(QUALITY_GOAL);
         }
 
-        if (systemFile != null && systemFile.length() > 0)
+        if ((systemFile != null) && (systemFile.length() > 0))
         {
             TFile sonargraphFile = new TFile(workspacePath, systemFile);
             if (!sonargraphFile.exists())
             {
-                logger.println("Specified Sonargraph system file '" + sonargraphFile.getNormalizedAbsolutePath() + "' does not exist!");
+                RecorderLogger.logToConsoleOutput(logger, Level.SEVERE,
+                        "Specified Sonargraph system file '" + sonargraphFile.getNormalizedAbsolutePath() + "' does not exist!");
             }
             mvnCommand.append(PROPERTY_PREFIX).append("file=").append(sonargraphFile.getNormalizedAbsolutePath());
         }
 
-        if (descriptor.getLicense() != null && descriptor.getLicense().length() > 0)
+        if ((descriptor.getLicense() != null) && (descriptor.getLicense().length() > 0))
         {
             mvnCommand.append(PROPERTY_PREFIX).append("license=").append(descriptor.getLicense());
         }
-        else if (descriptor.getActivationCode() != null && descriptor.getActivationCode().length() > 0)
+        else if ((descriptor.getActivationCode() != null) && (descriptor.getActivationCode().length() > 0))
         {
             mvnCommand.append(PROPERTY_PREFIX).append("activationCode=").append(descriptor.getActivationCode());
         }
         else
         {
-            logger.println("You have to either specify a license file or activation code!");
+            RecorderLogger.logToConsoleOutput(logger, Level.SEVERE, "You have to either specify a license file or activation code!");
         }
         mvnCommand.append(PROPERTY_PREFIX).append("prepareForJenkins=true");
         mvnCommand.append(PROPERTY_PREFIX).append("reportDirectory=").append(absoluteReportDir);
         mvnCommand.append(PROPERTY_PREFIX).append("reportName=").append(SONARGRAPH_REPORT_FILE_NAME);
         mvnCommand.append(PROPERTY_PREFIX).append("reportType=HTML");
-        mvnCommand.append(PROPERTY_PREFIX).append("useSonargraphWorkspace=").append(useSonargraphWorkspace);
+        if ((systemFile != null) && (systemFile.length() > 0))
+        {
+            mvnCommand.append(PROPERTY_PREFIX).append("useSonargraphWorkspace=").append(useSonargraphWorkspace);
+        }
         mvnCommand.append(PROPERTY_PREFIX).append("prepareForSonar=").append(prepareForSonar);
         return mvnCommand.toString();
     }
@@ -189,11 +196,6 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
     public String getSystemFile()
     {
         return systemFile;
-    }
-
-    public String getReportDirectory()
-    {
-        return reportDirectory;
     }
 
     public String getUseSonargraphWorkspace()
@@ -270,37 +272,36 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
             return activationCode;
         }
 
-        public FormValidation doCheckVersion(@QueryParameter
-        String value)
+        public FormValidation doCheckVersion(@QueryParameter String value)
         {
             return StringUtility.validateNotNullAndRegexp(value, "^(\\d\\.)+\\d$") ? FormValidation.ok() : FormValidation
                     .error("Please enter a valid version");
         }
 
-        public FormValidation doCheckLicense(@QueryParameter
-        String value)
+        public FormValidation doCheckLicense(@QueryParameter String value)
         {
+            boolean hasLicenseCorrectExtension = StringUtility.validateNotNullAndRegexp(value, "([a-zA-Z]:\\\\)?[\\/\\\\a-zA-Z0-9_.-]+.license$");
+            if (!hasLicenseCorrectExtension)
+            {
+                return FormValidation.error("Please enter a valid path for the license");
+            }
 
-            return StringUtility.validateNotNullAndRegexp(value, "([a-zA-Z]:\\\\)?[\\/\\\\a-zA-Z0-9_.-]+.license$") ? FormValidation.ok()
-                    : FormValidation.error("Please enter a valid path for the license");
-
+            TFile licenseFile = new TFile(value);
+            if (!licenseFile.exists())
+            {
+                return FormValidation.error("Please specify a path of an existing license file");
+            }
+            return FormValidation.ok();
         }
 
-        public FormValidation doCheckSystemFile(@QueryParameter
-        String value)
+        public FormValidation doCheckSystemFile(@QueryParameter String value)
         {
-
+            if ((value == null) || (value.length() == 0))
+            {
+                return FormValidation.ok();
+            }
             return StringUtility.validateNotNullAndRegexp(value, "([a-zA-Z]:\\\\)?[\\/\\\\a-zA-Z0-9_.-]+.sonargraph$") ? FormValidation.ok()
                     : FormValidation.error("Please enter a valid system file");
-
-        }
-
-        public FormValidation doCheckReportDirectory(@QueryParameter
-        String value)
-        {
-
-            return StringUtility.validateNotNullAndRegexp(value, "[\\/\\\\a-zA-Z0-9_.-]+") ? FormValidation.ok() : FormValidation
-                    .error("Please enter a valid path for the report directory");
 
         }
 

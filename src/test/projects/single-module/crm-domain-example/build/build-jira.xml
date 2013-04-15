@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Example build file to run the Sonargraph Jira issue tracking Ant task for a project -->
+<project name="jira-issue-tracking-example" default="run-issue-tracking" basedir=".">
+	
+	<!-- Adjust -->
+	<property name="version.sonargraph" value="7.1.5"/>
+	<property name="product.name" value="SonargraphArchitect"/>
+	<property name="sonargraph-inst-dir" location="D:/Programs/Sonargraph-Architect-7.1.5_b144"/>
+	<property name="license" location="${user.home}/.hello2morrow/${product.name}/${product.name}.license"/>
+  <property name="sonargraph.jira.adapter" location="../../../Sonargraph_jira-issue-tracking-2.0.1"/>
+	<property name="sonargraph.libs" location="${sonargraph-inst-dir}/eclipse/plugins/com.hello2morrow.sonarclipse_${version.sonargraph}"/>
+	<property name="maxmemory-forked" value="512m"/>
+	<property name="project-description" value="../crm-example.sonargraph"/>
+	<path id="classpath.general">
+		<fileset dir="${sonargraph.jira.adapter}/lib" includes="*.jar" />
+	</path>
+	
+	<property name="project-name" value="crm-domain-example"/>
+	<property name="issue-store" value="${user.home}/.hello2morrow/${product.name}/issue-tracking-${project-name}.xml"/>
+	
+	<path id="classpath.issue-tracking">
+		<path refid="classpath.general"/>
+		<path location="${sonargraph.jira.adapter}/jira"/>
+		<fileset dir="${sonargraph.jira.adapter}/jira" includes="*.jar"/>
+	    <fileset dir="${sonargraph.libs}" includes="*.jar"/>
+		<fileset dir="${sonargraph.libs}" includes="lib/*.jar"/>
+	</path>
+
+	<target name="run-issue-tracking" description="Runs the issue tracking integration">
+		<taskdef classname="com.hello2morrow.sonar.issuetracking.ui.SonargraphIssueTrackingAntTask" name="SonargraphIssueTracking">
+			<classpath>
+				  <path refid="classpath.issue-tracking"/>
+			</classpath>
+		</taskdef>
+		<SonargraphIssueTracking
+			projectName="${project-name}"
+			license="${license}"
+			architectureDescription="${project-description}"
+			issueStore="${issue-store}"
+			propertiesFile="${sonargraph.jira.adapter}/jira/jira-adapter.properties"
+		/>
+	</target>
+	
+	<target name="run-issue-tracking-forked" description="Runs the issue tracking integration in its own VM using the specified maxmemory setting">
+		<java fork="true" maxmemory="${maxmemory-forked}" classname="org.apache.tools.ant.Main">
+			<arg line="-buildfile ${ant.file} run-issue-tracking"/>
+			<classpath>
+				<fileset dir="${ant.home}/lib">
+					<include name="*.jar"/>
+				</fileset>
+			</classpath>
+		</java>
+ 	</target>
+
+</project>

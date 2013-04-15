@@ -1,3 +1,4 @@
+buildNumber;StructuralDebtIndex;NumberOfViolations;AverageComponentDependency;NumberOfInstructions;NumberOfMetricWarnings;NumberOfCyclicNamespaces;NumberOfCyclicElements;NumberOfNotAssignedTypes;NumberOfConsistencyProblems;NumberOfWorkspaceWarnings;NumberOfTasks;NumberOfTargetFiles
 31;3
 32;3
 33;3

@@ -1,5 +1,8 @@
 package com.hello2morrow.sonargraph.jenkinsplugin.foundation;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class StringUtility
 {
     public static String convertConstantNameToMixedCaseString(String input, boolean capitalizeFirstLetter, boolean insertSpace)
@@ -19,7 +22,7 @@ public class StringUtility
             {
                 if (previousWasUnderscore)
                 {
-                    if (insertSpace && builder.length() > 0)
+                    if (insertSpace && (builder.length() > 0))
                     {
                         builder.append(' ');
                     }
@@ -71,6 +74,13 @@ public class StringUtility
         }
 
         return true;
+    }
+
+    public static String addXmlExtensionIfNotPreset(String value)
+    {
+        Pattern extensionPattern = Pattern.compile("\\.xml$");
+        Matcher extensionMatcher = extensionPattern.matcher(value);
+        return extensionMatcher.find() ? value : value + ".xml";
     }
 
 }

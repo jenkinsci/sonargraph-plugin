@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<reportContext productFamily="Sonargraph-Architect" name="sonargraph-report">
+    <general>
+        <attribute value="D:/Programs/Jenkins-1.504/jenkins_home/jobs/crm-domain-example/workspace/target/sonargraph-report/sonargraph-report.sonargraph" name="Path"/>
+        <attribute value="D:/Programs/Jenkins-1.504/jenkins_home/jobs/crm-domain-example/workspace/target/sonargraph-report" name="Base Path"/>
+        <attribute value="" name="System Description"/>
+        <attribute value="Sonargraph 7.1.9 [Build Number 0; Build Date 2013-04-15]" name="Sonargraph Product"/>
+        <attribute value="hello2morrow GmbH, Ingmar Kellner" name="Sonargraph Licensee"/>
+        <attribute value="Ingmar Kellner" name="Sonargraph User"/>
+        <attribute value="2013-04-15" name="Report Creation"/>
+    </general>
+    <attributes>
+        <attributeCategory name="Architecture Metrics">
+            <attribute value="0" name="Number of consistency warnings" standardName="NumberOfConsistencyProblems"/>
+            <attribute value="198" name="Number of unassigned types" standardName="NumberOfNotAssignedTypes"/>
+            <attribute value="0" name="Number of violating references" standardName="NumberOfViolatingReferences"/>
+            <attribute value="0" name="Number of violating type dependencies" standardName="NumberOfViolations"/>
+            <attribute value="0" name="Number of violating types" standardName="NumberOfViolatingTypes"/>
+        </attributeCategory>
+        <attributeCategory name="Code Analysis Metrics">
+            <attribute value="34" name="Structural debt (index)" standardName="StructuralDebtIndex"/>
+            <attribute value="4" name="Structural erosion (reference level)" standardName="StructuralErosionReferenceLevel"/>
+            <attribute value="3" name="Structural erosion (type level)" standardName="StructuralErosionTypeLevel"/>
+        </attributeCategory>
+        <attributeCategory name="Cycle Metrics">
+            <attribute value="20" name="Number of cyclic elements" standardName="NumberOfCyclicElements"/>
+            <attribute value="5" name="Number of cyclic packages" standardName="NumberOfCyclicNamespaces"/>
+        </attributeCategory>
+        <attributeCategory name="Dependency Metrics">
+            <attribute value="924" name="Number of type dependencies (all)" standardName="OverallNumberOfTypeDependencies"/>
+        </attributeCategory>
+        <attributeCategory name="Size Metrics">
+            <attribute value="185" name="Number of Java source files" standardName="NumberOfSourceFiles"/>
+            <attribute value="190" name="Number of Java target files" standardName="NumberOfTargetFiles"/>
+            <attribute value="1" name="Number of build units" standardName="NumberOfBuildUnits"/>
+            <attribute value="24,533" name="Number of instructions" standardName="NumberOfInstructions"/>
+            <attribute value="40" name="Number of internal packages" standardName="NumberOfInternalNamespaces"/>
+            <attribute value="190" name="Number of internal types (all)" standardName="NumberOfInternalTypes"/>
+            <attribute value="2,728" name="Number of statements" standardName="NumberOfStatements"/>
+        </attributeCategory>
+        <attributeCategory name="Task and Filter Metrics">
+            <attribute value="0" name="Number of fix warning tasks" standardName="NumberOfFixWarnings"/>
+            <attribute value="0" name="Number of ignored violations" standardName="NumberOfIgnoredViolations"/>
+            <attribute value="0" name="Number of ignored warnings" standardName="NumberOfIgnoredWarnings"/>
+            <attribute value="0" name="Number of refactoring tasks" standardName="NumberOfRefactorings"/>
+            <attribute value="0" name="Number of tasks" standardName="NumberOfTasks"/>
+            <attribute value="1" name="Number of warnings (all)" standardName="NumberOfWarnings"/>
+            <attribute value="1" name="Number of warnings (cyclic)" standardName="NumberOfCyclicWarnings"/>
+            <attribute value="0" name="Number of warnings (duplicate code blocks)" standardName="NumberOfDuplicateCodeBlocksWarnings"/>
+            <attribute value="0" name="Number of warnings (thresholds)" standardName="NumberOfMetricWarnings"/>
+            <attribute value="0" name="Number of warnings (workspace)" standardName="NumberOfWorkspaceWarnings"/>
+        </attributeCategory>
+    </attributes>
+    <projects>
+        <project name="My Project" description="">
+            <attributeCategory name="Architecture Metrics">
+                <attribute value="190" name="Number of unassigned types" standardName="NumberOfNotAssignedTypes"/>
+                <attribute value="0" name="Number of violating references" standardName="NumberOfViolatingReferences"/>
+                <attribute value="0" name="Number of violating type dependencies" standardName="NumberOfViolations"/>
+                <attribute value="0" name="Number of violating types" standardName="NumberOfViolatingTypes"/>
+            </attributeCategory>
+            <attributeCategory name="Code Analysis Metrics">
+                <attribute value="34" name="Structural debt (index)" standardName="StructuralDebtIndex"/>
+                <attribute value="4" name="Structural erosion (reference level)" standardName="StructuralErosionReferenceLevel"/>
+                <attribute value="3" name="Structural erosion (type level)" standardName="StructuralErosionTypeLevel"/>
+            </attributeCategory>
+            <attributeCategory name="Cycle Metrics">
+                <attribute value="20" name="Number of cyclic elements" standardName="NumberOfCyclicElements"/>
+                <attribute value="5" name="Number of cyclic packages" standardName="NumberOfCyclicNamespaces"/>
+            </attributeCategory>
+            <attributeCategory name="Dependency Metrics">
+                <attribute value="924" name="Number of type dependencies (all)" standardName="OverallNumberOfTypeDependencies"/>
+            </attributeCategory>
+            <attributeCategory name="Size Metrics">
+                <attribute value="185" name="Number of Java source files" standardName="NumberOfSourceFiles"/>
+                <attribute value="190" name="Number of Java target files" standardName="NumberOfTargetFiles"/>
+                <attribute value="1" name="Number of build units" standardName="NumberOfBuildUnits"/>
+                <attribute value="24,533" name="Number of instructions" standardName="NumberOfInstructions"/>
+                <attribute value="40" name="Number of internal packages" standardName="NumberOfInternalNamespaces"/>
+                <attribute value="190" name="Number of internal types (all)" standardName="NumberOfInternalTypes"/>
+                <attribute value="2,728" name="Number of statements" standardName="NumberOfStatements"/>
+            </attributeCategory>
+            <attributeCategory name="Task and Filter Metrics">
+                <attribute value="0" name="Number of fix warning tasks" standardName="NumberOfFixWarnings"/>
+                <attribute value="0" name="Number of ignored violations" standardName="NumberOfIgnoredViolations"/>
+                <attribute value="0" name="Number of ignored warnings" standardName="NumberOfIgnoredWarnings"/>
+                <attribute value="0" name="Number of refactoring tasks" standardName="NumberOfRefactorings"/>
+                <attribute value="0" name="Number of tasks" standardName="NumberOfTasks"/>
+                <attribute value="1" name="Number of warnings (all)" standardName="NumberOfWarnings"/>
+                <attribute value="1" name="Number of warnings (cyclic)" standardName="NumberOfCyclicWarnings"/>
+                <attribute value="0" name="Number of warnings (duplicate code blocks)" standardName="NumberOfDuplicateCodeBlocksWarnings"/>
+                <attribute value="0" name="Number of warnings (thresholds)" standardName="NumberOfMetricWarnings"/>
+                <attribute value="0" name="Number of warnings (workspace)" standardName="NumberOfWorkspaceWarnings"/>
+            </attributeCategory>
+            <attributeCategory name="John Lakos Metrics">
+                <attribute value="16.06" name="Average component dependency (ACD)" standardName="AverageComponentDependency"/>
+                <attribute value="2.44" name="Normalized cumulative component dependency (NCCD)" standardName="NormalizedCumulativeComponentDependency"/>
+                <attribute value="8.68" name="Relative average component dependency" standardName="RelativeAverageComponentDependency"/>
+            </attributeCategory>
+        </project>
+        <project name="External" description="">
+            <attributeCategory name="Architecture Metrics">
+                <attribute value="8" name="Number of unassigned types" standardName="NumberOfNotAssignedTypes"/>
+            </attributeCategory>
+            <attributeCategory name="Task and Filter Metrics">
+                <attribute value="0" name="Number of fix warning tasks" standardName="NumberOfFixWarnings"/>
+                <attribute value="0" name="Number of ignored warnings" standardName="NumberOfIgnoredWarnings"/>
+                <attribute value="0" name="Number of tasks" standardName="NumberOfTasks"/>
+                <attribute value="0" name="Number of warnings (all)" standardName="NumberOfWarnings"/>
+                <attribute value="0" name="Number of warnings (cyclic)" standardName="NumberOfCyclicWarnings"/>
+                <attribute value="0" name="Number of warnings (duplicate code blocks)" standardName="NumberOfDuplicateCodeBlocksWarnings"/>
+                <attribute value="0" name="Number of warnings (thresholds)" standardName="NumberOfMetricWarnings"/>
+                <attribute value="0" name="Number of warnings (workspace)" standardName="NumberOfWorkspaceWarnings"/>
+            </attributeCategory>
+        </project>
+    </projects>
+    <buildUnits>
+        <buildUnit name="My Project::com.hello2morrow.dda:crm-domain-example" description="">
+            <attributeCategory name="Architecture Metrics">
+                <attribute value="190" name="Number of unassigned types" standardName="NumberOfNotAssignedTypes"/>
+                <attribute value="0" name="Number of violating references" standardName="NumberOfViolatingReferences"/>
+                <attribute value="0" name="Number of violating type dependencies" standardName="NumberOfViolations"/>
+                <attribute value="0" name="Number of violating types" standardName="NumberOfViolatingTypes"/>
+            </attributeCategory>
+            <attributeCategory name="Code Analysis Metrics">
+                <attribute value="34" name="Structural debt (index)" standardName="StructuralDebtIndex"/>
+                <attribute value="4" name="Structural erosion (reference level)" standardName="StructuralErosionReferenceLevel"/>
+                <attribute value="3" name="Structural erosion (type level)" standardName="StructuralErosionTypeLevel"/>
+            </attributeCategory>
+            <attributeCategory name="Cycle Metrics">
+                <attribute value="20" name="Number of cyclic elements" standardName="NumberOfCyclicElements"/>
+                <attribute value="5" name="Number of cyclic packages" standardName="NumberOfCyclicNamespaces"/>
+            </attributeCategory>
+            <attributeCategory name="Dependency Metrics">
+                <attribute value="924" name="Number of type dependencies (all)" standardName="OverallNumberOfTypeDependencies"/>
+            </attributeCategory>
+            <attributeCategory name="Size Metrics">
+                <attribute value="185" name="Number of Java source files" standardName="NumberOfSourceFiles"/>
+                <attribute value="190" name="Number of Java target files" standardName="NumberOfTargetFiles"/>
+                <attribute value="24,533" name="Number of instructions" standardName="NumberOfInstructions"/>
+                <attribute value="40" name="Number of internal packages" standardName="NumberOfInternalNamespaces"/>
+                <attribute value="190" name="Number of internal types (all)" standardName="NumberOfInternalTypes"/>
+                <attribute value="2,728" name="Number of statements" standardName="NumberOfStatements"/>
+            </attributeCategory>
+            <attributeCategory name="Task and Filter Metrics">
+                <attribute value="0" name="Number of fix warning tasks" standardName="NumberOfFixWarnings"/>
+                <attribute value="0" name="Number of ignored violations" standardName="NumberOfIgnoredViolations"/>
+                <attribute value="0" name="Number of ignored warnings" standardName="NumberOfIgnoredWarnings"/>
+                <attribute value="0" name="Number of refactoring tasks" standardName="NumberOfRefactorings"/>
+                <attribute value="0" name="Number of tasks" standardName="NumberOfTasks"/>
+                <attribute value="1" name="Number of warnings (all)" standardName="NumberOfWarnings"/>
+                <attribute value="1" name="Number of warnings (cyclic)" standardName="NumberOfCyclicWarnings"/>
+                <attribute value="0" name="Number of warnings (duplicate code blocks)" standardName="NumberOfDuplicateCodeBlocksWarnings"/>
+                <attribute value="0" name="Number of warnings (thresholds)" standardName="NumberOfMetricWarnings"/>
+                <attribute value="0" name="Number of warnings (workspace)" standardName="NumberOfWorkspaceWarnings"/>
+            </attributeCategory>
+            <attributeCategory name="John Lakos Metrics">
+                <attribute value="16.06" name="Average component dependency (ACD)" standardName="AverageComponentDependency"/>
+                <attribute value="2.44" name="Normalized cumulative component dependency (NCCD)" standardName="NormalizedCumulativeComponentDependency"/>
+                <attribute value="8.68" name="Relative average component dependency" standardName="RelativeAverageComponentDependency"/>
+            </attributeCategory>
+        </buildUnit>
+    </buildUnits>
+    <configurations>
+        <configuration project="My Project" parseSourceFiles="true" asymetricAnalysis="false" namespaceWarnings="true" sourcefileWarnings="false"/>
+    </configurations>
+    <workspaces>
+        <workspace project="My Project" buildUnit="com.hello2morrow.dda:crm-domain-example">
+            <workspacePath path="../../src/java" description="Found 185 Java source files and 0 Java target files"/>
+            <workspacePath path="../../target.maven/cls" description="Found 0 Java source files and 190 Java target files"/>
+        </workspace>
+    </workspaces>
+    <violations numberOf="0" numberOfTypeRelations="924" numberOfViolatingTypeRelations="0" percentageOfViolatingTypeRelations="0.0"/>
+    <consistencyProblems numberOf="0"/>
+    <cycleGroups numberOf="1">
+        <cycleGroup elementScope="My Project" parent="com.hello2morrow.dda:crm-domain-example" description="5 cyclic elements of type 'Physical package'" namedElementGroup="Physical package">
+            <cyclePath numberOfEfferentTypeRelationsInCycleGroup="3" description="3 type relations in cycle group" parent="com.hello2morrow.dda.business.common.controller"/>
+            <cyclePath numberOfEfferentTypeRelationsInCycleGroup="11" description="11 type relations in cycle group" parent="com.hello2morrow.dda.business.common.dsi"/>
+            <cyclePath numberOfEfferentTypeRelationsInCycleGroup="2" description="2 type relations in cycle group" parent="com.hello2morrow.dda.business.common.service"/>
+            <cyclePath numberOfEfferentTypeRelationsInCycleGroup="6" description="6 type relations in cycle group" parent="com.hello2morrow.dda.business.common.startup"/>
+            <cyclePath numberOfEfferentTypeRelationsInCycleGroup="2" description="2 type relations in cycle group" parent="com.hello2morrow.dda.foundation.common"/>
+        </cycleGroup>
+    </cycleGroups>
+    <warnings numberOf="0">
+        <warningsByAttributeGroup numberOf="0" attributeGroup="Duplicate code"/>
+        <warningsByAttributeGroup numberOf="0" attributeGroup="Threshold"/>
+        <warningsByAttributeGroup numberOf="0" attributeGroup="Workspace"/>
+    </warnings>
+    <tasks numberOf="0"/>
+    <exclusions name="Internal" numberOf="0"/>
+    <exclusions name="External" numberOf="38">
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.io.IOException" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.io.InputStream" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.io.PrintStream" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.io.Serializable" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.io.UnsupportedEncodingException" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.lang.AssertionError" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.lang.Class" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.lang.ClassNotFoundException" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.lang.Exception" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.lang.IllegalAccessException" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.lang.IllegalArgumentException" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.lang.InstantiationException" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.lang.Long" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.lang.NoSuchMethodException" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.lang.Object" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.lang.RuntimeException" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.lang.SecurityException" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.lang.StackTraceElement" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.lang.String" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.lang.StringBuffer" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.lang.System" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.lang.ThreadLocal" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.lang.Throwable" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.text.DateFormat" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.text.ParseException" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.util.ArrayList" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.util.Arrays" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.util.Calendar" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.util.Collection" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.util.Date" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.util.Enumeration" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.util.HashMap" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.util.HashSet" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.util.List" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.util.Map" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.util.MissingResourceException" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.util.Properties" name="Element"/>
+        </excludedType>
+        <excludedType>
+            <attribute value="External" name="Project"/>
+            <attribute value="java.util.Set" name="Element"/>
+        </excludedType>
+    </exclusions>
+    <metrics name="Architecture Metrics">
+        <metric sort="descending" systemDescription="Total number of architecture consistency warnings identified for the system." name="Number of consistency warnings" standardName="NumberOfConsistencyProblems"/>
+        <metric sort="descending" systemDescription="Total number of types that are not assigned to any logical element defined in the architecture model." name="Number of unassigned types" standardName="NumberOfNotAssignedTypes"/>
+        <metric sort="descending" systemDescription="Total number of type references that start from types in the measured element and violate architectural restrictions." name="Number of violating references" standardName="NumberOfViolatingReferences"/>
+        <metric sort="descending" systemDescription="Total number of type dependencies that start from types in the measured element and violate architectural restrictions. Ignored violations are not counted." name="Number of violating type dependencies" standardName="NumberOfViolations"/>
+        <metric sort="descending" systemDescription="Total number of types with a dependency violation according to the systems architecture model." name="Number of violating types" standardName="NumberOfViolatingTypes"/>
+    </metrics>
+    <metrics name="Code Analysis Metrics">
+        <metric sort="descending" systemDescription="This metric computes a number that should be roughly proportional to the effort needed to clean up structural quality problems in your code. It is computed on build unit level and then aggregated to project and system level.&#xA;Basically the following major components go into the computation of the metric:&#xA;&#xA;- The number of type dependencies that would need to be cut to break all cyclic package dependencies: 10 metric points per type dependency and 1 additional point per occurrence of the dependency in the code (preferring dependencies that are also architecture violations).&#xA;- Architecture violations: Again 10 metric points per forbidden type dependency and 1 point per occurrence in the code (already cut cyclic architecture violating dependencies are not counted again).&#xA;- Refactoring tasks: 1 point for each move, delete and rename refactoring task, 10 points per cut dependency refactoring task. For delete and cut refactoring tasks 1 additional point per occurrence in the code.&#xA;&#xA;Although this metric is certainly not perfect it is a good indicator for the level of structural erosion in a project. The higher the value the more effort will be needed to clean up the project. You will also see that the metric will grow in times of high pressure and that it will shrink when you invest time into improving the structure of the code." name="Structural debt (index)" standardName="StructuralDebtIndex"/>
+        <metric sort="descending" systemDescription="Number of code references that must be removed in order to remove all package cycles in a project (this is not always the exact minimum number, but a heuristic-based guess)." name="Structural erosion (reference level)" standardName="StructuralErosionReferenceLevel"/>
+        <metric sort="descending" systemDescription="Number of type dependencies that must be cut in order to remove all package cycles in a project (this is not always the exact minimum number, but a heuristic-based guess)." name="Structural erosion (type level)" standardName="StructuralErosionTypeLevel"/>
+    </metrics>
+    <metrics name="Cycle Metrics">
+        <metric sort="descending" systemDescription="Total number of cyclic coupled elements of any kind contained in a system." name="Number of cyclic elements" standardName="NumberOfCyclicElements"/>
+        <metric sort="descending" systemDescription="Total number of cyclically coupled packages contained in a project." name="Number of cyclic packages" standardName="NumberOfCyclicNamespaces"/>
+    </metrics>
+    <metrics name="Dependency Metrics">
+        <metric sort="descending" systemDescription="Total number of all type dependencies (in and out) of types contained in the measured element; including dependencies to external types." name="Number of type dependencies (all)" standardName="OverallNumberOfTypeDependencies"/>
+    </metrics>
+    <metrics name="John Lakos Metrics">
+        <metric sort="descending" systemDescription="Average number of components (source files) a component (source file) depends on directly and indirectly. This metric can be used to characterize the overall average coupling of project internal components (source files)." name="Average component dependency (ACD)" standardName="AverageComponentDependency"/>
+        <metric sort="descending" systemDescription="The ratio between the cumulative component dependency of a project and the cumulative component dependency of a balanced binary tree of the same size. A value greater than 1 indicates a more vertical design. A value less than 1 indicates a more horizontal design." name="Normalized cumulative component dependency (NCCD)" standardName="NormalizedCumulativeComponentDependency"/>
+        <metric sort="descending" systemDescription="Average component dependency divided by the number of project internal source files multiplied by 100 (in percent)." name="Relative average component dependency" standardName="RelativeAverageComponentDependency"/>
+    </metrics>
+    <metrics name="Size Metrics">
+        <metric sort="descending" systemDescription="Total number of Java source files contained in the measured element." name="Number of Java source files" standardName="NumberOfSourceFiles"/>
+        <metric sort="descending" systemDescription="Total number of Java class files contained in the measured element." name="Number of Java target files" standardName="NumberOfTargetFiles"/>
+        <metric sort="descending" systemDescription="Total number of build units aggregated for the measured element." name="Number of build units" standardName="NumberOfBuildUnits"/>
+        <metric sort="descending" systemDescription="Total number of byte code instructions of a class file aggregated for the measured element." name="Number of instructions" standardName="NumberOfInstructions"/>
+        <metric sort="descending" systemDescription="Total number of internal packages contained in the measured element." name="Number of internal packages" standardName="NumberOfInternalNamespaces"/>
+        <metric sort="descending" systemDescription="Total number of internal types contained in the measured element." name="Number of internal types (all)" standardName="NumberOfInternalTypes"/>
+        <metric sort="descending" systemDescription="Total number of statements contained in the measured element." name="Number of statements" standardName="NumberOfStatements"/>
+    </metrics>
+    <metrics name="Task and Filter Metrics">
+        <metric sort="descending" systemDescription="Total number of warnings which are related to the measured element and have been converted to fix warning tasks." name="Number of fix warning tasks" standardName="NumberOfFixWarnings"/>
+        <metric sort="descending" systemDescription="Total number of violations which are related to the measured element and filtered out by a violation filter." name="Number of ignored violations" standardName="NumberOfIgnoredViolations"/>
+        <metric sort="descending" systemDescription="Total number of warnings which are related to the measured element and filtered out by an ignore warning filter." name="Number of ignored warnings" standardName="NumberOfIgnoredWarnings"/>
+        <metric sort="descending" systemDescription="Total number of refactoring tasks defined in the measured element." name="Number of refactoring tasks" standardName="NumberOfRefactorings"/>
+        <metric sort="descending" systemDescription="Total number of tasks defined in the measured element." name="Number of tasks" standardName="NumberOfTasks"/>
+        <metric sort="descending" systemDescription="Total number of warnings which are related to the measured element. All kinds of warnings are counted." name="Number of warnings (all)" standardName="NumberOfWarnings"/>
+        <metric sort="descending" systemDescription="Total number of cycle group warnings which are related to the measured element." name="Number of warnings (cyclic)" standardName="NumberOfCyclicWarnings"/>
+        <metric sort="descending" systemDescription="Total number of duplicate code block warnings which are related to the measured element." name="Number of warnings (duplicate code blocks)" standardName="NumberOfDuplicateCodeBlocksWarnings"/>
+        <metric sort="descending" systemDescription="Total number of threshold warnings which are related to the measured element." name="Number of warnings (thresholds)" standardName="NumberOfMetricWarnings"/>
+        <metric sort="descending" systemDescription="Total number of workspace warnings which are related to the measured element." name="Number of warnings (workspace)" standardName="NumberOfWorkspaceWarnings"/>
+    </metrics>
+</reportContext>

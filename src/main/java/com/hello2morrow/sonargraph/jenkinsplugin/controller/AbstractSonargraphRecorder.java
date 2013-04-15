@@ -1,6 +1,7 @@
 package com.hello2morrow.sonargraph.jenkinsplugin.controller;
 
 import hudson.model.Action;
+import hudson.model.BuildListener;
 import hudson.model.Result;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
@@ -9,16 +10,22 @@ import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Recorder;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.logging.Level;
 
+import com.hello2morrow.sonargraph.jenkinsplugin.foundation.RecorderLogger;
+import com.hello2morrow.sonargraph.jenkinsplugin.foundation.StringUtility;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
+import com.hello2morrow.sonargraph.jenkinsplugin.persistence.PluginVersionReader;
 import com.hello2morrow.sonargraph.jenkinsplugin.persistence.ReportHistoryFileManager;
 
 import de.schlichtherle.truezip.file.TFile;
 
-abstract class AbstractSonargraphRecorder extends Recorder
+public abstract class AbstractSonargraphRecorder extends Recorder
 {
+    private final String reportDirectory;
     private final String architectureViolationsAction;
     private final String unassignedTypesAction;
     private final String cyclicElementsAction;
@@ -28,13 +35,11 @@ abstract class AbstractSonargraphRecorder extends Recorder
     private final String workItemsAction;
     private final String emptyWorkspaceAction;
 
-    /** CSV file path relative to the build workspace */
-    private final String csvFilePath = "/sonargraph.csv";
-
-    public AbstractSonargraphRecorder(String architectureViolationsAction, String unassignedTypesAction, String cyclicElementsAction,
-            String thresholdViolationsAction, String architectureWarningsAction, String workspaceWarningsAction, String workItemsAction,
-            String emptyWorkspaceAction)
+    public AbstractSonargraphRecorder(String reportDirectory, String architectureViolationsAction, String unassignedTypesAction,
+            String cyclicElementsAction, String thresholdViolationsAction, String architectureWarningsAction, String workspaceWarningsAction,
+            String workItemsAction, String emptyWorkspaceAction)
     {
+        this.reportDirectory = reportDirectory;
         this.architectureViolationsAction = architectureViolationsAction;
         this.unassignedTypesAction = unassignedTypesAction;
         this.cyclicElementsAction = cyclicElementsAction;
@@ -53,7 +58,8 @@ abstract class AbstractSonargraphRecorder extends Recorder
     public Collection<Action> getProjectActions(AbstractProject<?, ?> project)
     {
         Collection<Action> actions = null;
-        if (project instanceof Project) {
+        if (project instanceof Project)
+        {
             actions = new ArrayList<Action>();
             actions.add(new SonargraphChartAction((Project<?, ?>) project, this));
             actions.add(new SonargraphHTMLReportAction((Project<?, ?>) project, this));
@@ -65,17 +71,27 @@ abstract class AbstractSonargraphRecorder extends Recorder
     {
         return BuildStepMonitor.NONE;
     }
-    
-    protected void processSonargraphReport(AbstractBuild<?, ?> build, TFile sonargraphReportFile) throws IOException
+
+    protected boolean processSonargraphReport(AbstractBuild<?, ?> build, String sonargraphReportDirectory, String reportFileName, PrintStream logger)
     {
         assert build != null : "Parameter 'build' of method 'processSonargraphReport' must not be null";
-        assert sonargraphReportFile != null : "Parameter 'sonargraphReportFile' of method 'processSonargraphReport' must not be null";
-        
+        assert sonargraphReportDirectory != null : "Parameter 'sonargraphReportFile' of method 'processSonargraphReport' must not be null";
+
         TFile projectRootDir = new TFile(build.getProject().getRootDir());
-        ReportHistoryFileManager reportHistoryManager = new ReportHistoryFileManager(projectRootDir);
-        reportHistoryManager.storeGeneratedReport(sonargraphReportFile, build.getNumber());
-    
-        SonargraphBuildAnalyzer sonargraphBuildAnalyzer = new SonargraphBuildAnalyzer(sonargraphReportFile);
+        ReportHistoryFileManager reportHistoryManager = new ReportHistoryFileManager(projectRootDir,
+                ConfigParameters.REPORT_HISTORY_FOLDER.getValue(), logger);
+        try
+        {
+            reportHistoryManager.storeGeneratedReportDirectory(new TFile(sonargraphReportDirectory), build.getNumber(), logger);
+        }
+        catch (IOException ex)
+        {
+            RecorderLogger.logToConsoleOutput(logger, Level.SEVERE, "Failed to process the generated Sonargraph report");
+            return false;
+        }
+
+        String reportAbsolutePath = StringUtility.addXmlExtensionIfNotPreset(new TFile(sonargraphReportDirectory, reportFileName).getAbsolutePath());
+        SonargraphBuildAnalyzer sonargraphBuildAnalyzer = new SonargraphBuildAnalyzer(new TFile(reportAbsolutePath), logger);
         sonargraphBuildAnalyzer.changeBuildResultIfMetricValueNotZero(SonargraphMetrics.NUMBER_OF_VIOLATIONS, architectureViolationsAction);
         sonargraphBuildAnalyzer.changeBuildResultIfMetricValueNotZero(SonargraphMetrics.NUMBER_OF_NOT_ASSIGNED_TYPES, unassignedTypesAction);
         sonargraphBuildAnalyzer.changeBuildResultIfMetricValueNotZero(SonargraphMetrics.NUMBER_OF_CYCLIC_ELEMENTS, cyclicElementsAction);
@@ -83,15 +99,47 @@ abstract class AbstractSonargraphRecorder extends Recorder
         sonargraphBuildAnalyzer.changeBuildResultIfMetricValueNotZero(SonargraphMetrics.NUMBER_OF_CONSISTENCY_PROBLEMS, architectureWarningsAction);
         sonargraphBuildAnalyzer.changeBuildResultIfMetricValueNotZero(SonargraphMetrics.NUMBER_OF_WORKSPACE_WARNINGS, workspaceWarningsAction);
         sonargraphBuildAnalyzer.changeBuildResultIfMetricValueNotZero(SonargraphMetrics.NUMBER_OF_TASKS, workItemsAction);
-        sonargraphBuildAnalyzer.changeBuildResultIfMetricValueIsZero(SonargraphMetrics.NUMBER_OF_TARGET_FILES, emptyWorkspaceAction);
+        sonargraphBuildAnalyzer.changeBuildResultIfMetricValueIsZero(SonargraphMetrics.NUMBER_OF_INTERNAL_TYPES, emptyWorkspaceAction);
         Result buildResult = sonargraphBuildAnalyzer.getOverallBuildResult();
-    
-        TFile metricHistoryFile = new TFile(build.getProject().getRootDir(), csvFilePath);
-        sonargraphBuildAnalyzer.saveMetricsToCSV(metricHistoryFile, build.getNumber());
+
+        TFile metricHistoryFile = new TFile(build.getProject().getRootDir(), ConfigParameters.CSV_FILE_PATH.getValue());
+        try
+        {
+            sonargraphBuildAnalyzer.saveMetricsToCSV(metricHistoryFile, build.getNumber());
+        }
+        catch (IOException ex)
+        {
+            RecorderLogger.logToConsoleOutput(logger, Level.SEVERE, "Failed to save Sonargraph metrics to CSV data file");
+            return false;
+        }
         if (buildResult != null)
         {
+            RecorderLogger.logToConsoleOutput(logger, Level.INFO, "Sonargraph analysis has set the final build result to '" + buildResult.toString()
+                    + "'");
             build.setResult(buildResult);
         }
+        return true;
+    }
+
+    protected void logExecutionStart(AbstractBuild<?, ?> build, BuildListener listener, Class<? extends AbstractSonargraphRecorder> recorderClazz)
+    {
+        RecorderLogger.logToConsoleOutput(
+                listener.getLogger(),
+                Level.INFO,
+                "Sonargraph Jenkins Plugin, Version '" + PluginVersionReader.INSTANCE.getVersion() + "', post-build step '" + recorderClazz.getName()
+                        + "'\n" + "Start structural analysis on project '" + build.getProject().getDisplayName() + "', build number '"
+                        + build.getNumber() + "'");
+    }
+
+    protected void addActions(AbstractBuild<?, ?> build)
+    {
+        build.addAction(new SonargraphBadgeAction());
+        build.addAction(new SonargraphBuildAction(build, this));
+    }
+
+    public String getReportDirectory()
+    {
+        return reportDirectory;
     }
 
     public String getArchitectureViolationsAction()
@@ -132,10 +180,5 @@ abstract class AbstractSonargraphRecorder extends Recorder
     public String getEmptyWorkspaceAction()
     {
         return emptyWorkspaceAction;
-    }
-    
-    public AbstractBuildStepDescriptor getDescriptor()
-    {
-        return (AbstractBuildStepDescriptor) super.getDescriptor();
     }
 }
