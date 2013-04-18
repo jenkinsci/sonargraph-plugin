@@ -1,6 +1,6 @@
 package com.hello2morrow.sonargraph.jenkinsplugin.foundation;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
@@ -16,5 +16,11 @@ public class StringUtilityTest
     public void testConvertMixedCaseStringToConstantName()
     {
         assertEquals("NUMBER_OF_VIOLATIONS", StringUtility.convertMixedCaseStringToConstantName("NumberOfViolations"));
+    }
+
+    @Test
+    public void testReplaceXMLWithHTMLExtension()
+    {
+        assertEquals("file.html", StringUtility.replaceXMLWithHTMLExtension("file.xml"));
     }
 }

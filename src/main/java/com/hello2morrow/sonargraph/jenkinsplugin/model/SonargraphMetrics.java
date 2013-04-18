@@ -32,11 +32,11 @@ public enum SonargraphMetrics
     /*---------------- END: Metrics that are going to be in the graphics section -------------------- */
     NUMBER_OF_CYCLIC_NAMESPACES("Number of Cyclic Packages", "Cyclic Packages", true),
 
-    NUMBER_OF_CYCLIC_ELEMENTS("Number of Cyclic Elements", "Cyclic Elements", true),
+    NUMBER_OF_CYCLIC_WARNINGS("Number of Cyclic Warnings", "Cyclic Warnings", true),
 
     NUMBER_OF_NOT_ASSIGNED_TYPES("Number of Unassigned Types", "Unassigned Types", true),
 
-    NUMBER_OF_CONSISTENCY_PROBLEMS("Number of Consistency Warnings", "Consistency Warnings", true),
+    CONSISTENCY_PROBLEMS("Number of Consistency Problems", "Consistency Problems", true),
 
     NUMBER_OF_WORKSPACE_WARNINGS("Number of Workspace Warnings", "Workspace Warnings", true),
 

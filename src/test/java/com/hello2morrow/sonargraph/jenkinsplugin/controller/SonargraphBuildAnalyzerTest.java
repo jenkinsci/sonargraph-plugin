@@ -49,13 +49,13 @@ public class SonargraphBuildAnalyzerTest
     {
         Result result = null;
         SonargraphBuildAnalyzer analyzer = new SonargraphBuildAnalyzer(new TFile(reportFileName), m_logger);
-        result = analyzer.changeBuildResultIfViolationThresholdsExceeded(4, 6);
+        result = analyzer.changeBuildResultIfViolationThresholdsExceeded(3781, 3783);
         assertNull(result);
 
-        result = analyzer.changeBuildResultIfViolationThresholdsExceeded(2, 4);
+        result = analyzer.changeBuildResultIfViolationThresholdsExceeded(3779, 3781);
         assertEquals(Result.UNSTABLE, result);
 
-        result = analyzer.changeBuildResultIfViolationThresholdsExceeded(1, 3);
+        result = analyzer.changeBuildResultIfViolationThresholdsExceeded(3777, 3779);
         assertEquals(Result.FAILURE, result);
     }
 
@@ -80,6 +80,10 @@ public class SonargraphBuildAnalyzerTest
     public void testChangeBuildResultIfMetricValueIsZero() throws IOException
     {
         SonargraphBuildAnalyzer analyzer = new SonargraphBuildAnalyzer(new TFile(reportFileName), m_logger);
+
+        analyzer.changeBuildResultIfMetricValueIsZero(SonargraphMetrics.NUMBER_OF_VIOLATIONS, BuildActionsEnum.FAILED.getActionCode());
+        assertNull(analyzer.getOverallBuildResult());
+
         analyzer.changeBuildResultIfMetricValueIsZero(SonargraphMetrics.NUMBER_OF_TARGET_FILES, BuildActionsEnum.FAILED.getActionCode());
         assertNull(analyzer.getOverallBuildResult());
     }

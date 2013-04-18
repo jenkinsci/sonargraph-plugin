@@ -180,8 +180,8 @@ public class CSVFileHandlerTest
         IMetricHistoryProvider csvFileHandler = new CSVFileHandler(nowExistentFile);
 
         HashMap<SonargraphMetrics, String> buildMetrics = new HashMap<SonargraphMetrics, String>();
-        buildMetrics.put(SonargraphMetrics.NUMBER_OF_CONSISTENCY_PROBLEMS, "3");
-        buildMetrics.put(SonargraphMetrics.NUMBER_OF_CYCLIC_ELEMENTS, "7");
+        buildMetrics.put(SonargraphMetrics.CONSISTENCY_PROBLEMS, "3");
+        buildMetrics.put(SonargraphMetrics.NUMBER_OF_CYCLIC_WARNINGS, "7");
         buildMetrics.put(SonargraphMetrics.HIGHEST_AVERAGE_COMPONENT_DEPENDENCY, "2.6");
         buildMetrics.put(SonargraphMetrics.NUMBER_OF_INSTRUCTIONS, "200");
         csvFileHandler.writeMetrics(1, buildMetrics);

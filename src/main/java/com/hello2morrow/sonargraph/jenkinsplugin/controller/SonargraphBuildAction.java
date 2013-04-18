@@ -9,6 +9,8 @@ import javax.servlet.ServletException;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
+import com.hello2morrow.sonargraph.jenkinsplugin.foundation.StringUtility;
+
 import de.schlichtherle.truezip.file.TFile;
 
 public class SonargraphBuildAction extends AbstractHTMLAction
@@ -61,7 +63,9 @@ public class SonargraphBuildAction extends AbstractHTMLAction
         String reportHistoryFolderAbsolutePath = new TFile(projectPath, ConfigParameters.REPORT_HISTORY_FOLDER.getValue()).getAbsolutePath();
         String buildReportFolderAbsolutePath = new TFile(reportHistoryFolderAbsolutePath, "sonargraph-report-build-" + build.getNumber())
                 .getAbsolutePath();
-        TFile htmlFile = new TFile(buildReportFolderAbsolutePath, ConfigParameters.SONARGRAPH_HTML_REPORT_FILE_NAME.getValue());
+        String reportFileName = recorder instanceof SonargraphReportAnalyzer ? ((SonargraphReportAnalyzer) recorder).getReportName()
+                : ConfigParameters.SONARGRAPH_HTML_REPORT_FILE_NAME.getValue();
+        TFile htmlFile = new TFile(buildReportFolderAbsolutePath, StringUtility.replaceXMLWithHTMLExtension(reportFileName));
         return readHTMLReport(htmlFile.getAbsolutePath());
     }
 }

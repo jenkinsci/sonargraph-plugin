@@ -16,7 +16,7 @@
             <attribute standardName="NumberOfProjects" name="Number of projects" value="1"/>
             <attribute standardName="NumberOfNotAssignedTypes" name="Number of unassigned types" value="4"/>
             <attribute standardName="NumberOfViolatingReferences" name="Number of violating references" value="5"/>
-            <attribute standardName="NumberOfViolations" name="Number of violating type dependencies" value="3"/>
+            <attribute standardName="NumberOfViolations" name="Number of violating type dependencies" value="3,780"/>
             <attribute standardName="NumberOfViolatingTypes" name="Number of violating types" value="3"/>
         </attributeCategory>
         <attributeCategory name="Code Analysis Metrics">

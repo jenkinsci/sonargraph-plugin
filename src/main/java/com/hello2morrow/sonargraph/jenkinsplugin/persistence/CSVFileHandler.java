@@ -48,9 +48,9 @@ public class CSVFileHandler implements IMetricHistoryProvider
         s_columnMapping.put(SonargraphMetrics.NUMBER_OF_INSTRUCTIONS, i++);
         s_columnMapping.put(SonargraphMetrics.NUMBER_OF_METRIC_WARNINGS, i++);
         s_columnMapping.put(SonargraphMetrics.NUMBER_OF_CYCLIC_NAMESPACES, i++);
-        s_columnMapping.put(SonargraphMetrics.NUMBER_OF_CYCLIC_ELEMENTS, i++);
+        s_columnMapping.put(SonargraphMetrics.NUMBER_OF_CYCLIC_WARNINGS, i++);
         s_columnMapping.put(SonargraphMetrics.NUMBER_OF_NOT_ASSIGNED_TYPES, i++);
-        s_columnMapping.put(SonargraphMetrics.NUMBER_OF_CONSISTENCY_PROBLEMS, i++);
+        s_columnMapping.put(SonargraphMetrics.CONSISTENCY_PROBLEMS, i++);
         s_columnMapping.put(SonargraphMetrics.NUMBER_OF_WORKSPACE_WARNINGS, i++);
         s_columnMapping.put(SonargraphMetrics.NUMBER_OF_TASKS, i++);
         s_columnMapping.put(SonargraphMetrics.BIGGEST_CYCLE_GROUP, i++);

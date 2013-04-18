@@ -41,6 +41,7 @@ public abstract class AbstractHTMLAction implements Action
         }
         else
         {
+            SonargraphLogger.INSTANCE.log(Level.INFO, "Unable to read Sonargraph HTML report from '" + pathToReport + "'");
             htmlReport = "Unable to read Sonargraph HTML report.";
         }
 

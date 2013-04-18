@@ -1,10 +1,14 @@
 package com.hello2morrow.sonargraph.jenkinsplugin.foundation;
 
+import java.text.DecimalFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StringUtility
 {
+    public static final String FLOAT_FORMAT_PATTERN = "###,##0.00";
+    public static final DecimalFormat FLOAT_FORMAT = new DecimalFormat(FLOAT_FORMAT_PATTERN);
+
     public static String convertConstantNameToMixedCaseString(String input, boolean capitalizeFirstLetter, boolean insertSpace)
     {
         assert input != null : "'input' must not be null";
@@ -81,6 +85,13 @@ public class StringUtility
         Pattern extensionPattern = Pattern.compile("\\.xml$");
         Matcher extensionMatcher = extensionPattern.matcher(value);
         return extensionMatcher.find() ? value : value + ".xml";
+    }
+
+    public static String replaceXMLWithHTMLExtension(String value)
+    {
+        Pattern extensionPattern = Pattern.compile("\\.xml$");
+        Matcher extensionMatcher = extensionPattern.matcher(value);
+        return extensionMatcher.find() ? extensionMatcher.replaceFirst(".html") : value;
     }
 
 }

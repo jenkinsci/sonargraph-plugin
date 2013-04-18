@@ -25,6 +25,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import com.hello2morrow.sonargraph.jenkinsplugin.foundation.NumberFormat;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.SonargraphLogger;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.IReportReader;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
@@ -33,6 +34,7 @@ import com.hello2morrow.sonargraph.jenkinsplugin.xsd.ReportContext;
 import com.hello2morrow.sonargraph.jenkinsplugin.xsd.XsdAttribute;
 import com.hello2morrow.sonargraph.jenkinsplugin.xsd.XsdAttributeCategory;
 import com.hello2morrow.sonargraph.jenkinsplugin.xsd.XsdAttributeRoot;
+import com.hello2morrow.sonargraph.jenkinsplugin.xsd.XsdConsistencyProblems;
 import com.hello2morrow.sonargraph.jenkinsplugin.xsd.XsdCycleGroup;
 
 import de.schlichtherle.truezip.file.TFile;
@@ -166,6 +168,11 @@ public class ReportFileReader implements IReportReader
         report.addSystemMetric(SonargraphMetrics.BIGGEST_CYCLE_GROUP, new Integer(biggestCycleGroupSize).toString());
 
         report.calculateDerivedMetrics();
+
+        Integer consistencyProblems = 0;
+        XsdConsistencyProblems consProblems = xmlReport.getConsistencyProblems();
+        consistencyProblems = NumberFormat.parse(consProblems.getNumberOf()).intValue();
+        report.addSystemMetric(SonargraphMetrics.CONSISTENCY_PROBLEMS, consistencyProblems.toString());
 
         return report;
     }

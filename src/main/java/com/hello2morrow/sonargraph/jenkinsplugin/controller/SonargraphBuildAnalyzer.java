@@ -8,6 +8,7 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.logging.Level;
 
+import com.hello2morrow.sonargraph.jenkinsplugin.foundation.NumberFormat;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.RecorderLogger;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.IMetricHistoryProvider;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.IReportReader;
@@ -67,7 +68,7 @@ class SonargraphBuildAnalyzer
     public Result changeBuildResultIfViolationThresholdsExceeded(Integer numberOfViolationsUnstable, Integer numberOfViolationsFailed)
     {
         Result result = null;
-        Integer numberOfViolations = Integer.parseInt(m_report.getSystemMetricValue(SonargraphMetrics.NUMBER_OF_VIOLATIONS));
+        Integer numberOfViolations = NumberFormat.parse(m_report.getSystemMetricValue(SonargraphMetrics.NUMBER_OF_VIOLATIONS)).intValue();
         if (numberOfViolations > 0)
         {
             if (numberOfViolations >= numberOfViolationsFailed)
@@ -90,7 +91,7 @@ class SonargraphBuildAnalyzer
                     + "' not present in analysis");
             return;
         }
-        Integer metricValue = Integer.parseInt(m_report.getSystemMetricValue(metric));
+        Integer metricValue = NumberFormat.parse(m_report.getSystemMetricValue(metric)).intValue();
         if (metricValue > 0)
         {
             if (userDefinedAction.equals(BuildActionsEnum.FAILED.getActionCode()))
@@ -115,7 +116,7 @@ class SonargraphBuildAnalyzer
 
     public void changeBuildResultIfMetricValueIsZero(SonargraphMetrics metric, String userDefinedAction)
     {
-        Integer metricValue = Integer.parseInt(m_report.getSystemMetricValue(metric));
+        Integer metricValue = NumberFormat.parse(m_report.getSystemMetricValue(metric)).intValue();
         if (metricValue.equals(0))
         {
             if (userDefinedAction.equals(BuildActionsEnum.FAILED.getActionCode()))
