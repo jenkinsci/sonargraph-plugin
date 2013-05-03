@@ -87,8 +87,17 @@ public class SonargraphReport
      */
     public void calculateDerivedMetrics()
     {
+        m_systemMetrics.put(SonargraphMetrics.HIGHEST_AVERAGE_COMPONENT_DEPENDENCY, new Double(
+                getHighestValue(SonargraphMetrics.AVERAGE_COMPONENT_DEPENDENCY)).toString());
+        m_systemMetrics.put(SonargraphMetrics.HIGHEST_NORMALIZED_CUMULATIVE_COMPONENT_DEPENDENCY, new Double(
+                getHighestValue(SonargraphMetrics.NORMALIZED_CUMULATIVE_COMPONENT_DEPENDENCY)).toString());
+        m_systemMetrics.put(SonargraphMetrics.HIGHEST_RELATIVE_AVERAGE_COMPONENT_DEPENDENCY, new Double(
+                getHighestValue(SonargraphMetrics.RELATIVE_AVERAGE_COMPONENT_DEPENDENCY)).toString());
+    }
+
+    private double getHighestValue(SonargraphMetrics metric)
+    {
         double highestValue = 0.0;
-        SonargraphMetrics metric = SonargraphMetrics.AVERAGE_COMPONENT_DEPENDENCY;
 
         for (String buildUnitName : m_buildUnitMetrics.keySet())
         {
@@ -112,6 +121,6 @@ public class SonargraphReport
                         + buildUnitName + "' is not a number.");
             }
         }
-        m_systemMetrics.put(SonargraphMetrics.HIGHEST_AVERAGE_COMPONENT_DEPENDENCY, new Double(highestValue).toString());
+        return highestValue;
     }
 }

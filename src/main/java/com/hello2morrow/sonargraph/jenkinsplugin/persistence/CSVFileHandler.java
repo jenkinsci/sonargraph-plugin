@@ -4,16 +4,22 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.logging.Level;
 
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.SonargraphLogger;
+import com.hello2morrow.sonargraph.jenkinsplugin.model.BuildDataPoint;
+import com.hello2morrow.sonargraph.jenkinsplugin.model.IDataPoint;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.IMetricHistoryProvider;
+import com.hello2morrow.sonargraph.jenkinsplugin.model.InvalidDataPoint;
+import com.hello2morrow.sonargraph.jenkinsplugin.model.NotExistingDataPoint;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphReport;
 
@@ -28,34 +34,57 @@ import de.schlichtherle.truezip.file.TFileWriter;
 //TODO Improvement: Store the values in memory, so that the file does not have to be parsed on every graphics generation.  
 public class CSVFileHandler implements IMetricHistoryProvider
 {
+    private static final int TIMESTAMP_COLUMN = 1;
+    private static final int BUILDNUMBER_COLUMN = 0;
     /** Default separator for the CSV file. */
-    private static final char SEPARATOR = ';';
-    private static LinkedHashMap<SonargraphMetrics, Integer> s_columnMapping;
-    private final TFile m_file;
+    public static final char SEPARATOR = ';';
+    private static final String BUILDNUMBER_COLUMN_NAME = "buildNumber";
+    private static final String TIMESTAMP_COLUMN_NAME = "timestamp";
 
-    //    private Map<SonargraphMetrics, List<Double>> m_data = new HashMap<SonargraphMetrics, List<Double>>());
+    private static final Map<SonargraphMetrics, Integer> COLUMN_MAPPING;
 
-    /**
-     * CAUTION: Think really hard before changing the ordering of the metrics! It will corrupt the history of previous builds! 
-     */
+    private TFile m_file;
     static
     {
-        s_columnMapping = new LinkedHashMap<SonargraphMetrics, Integer>();
+        /**
+         * CAUTION: Think really hard before changing the ordering of the metrics! It will corrupt the history of previous builds! 
+         */
+        int startIndex = 2;
+        COLUMN_MAPPING = new LinkedHashMap<SonargraphMetrics, Integer>();
+        COLUMN_MAPPING.put(SonargraphMetrics.STRUCTURAL_DEBT_INDEX, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.NUMBER_OF_VIOLATIONS, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.NUMBER_OF_INSTRUCTIONS, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.NUMBER_OF_METRIC_WARNINGS, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.NUMBER_OF_CYCLIC_NAMESPACES, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.NUMBER_OF_CYCLIC_WARNINGS, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.NUMBER_OF_NOT_ASSIGNED_TYPES, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.NUMBER_OF_CONSISTENCY_PROBLEMS, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.NUMBER_OF_WORKSPACE_WARNINGS, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.NUMBER_OF_TASKS, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.BIGGEST_CYCLE_GROUP, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.HIGHEST_AVERAGE_COMPONENT_DEPENDENCY, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.NUMBER_OF_INTERNAL_TYPES, startIndex++);
 
-        int i = 1;
-        s_columnMapping.put(SonargraphMetrics.STRUCTURAL_DEBT_INDEX, i++);
-        s_columnMapping.put(SonargraphMetrics.NUMBER_OF_VIOLATIONS, i++);
-        s_columnMapping.put(SonargraphMetrics.NUMBER_OF_INSTRUCTIONS, i++);
-        s_columnMapping.put(SonargraphMetrics.NUMBER_OF_METRIC_WARNINGS, i++);
-        s_columnMapping.put(SonargraphMetrics.NUMBER_OF_CYCLIC_NAMESPACES, i++);
-        s_columnMapping.put(SonargraphMetrics.NUMBER_OF_CYCLIC_WARNINGS, i++);
-        s_columnMapping.put(SonargraphMetrics.NUMBER_OF_NOT_ASSIGNED_TYPES, i++);
-        s_columnMapping.put(SonargraphMetrics.CONSISTENCY_PROBLEMS, i++);
-        s_columnMapping.put(SonargraphMetrics.NUMBER_OF_WORKSPACE_WARNINGS, i++);
-        s_columnMapping.put(SonargraphMetrics.NUMBER_OF_TASKS, i++);
-        s_columnMapping.put(SonargraphMetrics.BIGGEST_CYCLE_GROUP, i++);
-        s_columnMapping.put(SonargraphMetrics.HIGHEST_AVERAGE_COMPONENT_DEPENDENCY, i++);
-        s_columnMapping.put(SonargraphMetrics.NUMBER_OF_INTERNAL_TYPES, i++);
+        COLUMN_MAPPING.put(SonargraphMetrics.NUMBER_OF_VIOLATING_REFERENCES, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.NUMBER_OF_VIOLATING_TYPES, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.STRUCTURAL_EROSION_REFERENCE_LEVEL, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.STRUCTURAL_EROSION_TYPE_LEVEL, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.NUMBER_OF_CYCLIC_ELEMENTS, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.OVERALL_NUMBER_OF_TYPE_DEPENDENCIES, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.NUMBER_OF_SOURCE_FILES, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.NUMBER_OF_BUILD_UNITS, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.NUMBER_OF_INTERNAL_NAMESPACES, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.NUMBER_OF_STATEMENTS, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.NUMBER_OF_FIX_WARNINGS, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.NUMBER_OF_IGNORED_VIOLATIONS, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.NUMBER_OF_IGNORED_WARNINGS, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.NUMBER_OF_REFACTORINGS, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.NUMBER_OF_WARNINGS, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.NUMBER_OF_DUPLICATE_CODE_BLOCKS_WARNINGS, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.NUMBER_OF_INTERSECTIONS, startIndex++);
+
+        COLUMN_MAPPING.put(SonargraphMetrics.HIGHEST_NORMALIZED_CUMULATIVE_COMPONENT_DEPENDENCY, startIndex++);
+        COLUMN_MAPPING.put(SonargraphMetrics.HIGHEST_RELATIVE_AVERAGE_COMPONENT_DEPENDENCY, startIndex++);
     }
 
     public CSVFileHandler(TFile csvFile)
@@ -68,14 +97,7 @@ public class CSVFileHandler implements IMetricHistoryProvider
                 m_file.createNewFile();
                 TFileWriter fileWriter = new TFileWriter(m_file, true);
                 BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-                String headerLine = "buildNumber;";
-
-                for (SonargraphMetrics metric : s_columnMapping.keySet())
-                {
-                    headerLine += metric.getStandardName() + SEPARATOR;
-                }
-                headerLine = headerLine.substring(0, headerLine.length() - 1);
-                bufferedWriter.write(headerLine);
+                bufferedWriter.write(createHeaderLine());
                 bufferedWriter.newLine();
                 bufferedWriter.flush();
                 bufferedWriter.close();
@@ -88,32 +110,22 @@ public class CSVFileHandler implements IMetricHistoryProvider
         }
     }
 
-    /* (non-Javadoc)
-     * @see com.hello2morrow.sonargraph.jenkinsplugin.persistence.IMetricHistoryProvider#readMetrics()
-     */
-    @Deprecated
-    public HashMap<Integer, Integer> readMetrics() throws IOException
+    public String createHeaderLine()
     {
-        HashMap<Integer, Integer> sonargraphDataset = new HashMap<Integer, Integer>();
-        if (!m_file.exists())
-        {
-            return sonargraphDataset;
-        }
-        CSVReader csvReader = new CSVReader(new TFileReader(m_file), SEPARATOR);
-        String[] nextLine;
-        csvReader.readNext();
-        while ((nextLine = csvReader.readNext()) != null)
-        {
-            sonargraphDataset.put(Integer.parseInt(nextLine[0]), Integer.parseInt(nextLine[1]));
-        }
-        csvReader.close();
+        StringBuilder headerLine = new StringBuilder(BUILDNUMBER_COLUMN_NAME).append(SEPARATOR);
+        headerLine.append(TIMESTAMP_COLUMN_NAME);
 
-        return sonargraphDataset;
+        for (SonargraphMetrics metric : COLUMN_MAPPING.keySet())
+        {
+            headerLine.append(SEPARATOR);
+            headerLine.append(metric.getStandardName());
+        }
+        return headerLine.toString();
     }
 
-    public HashMap<Integer, Double> readMetrics(SonargraphMetrics metric) throws IOException
+    public List<IDataPoint> readMetricValues(SonargraphMetrics metric) throws IOException
     {
-        HashMap<Integer, Double> sonargraphDataset = new HashMap<Integer, Double>();
+        List<IDataPoint> sonargraphDataset = new ArrayList<IDataPoint>();
         if (!isRightIndexForMetric(metric))
         {
             return sonargraphDataset;
@@ -128,41 +140,17 @@ public class CSVFileHandler implements IMetricHistoryProvider
         {
             CSVReader csvReader = new CSVReader(new TFileReader(m_file), SEPARATOR);
             String[] nextLine;
-            Number value;
-            NumberFormat format = NumberFormat.getInstance(Locale.US);
-            int column = s_columnMapping.get(metric);
-            Integer buildNumber;
+            int column = COLUMN_MAPPING.get(metric);
             csvReader.readNext(); //We do nothing with the header line.
             while ((nextLine = csvReader.readNext()) != null)
             {
-                String stringValue = null;
-                try
+                if (nextLine.length == 0)
                 {
-                    stringValue = nextLine[column].trim();
-                    if (stringValue.equals(SonargraphReport.NOT_EXISTING_VALUE))
-                    {
-                        SonargraphLogger.INSTANCE.log(Level.INFO, "Skipping value for metric '" + metric.getStandardName() + "' for build number '"
-                                + nextLine[0] + "'; it did not exist in Sonargraph XML report.");
-                        continue;
-                    }
-                    value = format.parse(stringValue);
-                    buildNumber = Integer.parseInt(nextLine[0]);
-                    sonargraphDataset.put(buildNumber, value.doubleValue());
+                    //No values contained in line
+                    continue;
                 }
-                catch (ParseException ex)
-                {
-                    SonargraphLogger.INSTANCE.log(
-                            Level.WARNING,
-                            "The value of metric '" + metric.getStandardName() + "' for build number '" + nextLine[0]
-                                    + "' is not a valid number. Found '" + stringValue + "' but expected a Number. File '"
-                                    + m_file.getNormalizedAbsolutePath() + "' might be corrupt:" + "\n" + ex.getMessage());
-                }
-                catch (ArrayIndexOutOfBoundsException ex)
-                {
-                    SonargraphLogger.INSTANCE.log(Level.WARNING,
-                            "The value of metric '" + metric.getStandardName() + "' for build number '" + nextLine[0] + "' was not found. File '"
-                                    + m_file.getNormalizedAbsolutePath() + "' might be corrupt:" + "\n" + ex.getMessage());
-                }
+
+                processLine(nextLine, column, sonargraphDataset, metric, NumberFormat.getInstance(Locale.US));
             }
             csvReader.close();
         }
@@ -175,28 +163,77 @@ public class CSVFileHandler implements IMetricHistoryProvider
         return sonargraphDataset;
     }
 
-    /* (non-Javadoc)
-     * @see com.hello2morrow.sonargraph.jenkinsplugin.persistence.IMetricHistoryProvider#writeMetric(java.lang.Integer, java.lang.Integer)
-     */
-    @Deprecated
-    public void writeMetric(Integer buildNumber, Integer metricValue) throws IOException
+    protected void processLine(String[] nextLine, int column, List<IDataPoint> sonargraphDataset, SonargraphMetrics metric, NumberFormat numberFormat)
     {
-        TFileWriter fileWriter = new TFileWriter(m_file, true);
-        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-        String lineToAppend = String.valueOf(buildNumber) + SEPARATOR + String.valueOf(metricValue);
-        bufferedWriter.write(lineToAppend);
-        bufferedWriter.newLine();
-        bufferedWriter.flush();
-        bufferedWriter.close();
+        int buildNumber;
+        Number value;
+        try
+        {
+            buildNumber = Integer.parseInt(nextLine[BUILDNUMBER_COLUMN]);
+        }
+        catch (NumberFormatException ex)
+        {
+            SonargraphLogger.INSTANCE.log(Level.SEVERE, "Build number '" + nextLine[BUILDNUMBER_COLUMN]
+                    + "' could not be parsed to an integer value.");
+            return;
+        }
+
+        long timestamp;
+        try
+        {
+            timestamp = Long.parseLong(nextLine[TIMESTAMP_COLUMN]);
+        }
+        catch (NumberFormatException ex)
+        {
+            SonargraphLogger.INSTANCE.log(Level.SEVERE, "Timestamp '" + nextLine[TIMESTAMP_COLUMN] + "' could not be parsed to a long value.");
+            return;
+        }
+
+        String stringValue = null;
+        try
+        {
+            stringValue = nextLine[column].trim();
+            if (stringValue.equals(SonargraphReport.NOT_EXISTING_VALUE))
+            {
+                SonargraphLogger.INSTANCE.log(Level.INFO, "Skipping value for metric '" + metric.getStandardName() + "' for build number '"
+                        + nextLine[0] + "'; it did not exist in Sonargraph XML report.");
+                sonargraphDataset.add(new NotExistingDataPoint(buildNumber));
+                return;
+            }
+            value = numberFormat.parse(stringValue);
+            sonargraphDataset.add(new BuildDataPoint(buildNumber, value.doubleValue(), timestamp));
+        }
+        catch (NumberFormatException ex)
+        {
+            SonargraphLogger.INSTANCE.log(Level.WARNING, "The value of metric '" + metric.getStandardName() + "' for build number '" + nextLine[0]
+                    + "' is not a valid number. Found '" + stringValue + "' but expected a Number. File '" + m_file.getNormalizedAbsolutePath()
+                    + "' might be corrupt:" + "\n" + ex.getMessage());
+            sonargraphDataset.add(new InvalidDataPoint(buildNumber));
+        }
+        catch (ParseException ex)
+        {
+            SonargraphLogger.INSTANCE.log(Level.WARNING, "The value of metric '" + metric.getStandardName() + "' for build number '" + nextLine[0]
+                    + "' is not a valid number. Found '" + stringValue + "' but expected a Number. File '" + m_file.getNormalizedAbsolutePath()
+                    + "' might be corrupt:" + "\n" + ex.getMessage());
+            sonargraphDataset.add(new InvalidDataPoint(buildNumber));
+        }
+        catch (ArrayIndexOutOfBoundsException ex)
+        {
+            SonargraphLogger.INSTANCE.log(Level.WARNING, "The value of metric '" + metric.getStandardName() + "' for build number '" + nextLine[0]
+                    + "' was not found. File '" + m_file.getNormalizedAbsolutePath() + "' might be corrupt:" + "\n" + ex.getMessage());
+            sonargraphDataset.add(new NotExistingDataPoint(buildNumber));
+        }
+
     }
 
-    public void writeMetrics(Integer buildNumber, HashMap<SonargraphMetrics, String> metricValues) throws IOException
+    public void writeMetricValues(Integer buildNumber, long timestamp, Map<SonargraphMetrics, String> metricValues) throws IOException
     {
         TFileWriter fileWriter = new TFileWriter(m_file, true);
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-        StringBuilder line = new StringBuilder(buildNumber.toString());
+        StringBuilder line = new StringBuilder(buildNumber.toString()).append(SEPARATOR);
 
-        for (SonargraphMetrics metric : s_columnMapping.keySet())
+        line.append(timestamp);
+        for (SonargraphMetrics metric : COLUMN_MAPPING.keySet())
         {
             line.append(SEPARATOR);
             String value = metricValues.get(metric);
@@ -217,7 +254,7 @@ public class CSVFileHandler implements IMetricHistoryProvider
 
     public LinkedHashMap<SonargraphMetrics, Integer> getColumnMapping()
     {
-        return new LinkedHashMap<SonargraphMetrics, Integer>(s_columnMapping);
+        return new LinkedHashMap<SonargraphMetrics, Integer>(COLUMN_MAPPING);
     }
 
     private boolean isRightIndexForMetric(SonargraphMetrics metric)
@@ -236,7 +273,12 @@ public class CSVFileHandler implements IMetricHistoryProvider
                     + "': " + e.getMessage());
 
         }
-        return s_columnMapping.get(metric).intValue() == realMetricIndex;
+
+        if (COLUMN_MAPPING.get(metric) == null)
+        {
+            return false;
+        }
+        return COLUMN_MAPPING.get(metric).intValue() == realMetricIndex;
     }
 
     public String getStorageName()

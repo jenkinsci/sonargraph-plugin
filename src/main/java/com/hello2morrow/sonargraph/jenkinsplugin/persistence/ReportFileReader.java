@@ -25,7 +25,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import com.hello2morrow.sonargraph.jenkinsplugin.foundation.NumberFormat;
+import com.hello2morrow.sonargraph.jenkinsplugin.foundation.SonargraphNumberFormat;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.SonargraphLogger;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.IReportReader;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
@@ -171,8 +171,8 @@ public class ReportFileReader implements IReportReader
 
         Integer consistencyProblems = 0;
         XsdConsistencyProblems consProblems = xmlReport.getConsistencyProblems();
-        consistencyProblems = NumberFormat.parse(consProblems.getNumberOf()).intValue();
-        report.addSystemMetric(SonargraphMetrics.CONSISTENCY_PROBLEMS, consistencyProblems.toString());
+        consistencyProblems = SonargraphNumberFormat.parse(consProblems.getNumberOf()).intValue();
+        report.addSystemMetric(SonargraphMetrics.NUMBER_OF_CONSISTENCY_PROBLEMS, consistencyProblems.toString());
 
         return report;
     }

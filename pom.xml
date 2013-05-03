@@ -75,6 +75,13 @@
 			</resource>
 		</resources>
 		<plugins>
+			<!-- plugin>
+				<groupId>org.jenkins-ci.tools</groupId>
+				<artifactId>maven-hpi-plugin</artifactId>
+				<configuration>
+					<pluginFirstClassLoader>true</pluginFirstClassLoader>
+				</configuration>
+			</plugin -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>jaxb2-maven-plugin</artifactId>
@@ -89,7 +96,7 @@
 				<configuration>
 					<packageName>com.hello2morrow.sonargraph.jenkinsplugin.xsd</packageName>
 				</configuration>
-			</plugin>
+			</plugin>			
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -179,8 +186,8 @@
 			<name>Ingmar Kellner</name>
 		</developer>
 		<developer>
-            <id>esteban-h2m</id>
-            <name>Esteban Angee</name>
-        </developer>
+			<id>esteban-h2m</id>
+			<name>Esteban Angee</name>
+		</developer>
 	</developers>
 </project>

@@ -3,7 +3,7 @@ package com.hello2morrow.sonargraph.jenkinsplugin.controller;
 import hudson.model.Action;
 import hudson.model.ProminentProjectAction;
 import hudson.model.Project;
-import hudson.util.ChartUtil;
+import hudson.util.Graph;
 
 import java.io.IOException;
 import java.util.Map;
@@ -18,11 +18,10 @@ import org.kohsuke.stapler.StaplerResponse;
 import com.hello2morrow.sonargraph.jenkinsplugin.controller.util.StaplerRequestUtil;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.SonargraphLogger;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.AbstractPlot;
-import com.hello2morrow.sonargraph.jenkinsplugin.model.AreaLinePlot;
-import com.hello2morrow.sonargraph.jenkinsplugin.model.BarPlot;
-import com.hello2morrow.sonargraph.jenkinsplugin.model.DiscreteLinePlot;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.IMetricHistoryProvider;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
+import com.hello2morrow.sonargraph.jenkinsplugin.model.TimeSeriesPlot;
+import com.hello2morrow.sonargraph.jenkinsplugin.model.XYLineAndShapePlot;
 import com.hello2morrow.sonargraph.jenkinsplugin.persistence.CSVFileHandler;
 
 import de.schlichtherle.truezip.file.TFile;
@@ -34,13 +33,23 @@ import de.schlichtherle.truezip.file.TFile;
  */
 public class SonargraphChartAction implements Action, ProminentProjectAction
 {
+    private static final String TYPE_PARAMETER = "type";
+    private static final String METRIC_PARAMETER = "metric";
+
+    private static final String SHORT_TERM = "shortterm";
+    private static final String LONG_TERM = "longterm";
+
     /** Project or build that is calling this action. */
     private final Project<?, ?> project;
 
-    private Integer defaultGraphicWidth = 350;
+    private Integer defaultGraphicWidth = 400;
     private Integer defaultGraphicHeight = 250;
 
+    private static final int MAX_DATA_POINTS_SHORT_TERM = 25;
+    private static final int MAX_DATA_POINTS_LONG_TERM = 300;
+
     private static final String BUILD = "Build";
+    private static final String DATE = "Date";
 
     public SonargraphChartAction(Project<?, ?> project, AbstractSonargraphRecorder builder)
     {
@@ -55,7 +64,7 @@ public class SonargraphChartAction implements Action, ProminentProjectAction
     {
         //TODO: How to remove that warning?
         Map<String, String[]> parameterMap = req.getParameterMap();
-        String metricName = StaplerRequestUtil.getSimpleValue("metric", parameterMap);
+        String metricName = StaplerRequestUtil.getSimpleValue(METRIC_PARAMETER, parameterMap);
 
         if (metricName == null)
         {
@@ -75,37 +84,45 @@ public class SonargraphChartAction implements Action, ProminentProjectAction
         }
 
         TFile csvFile = new TFile(project.getRootDir(), ConfigParameters.CSV_FILE_PATH.getValue());
-        SonargraphLogger.INSTANCE.log(Level.INFO,
+        SonargraphLogger.INSTANCE.log(Level.FINE,
                 "Generating chart for metric '" + metricName + "'. Reading values from '" + csvFile.getNormalizedAbsolutePath() + "'");
         IMetricHistoryProvider csvFileHandler = new CSVFileHandler(csvFile);
-        AbstractPlot plot = null;
 
-        String plotType = StaplerRequestUtil.getSimpleValue("plotType", parameterMap);
-        if (plotType == null)
+        String type = StaplerRequestUtil.getSimpleValue(TYPE_PARAMETER, parameterMap);
+        AbstractPlot plot = null;
+        String xAxisLabel = null;
+        int maxDataPoints = 0;
+        if ((type == null) || type.equals(SHORT_TERM))
         {
-            plot = new DiscreteLinePlot(csvFileHandler);
+            plot = new XYLineAndShapePlot(csvFileHandler);
+            xAxisLabel = BUILD;
+            maxDataPoints = MAX_DATA_POINTS_SHORT_TERM;
+        }
+        else if (type.equals(LONG_TERM))
+        {
+            plot = new TimeSeriesPlot(csvFileHandler, MAX_DATA_POINTS_SHORT_TERM);
+            xAxisLabel = DATE;
+            maxDataPoints = MAX_DATA_POINTS_LONG_TERM;
         }
         else
         {
-            if (plotType.equals("bar"))
-            {
-                plot = new BarPlot(csvFileHandler);
-            }
-            else if (plotType.equals("area"))
-            {
-                plot = new AreaLinePlot(csvFileHandler);
-            }
-            else
-            {
-                plot = new DiscreteLinePlot(csvFileHandler);
-            }
+            SonargraphLogger.INSTANCE.log(Level.SEVERE, "Chart type '" + type + "' is not supported!");
+            return;
         }
 
-        JFreeChart chart = plot.createChart(metric, BUILD);
+        final JFreeChart chart = plot.createXYChart(metric, xAxisLabel, maxDataPoints, true);
         try
         {
-            //TODO: Do this without deprecated methods.
-            ChartUtil.generateGraph(req, rsp, chart, defaultGraphicWidth, defaultGraphicHeight);
+            Graph graph = new Graph(plot.getTimestampOfFirstDisplayedPoint(), defaultGraphicWidth, defaultGraphicHeight)
+            {
+
+                @Override
+                protected JFreeChart createGraph()
+                {
+                    return chart;
+                }
+            };
+            graph.doPng(req, rsp);
         }
         catch (IOException ioe)
         {

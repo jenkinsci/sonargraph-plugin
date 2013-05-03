@@ -1,6 +1,7 @@
 package com.hello2morrow.sonargraph.jenkinsplugin.controller;
 
 import com.hello2morrow.sonargraph.jenkinsplugin.controller.util.ChartTestUtil;
+import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
 
 public class NoDataChartTest
 {
@@ -9,8 +10,6 @@ public class NoDataChartTest
     public static void main(String[] args)
     {
         ChartTestUtil charUtil = new ChartTestUtil();
-        charUtil.testBarChart(CORRUPT_CSV_FILE_NAME);
-        //        charUtil.testDiscreteLineChart(CSV_LARGE_FILE_NAME);
-        //        charUtil.testAreaChart(CSV_LARGE_FILE_NAME);
+        charUtil.testXYChart(CORRUPT_CSV_FILE_NAME, SonargraphMetrics.NUMBER_OF_INSTRUCTIONS, 30);
     }
 }

@@ -49,6 +49,7 @@ public class SonargraphBuildAnalyzerTest
     {
         Result result = null;
         SonargraphBuildAnalyzer analyzer = new SonargraphBuildAnalyzer(new TFile(reportFileName), m_logger);
+        //Number of violations is 3780
         result = analyzer.changeBuildResultIfViolationThresholdsExceeded(3781, 3783);
         assertNull(result);
 

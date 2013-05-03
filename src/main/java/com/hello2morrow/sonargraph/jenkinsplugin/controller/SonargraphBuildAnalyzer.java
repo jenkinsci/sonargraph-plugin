@@ -8,8 +8,8 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.logging.Level;
 
-import com.hello2morrow.sonargraph.jenkinsplugin.foundation.NumberFormat;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.RecorderLogger;
+import com.hello2morrow.sonargraph.jenkinsplugin.foundation.SonargraphNumberFormat;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.IMetricHistoryProvider;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.IReportReader;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
@@ -68,14 +68,15 @@ class SonargraphBuildAnalyzer
     public Result changeBuildResultIfViolationThresholdsExceeded(Integer numberOfViolationsUnstable, Integer numberOfViolationsFailed)
     {
         Result result = null;
-        Integer numberOfViolations = NumberFormat.parse(m_report.getSystemMetricValue(SonargraphMetrics.NUMBER_OF_VIOLATIONS)).intValue();
+
+        Integer numberOfViolations = SonargraphNumberFormat.parse(m_report.getSystemMetricValue(SonargraphMetrics.NUMBER_OF_VIOLATIONS)).intValue();
         if (numberOfViolations > 0)
         {
             if (numberOfViolations >= numberOfViolationsFailed)
             {
                 result = m_buildResults.get(BuildActionsEnum.FAILED.getActionCode());
             }
-            else if (numberOfViolations >= numberOfViolationsUnstable && numberOfViolations < numberOfViolationsFailed)
+            else if ((numberOfViolations >= numberOfViolationsUnstable) && (numberOfViolations < numberOfViolationsFailed))
             {
                 result = m_buildResults.get(BuildActionsEnum.UNSTABLE.getActionCode());
             }
@@ -91,7 +92,7 @@ class SonargraphBuildAnalyzer
                     + "' not present in analysis");
             return;
         }
-        Integer metricValue = NumberFormat.parse(m_report.getSystemMetricValue(metric)).intValue();
+        Integer metricValue = SonargraphNumberFormat.parse(m_report.getSystemMetricValue(metric)).intValue();
         if (metricValue > 0)
         {
             if (userDefinedAction.equals(BuildActionsEnum.FAILED.getActionCode()))
@@ -102,7 +103,7 @@ class SonargraphBuildAnalyzer
             }
             else if (userDefinedAction.equals(BuildActionsEnum.UNSTABLE.getActionCode()))
             {
-                if (m_overallBuildResult == null || !m_overallBuildResult.equals(Result.FAILURE))
+                if ((m_overallBuildResult == null) || !m_overallBuildResult.equals(Result.FAILURE))
                 {
                     m_overallBuildResult = m_buildResults.get(BuildActionsEnum.UNSTABLE.getActionCode());
                     RecorderLogger.logToConsoleOutput((PrintStream) m_logger, Level.INFO,
@@ -116,7 +117,7 @@ class SonargraphBuildAnalyzer
 
     public void changeBuildResultIfMetricValueIsZero(SonargraphMetrics metric, String userDefinedAction)
     {
-        Integer metricValue = NumberFormat.parse(m_report.getSystemMetricValue(metric)).intValue();
+        Integer metricValue = SonargraphNumberFormat.parse(m_report.getSystemMetricValue(metric)).intValue();
         if (metricValue.equals(0))
         {
             if (userDefinedAction.equals(BuildActionsEnum.FAILED.getActionCode()))
@@ -128,7 +129,7 @@ class SonargraphBuildAnalyzer
             }
             else if (userDefinedAction.equals(BuildActionsEnum.UNSTABLE.getActionCode()))
             {
-                if (m_overallBuildResult == null || !m_overallBuildResult.equals(Result.FAILURE))
+                if ((m_overallBuildResult == null) || !m_overallBuildResult.equals(Result.FAILURE))
                 {
                     m_overallBuildResult = m_buildResults.get(BuildActionsEnum.UNSTABLE.getActionCode());
                     RecorderLogger.logToConsoleOutput((PrintStream) m_logger, Level.INFO,
@@ -143,7 +144,7 @@ class SonargraphBuildAnalyzer
     /**
      * Appends all gathered metrics to the sonargraph CSV file.
      */
-    public void saveMetricsToCSV(TFile metricHistoryFile, Integer buildNumber) throws IOException
+    public void saveMetricsToCSV(TFile metricHistoryFile, long timeOfBuild, Integer buildNumber) throws IOException
     {
         IMetricHistoryProvider fileHandler = new CSVFileHandler(metricHistoryFile);
         HashMap<SonargraphMetrics, String> buildMetricValues = new HashMap<SonargraphMetrics, String>();
@@ -153,7 +154,7 @@ class SonargraphBuildAnalyzer
             buildMetricValues.put(metric, m_report.getSystemMetricValue(metric));
         }
 
-        fileHandler.writeMetrics(buildNumber, buildMetricValues);
+        fileHandler.writeMetricValues(buildNumber, timeOfBuild, buildMetricValues);
     }
 
     public Result getOverallBuildResult()

@@ -96,7 +96,7 @@ public abstract class AbstractSonargraphRecorder extends Recorder
         sonargraphBuildAnalyzer.changeBuildResultIfMetricValueNotZero(SonargraphMetrics.NUMBER_OF_NOT_ASSIGNED_TYPES, unassignedTypesAction);
         sonargraphBuildAnalyzer.changeBuildResultIfMetricValueNotZero(SonargraphMetrics.NUMBER_OF_CYCLIC_WARNINGS, cyclicElementsAction);
         sonargraphBuildAnalyzer.changeBuildResultIfMetricValueNotZero(SonargraphMetrics.NUMBER_OF_METRIC_WARNINGS, thresholdViolationsAction);
-        sonargraphBuildAnalyzer.changeBuildResultIfMetricValueNotZero(SonargraphMetrics.CONSISTENCY_PROBLEMS, architectureWarningsAction);
+        sonargraphBuildAnalyzer.changeBuildResultIfMetricValueNotZero(SonargraphMetrics.NUMBER_OF_CONSISTENCY_PROBLEMS, architectureWarningsAction);
         sonargraphBuildAnalyzer.changeBuildResultIfMetricValueNotZero(SonargraphMetrics.NUMBER_OF_WORKSPACE_WARNINGS, workspaceWarningsAction);
         sonargraphBuildAnalyzer.changeBuildResultIfMetricValueNotZero(SonargraphMetrics.NUMBER_OF_TASKS, workItemsAction);
         sonargraphBuildAnalyzer.changeBuildResultIfMetricValueIsZero(SonargraphMetrics.NUMBER_OF_INTERNAL_TYPES, emptyWorkspaceAction);
@@ -105,7 +105,7 @@ public abstract class AbstractSonargraphRecorder extends Recorder
         TFile metricHistoryFile = new TFile(build.getProject().getRootDir(), ConfigParameters.CSV_FILE_PATH.getValue());
         try
         {
-            sonargraphBuildAnalyzer.saveMetricsToCSV(metricHistoryFile, build.getNumber());
+            sonargraphBuildAnalyzer.saveMetricsToCSV(metricHistoryFile, build.getTimestamp().getTimeInMillis(), build.getNumber());
         }
         catch (IOException ex)
         {

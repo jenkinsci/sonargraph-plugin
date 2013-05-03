@@ -4,11 +4,10 @@ import org.jfree.chart.ChartFrame;
 import org.jfree.chart.JFreeChart;
 
 import com.hello2morrow.sonargraph.jenkinsplugin.model.AbstractPlot;
-import com.hello2morrow.sonargraph.jenkinsplugin.model.AreaLinePlot;
-import com.hello2morrow.sonargraph.jenkinsplugin.model.BarPlot;
-import com.hello2morrow.sonargraph.jenkinsplugin.model.DiscreteLinePlot;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.IMetricHistoryProvider;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
+import com.hello2morrow.sonargraph.jenkinsplugin.model.TimeSeriesPlot;
+import com.hello2morrow.sonargraph.jenkinsplugin.model.XYLineAndShapePlot;
 import com.hello2morrow.sonargraph.jenkinsplugin.persistence.CSVFileHandler;
 
 import de.schlichtherle.truezip.file.TFile;
@@ -17,32 +16,27 @@ public class ChartTestUtil
 {
     private static final String BUILD = "Build";
 
-    public void testBarChart(String csvPath)
+    public void testXYChart(String csvPath, SonargraphMetrics metric, int maximumNumberOfDataPoints)
     {
         IMetricHistoryProvider csvFileHandler = new CSVFileHandler(new TFile(csvPath));
-        BarPlot plot = new BarPlot(csvFileHandler);
-        createChart(plot, "Bar Chart");
+        XYLineAndShapePlot plot = new XYLineAndShapePlot(csvFileHandler);
+
+        createChart(plot, metric, maximumNumberOfDataPoints, true);
     }
 
-    public void testDiscreteLineChart(String csvPath)
+    public void testTimeSeriesChart(String csvPath, SonargraphMetrics metric, int maximumNumberOfDataPoints)
     {
         IMetricHistoryProvider csvFileHandler = new CSVFileHandler(new TFile(csvPath));
-        DiscreteLinePlot plot = new DiscreteLinePlot(csvFileHandler);
-        createChart(plot, "Line Chart");
+        TimeSeriesPlot plot = new TimeSeriesPlot(csvFileHandler, 25);
+        createChart(plot, metric, maximumNumberOfDataPoints, true);
+
     }
 
-    public void testAreaChart(String csvPath)
+    private void createChart(AbstractPlot plot, SonargraphMetrics metric, int maxDataPoints, boolean hideLegend)
     {
-        IMetricHistoryProvider csvFileHandler = new CSVFileHandler(new TFile(csvPath));
-        AreaLinePlot plot = new AreaLinePlot(csvFileHandler);
-        createChart(plot, "Area Chart");
-    }
-
-    private void createChart(AbstractPlot plot, String title)
-    {
-        JFreeChart chart = plot.createChart(SonargraphMetrics.HIGHEST_AVERAGE_COMPONENT_DEPENDENCY, BUILD);
-        ChartFrame frame1 = new ChartFrame(title, chart);
+        JFreeChart chart = plot.createXYChart(metric, BUILD, maxDataPoints, true);
+        ChartFrame frame1 = new ChartFrame(metric.getShortDescription(), chart);
         frame1.setVisible(true);
-        frame1.setSize(400, 350);
+        frame1.setSize(500, 350);
     }
 }

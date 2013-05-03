@@ -18,7 +18,7 @@
 		<classpath path="${sonar.anttask.dir}/sonar-ant-task-2.0.jar" />
 	</taskdef>
 	
-	<property name="license.file" location="${user.home}/.hello2morrow/SonargraphArchitect/SonargraphArchitect.license"/>
+  <property name="license.file" location="${user.home}/.hello2morrow/SonargraphArchitect/SonargraphArchitect.license"/>
   <property name="system.file" value="tutorialSteps/Sonargraph-Demo_Step7.sonargraph"/>
   <property name="target.report" location="report"/>
   <property name="src.html" location="${sonargraph.base.dir}/html"/>
@@ -57,7 +57,7 @@
 		     file="${system.file}"
 		     reportDirectory="${target.report}"
 	    	 reportName="sonargraph-report"
-         prepareForSonar="true"
+             prepareForSonar="true"
          
 			 failOnArchitectureViolationsExist = "false"
 			 failOnArchitectureWarningsExist = "false"
