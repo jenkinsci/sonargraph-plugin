@@ -60,7 +60,7 @@ public class TimeSeriesPlot extends AbstractPlot
                 + m_datasetProvider.getStorageName() + "'");
         List<IDataPoint> reducedSet = reduceDataSet(dataset, maximumNumberOfDataPoints);
 
-        boolean isFirst = true;
+        BuildDataPoint point = null;
         for (IDataPoint datapoint : reducedSet)
         {
             if (datapoint instanceof InvalidDataPoint)
@@ -71,33 +71,31 @@ public class TimeSeriesPlot extends AbstractPlot
             }
             else if (datapoint instanceof BuildDataPoint)
             {
-                BuildDataPoint point = (BuildDataPoint) datapoint;
+                point = (BuildDataPoint) datapoint;
                 if (point.getTimestamp() == 0)
                 {
                     continue;
                 }
-                if (isFirst)
-                {
-                    setTimestampOfFirstDisplayedPoint(point.getTimestamp());
-                    isFirst = false;
-                }
+
                 timeSeries.add(new FixedMillisecond(point.getTimestamp()), point.getY());
             }
+        }
+        if (point != null)
+        {
+            setTimestampOfLastDisplayedPoint(point.getTimestamp());
         }
 
         TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
         TimeSeries avgDataset = MovingAverage.createMovingAverage(timeSeries, "Avg of " + metric.getShortDescription(), MOVING_AVG_PERIOD, 0);
         setDataSetSize(avgDataset.getItemCount());
         timeSeriesCollection.addSeries(avgDataset);
-        
+
         //SG-325: We cannot use JFreeChart methods of version 1.0.14
         //        setMinimumValue(avgDataset.getMinY());
         //        setMaximumValue(avgDataset.getMaxY());
 
         // We only show the average data and omit the original data
         //        timeSeriesCollection.addSeries(timeSeries);
-
-        int i = 0;
         for (Object item : avgDataset.getItems())
         {
             if (item instanceof TimeSeriesDataItem)

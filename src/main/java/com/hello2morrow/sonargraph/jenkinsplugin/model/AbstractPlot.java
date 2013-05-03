@@ -23,7 +23,7 @@ public abstract class AbstractPlot
     private double m_minimumValue = Double.MAX_VALUE;
     private double m_maximumValue = 0.0;
     private int m_datasetSize = 0;
-    private long m_timestampOfFirstDisplayedPoint = 0;
+    private long m_timestampOfLastDisplayedPoint = -1;
 
     protected IMetricHistoryProvider m_datasetProvider;
 
@@ -107,7 +107,7 @@ public abstract class AbstractPlot
             dataset = dataset.subList(size - maxSize, size);
         }
 
-        boolean isFirst = true;
+        BuildDataPoint point = null;
         for (IDataPoint datapoint : dataset)
         {
             if (datapoint instanceof InvalidDataPoint)
@@ -118,15 +118,14 @@ public abstract class AbstractPlot
             }
             else if (datapoint instanceof BuildDataPoint)
             {
-                BuildDataPoint point = (BuildDataPoint) datapoint;
-                if (isFirst)
-                {
-                    setTimestampOfFirstDisplayedPoint(point.getTimestamp());
-                    isFirst = false;
-                }
+                point = (BuildDataPoint) datapoint;
                 xySeries.add(point.getX(), point.getY());
                 checkMinMaxYValue(point.getY());
             }
+        }
+        if (point != null)
+        {
+            setTimestampOfLastDisplayedPoint(point.getTimestamp());
         }
 
         //SG-325: We cannot use JFreeChart methods of version 1.0.14
@@ -177,14 +176,14 @@ public abstract class AbstractPlot
         m_maximumValue = maximumValue;
     }
 
-    public long getTimestampOfFirstDisplayedPoint()
+    public long getTimestampOfLastDisplayedPoint()
     {
-        return m_timestampOfFirstDisplayedPoint;
+        return m_timestampOfLastDisplayedPoint;
     }
 
-    protected void setTimestampOfFirstDisplayedPoint(long timestamp)
+    protected void setTimestampOfLastDisplayedPoint(long timestamp)
     {
-        m_timestampOfFirstDisplayedPoint = timestamp;
+        m_timestampOfLastDisplayedPoint = timestamp;
     }
 
     /**

@@ -57,9 +57,6 @@ Desktop.ini
 *.swa
 *~
 
-#Git
-.gitattributes
-
 ####################
 ##Project specific##
 ####################

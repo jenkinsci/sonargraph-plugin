@@ -113,7 +113,7 @@ public class SonargraphChartAction implements Action, ProminentProjectAction
         final JFreeChart chart = plot.createXYChart(metric, xAxisLabel, maxDataPoints, true);
         try
         {
-            Graph graph = new Graph(plot.getTimestampOfFirstDisplayedPoint(), defaultGraphicWidth, defaultGraphicHeight)
+            Graph graph = new Graph(plot.getTimestampOfLastDisplayedPoint(), defaultGraphicWidth, defaultGraphicHeight)
             {
 
                 @Override
