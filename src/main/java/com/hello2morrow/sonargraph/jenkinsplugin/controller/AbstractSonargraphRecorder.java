@@ -91,7 +91,15 @@ public abstract class AbstractSonargraphRecorder extends Recorder
         }
 
         String reportAbsolutePath = StringUtility.addXmlExtensionIfNotPreset(new TFile(sonargraphReportDirectory, reportFileName).getAbsolutePath());
-        SonargraphBuildAnalyzer sonargraphBuildAnalyzer = new SonargraphBuildAnalyzer(new TFile(reportAbsolutePath), logger);
+        TFile reportFile = new TFile(reportAbsolutePath);
+        if (!reportFile.exists())
+        {
+        	RecorderLogger.logToConsoleOutput(logger, Level.SEVERE, "Sonargraph analysis cannot be executed as Sonargraph report does not exist.");
+        	build.setResult(Result.ABORTED);
+        	return false;
+        }
+        
+		SonargraphBuildAnalyzer sonargraphBuildAnalyzer = new SonargraphBuildAnalyzer(reportFile, logger);
         sonargraphBuildAnalyzer.changeBuildResultIfMetricValueNotZero(SonargraphMetrics.NUMBER_OF_VIOLATIONS, architectureViolationsAction);
         sonargraphBuildAnalyzer.changeBuildResultIfMetricValueNotZero(SonargraphMetrics.NUMBER_OF_NOT_ASSIGNED_TYPES, unassignedTypesAction);
         sonargraphBuildAnalyzer.changeBuildResultIfMetricValueNotZero(SonargraphMetrics.NUMBER_OF_CYCLIC_WARNINGS, cyclicElementsAction);
