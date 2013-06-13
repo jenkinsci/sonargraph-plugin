@@ -60,4 +60,15 @@ public class ReportFileReaderTest
         assertEquals("2.33", sonargraphReport.getSystemMetricValue(SonargraphMetrics.HIGHEST_AVERAGE_COMPONENT_DEPENDENCY));
         assertEquals("2", sonargraphReport.getSystemMetricValue(SonargraphMetrics.BIGGEST_CYCLE_GROUP));
     }
+
+    @Test
+    public void testSourceFileCycleIgnoredForBiggestPackageCycleAnalysis()
+    {
+        IReportReader reader = new ReportFileReader();
+        SonargraphReport sonargraphReport = reader.readSonargraphReport(new TFile(
+                "./src/test/resources/sonargraph-architect-report_different_cyclegroups.xml"));
+
+        assertEquals("23", sonargraphReport.getSystemMetricValue(SonargraphMetrics.NUMBER_OF_CYCLIC_ELEMENTS));
+        assertEquals("5", sonargraphReport.getSystemMetricValue(SonargraphMetrics.BIGGEST_CYCLE_GROUP));
+    }
 }
