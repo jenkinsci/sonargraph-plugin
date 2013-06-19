@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<context version="7.1.9.0">
+<context version="7.1.9.203">
     <scope type="Project" name="sonargraph-jenkins-project">
         <element type="TypeFilterReferenceOverridden" name="Filter">
             <element type="IncludeTypePattern" name="**"/>
@@ -167,7 +167,10 @@
         </architecture>
     </scope>
     <scope type="Global" name="Global">
-        <element type="Configuration" name="Configuration"/>
+        <element type="Configuration" name="Configuration">
+            <property value="true" name="CycleAnalysisAsymmetrical"/>
+            <property value="true" name="CycleAnalysisDepthSourceFile"/>
+        </element>
         <element type="TypeFilter" name="Filter">
             <element type="IncludeTypePattern" name="**"/>
         </element>
