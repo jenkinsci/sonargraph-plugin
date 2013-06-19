@@ -25,8 +25,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import com.hello2morrow.sonargraph.jenkinsplugin.foundation.SonargraphNumberFormat;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.SonargraphLogger;
+import com.hello2morrow.sonargraph.jenkinsplugin.foundation.SonargraphNumberFormat;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.IReportReader;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphReport;
@@ -48,6 +48,8 @@ import de.schlichtherle.truezip.file.TFileInputStream;
  */
 public class ReportFileReader implements IReportReader
 {
+    private static final String PACKAGE_CYCLE_GROUP_IDENTIFIER = "Physical package";
+
     public ReportFileReader()
     {
         super();
@@ -159,6 +161,10 @@ public class ReportFileReader implements IReportReader
         int biggestCycleGroupSize = 0;
         for (XsdCycleGroup group : xmlReport.getCycleGroups().getCycleGroup())
         {
+            if (!PACKAGE_CYCLE_GROUP_IDENTIFIER.equals(group.getNamedElementGroup()))
+            {
+                continue;
+            }
             int size = group.getCyclePath().size();
             if (size > biggestCycleGroupSize)
             {
