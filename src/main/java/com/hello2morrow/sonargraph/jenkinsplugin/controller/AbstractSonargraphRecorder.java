@@ -57,10 +57,9 @@ public abstract class AbstractSonargraphRecorder extends Recorder
     @Override
     public Collection<Action> getProjectActions(AbstractProject<?, ?> project)
     {
-        Collection<Action> actions = null;
+        Collection<Action> actions = new ArrayList<Action>();
         if (project instanceof Project)
         {
-            actions = new ArrayList<Action>();
             actions.add(new SonargraphChartAction((Project<?, ?>) project, this));
             actions.add(new SonargraphHTMLReportAction((Project<?, ?>) project, this));
         }
