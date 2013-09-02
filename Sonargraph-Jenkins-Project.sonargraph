@@ -225,6 +225,35 @@
             </item>
         </itemDefinition>
     </scope>
+    <itemDefinition>
+        <item type="CutTypeDependencyItem">
+            <property value="" name="AssignedTo"/>
+            <property value="" name="Comment"/>
+            <property value="2013-06-20 08:57:28" name="Date"/>
+            <property value="com.hello2morrow.sonargraph.jenkinsplugin.controller.AbstractSonargraphRecorder" name="FromType"/>
+            <property value="Medium" name="Priority"/>
+            <property value="sonargraph-jenkins-project" name="SourceScope"/>
+            <property value="com.hello2morrow.sonargraph.jenkinsplugin.controller.SonargraphChartAction" name="ToType"/>
+        </item>
+        <item type="CutTypeDependencyItem">
+            <property value="" name="AssignedTo"/>
+            <property value="" name="Comment"/>
+            <property value="2013-06-20 08:57:35" name="Date"/>
+            <property value="com.hello2morrow.sonargraph.jenkinsplugin.controller.AbstractSonargraphRecorder" name="FromType"/>
+            <property value="Medium" name="Priority"/>
+            <property value="sonargraph-jenkins-project" name="SourceScope"/>
+            <property value="com.hello2morrow.sonargraph.jenkinsplugin.controller.SonargraphBuildAction" name="ToType"/>
+        </item>
+        <item type="CutTypeDependencyItem">
+            <property value="" name="AssignedTo"/>
+            <property value="" name="Comment"/>
+            <property value="2013-06-20 08:57:42" name="Date"/>
+            <property value="com.hello2morrow.sonargraph.jenkinsplugin.controller.AbstractSonargraphRecorder" name="FromType"/>
+            <property value="Medium" name="Priority"/>
+            <property value="sonargraph-jenkins-project" name="SourceScope"/>
+            <property value="com.hello2morrow.sonargraph.jenkinsplugin.controller.SonargraphHTMLReportAction" name="ToType"/>
+        </item>
+    </itemDefinition>
     <attributeConfiguration type="AttributeConfiguration">
         <property value="disabled" name="ExtendedCyclomaticComplexity"/>
         <property value="disabled" name="MaxExtendedCyclomaticComplexityPerMethod"/>
