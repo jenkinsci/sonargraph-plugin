@@ -4,9 +4,13 @@ import hudson.Extension;
 import hudson.Launcher;
 import hudson.Launcher.ProcStarter;
 import hudson.Proc;
+import hudson.maven.MavenModuleSet;
 import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
 import hudson.model.Hudson;
+import hudson.model.Project;
+import hudson.tasks.Builder;
 import hudson.tasks.Maven;
 import hudson.tasks.Maven.MavenInstallation;
 import hudson.util.FormValidation;
@@ -15,6 +19,7 @@ import hudson.util.ListBoxModel;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 
 import net.sf.json.JSONObject;
@@ -78,9 +83,39 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException
     {
         super.logExecutionStart(build, listener, SonargraphReportBuilder.class);
+
+        AbstractProject<? extends AbstractProject<?, ?>, ? extends AbstractBuild<?, ?>> project = build.getProject();
+        String pathToPom = null;
+        if (project instanceof Project<?, ?>)
+        {
+            List<Builder> builders = ((Project<?, ?>) project).getBuilders();
+            Maven mavenBuilder = null;
+            for (Builder builder : builders)
+            {
+                if (builder instanceof Maven)
+                {
+                    mavenBuilder = (Maven) builder;
+                    break;
+                }
+            }
+            if (mavenBuilder != null)
+            {
+                pathToPom = mavenBuilder.pom;
+            }
+            else
+            {
+                RecorderLogger.logToConsoleOutput(listener.getLogger(), Level.SEVERE, "Sonargraph was not able to find a maven based build step.");
+                return false;
+            }
+        }
+        else if (project instanceof MavenModuleSet)
+        {
+            pathToPom = ((MavenModuleSet) project).getRootPOM(null);
+        }
+
         String absoluteReportDir = new TFile(build.getWorkspace().getRemote(), getReportDirectory()).getNormalizedAbsolutePath();
-        String mvnCommand = createMvnCommand(build.getWorkspace().getRemote(), System.getProperty("os.name", "unknown").trim().toLowerCase(),
-                getDescriptor(), listener.getLogger());
+        String mvnCommand = createMvnCommand(build.getWorkspace().getRemote(), pathToPom, System.getProperty("os.name", "unknown").trim()
+                .toLowerCase(), getDescriptor(), listener.getLogger());
 
         ProcStarter procStarter = launcher.new ProcStarter();
         HashMap<String, String> envVars = new HashMap<String, String>();
@@ -115,7 +150,7 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
         return true;
     }
 
-    private String createMvnCommand(String workspacePath, String operatingSystem, DescriptorImpl descriptor, PrintStream logger)
+    private String createMvnCommand(String workspacePath, String pomPath, String operatingSystem, DescriptorImpl descriptor, PrintStream logger)
     {
         String absoluteReportDir = new TFile(workspacePath, getReportDirectory()).getNormalizedAbsolutePath();
         String pathToMvn = null;
@@ -140,7 +175,14 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
             mvnCommand.append(".bat");
         }
 
-        //FIXME: Why are some modules not found if goal is run on multi-module projects? "package" solves this at the cost of extra time needed.
+        if (pomPath != null && !pomPath.isEmpty())
+        {
+            String absolutePathToPom = new TFile(workspacePath, pomPath).getNormalizedAbsolutePath();
+            mvnCommand.append(" -f " + absolutePathToPom);
+        }
+
+        // FIXME: Why are some modules not found if goal is run on multi-module
+        // projects? "package" solves this at the cost of extra time needed.
         mvnCommand.append(" package -Dmaven.test.skip=true");
 
         mvnCommand.append(" ").append(GROUP_ID).append(":").append(ARTIFACT_ID).append(":").append(descriptor.getVersion()).append(":");
@@ -272,13 +314,15 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
             return activationCode;
         }
 
-        public FormValidation doCheckVersion(@QueryParameter String value)
+        public FormValidation doCheckVersion(@QueryParameter
+        String value)
         {
-            return StringUtility.validateNotNullAndRegexp(value, "^(\\d\\.)+\\d$") ? FormValidation.ok() : FormValidation
+            return StringUtility.validateNotNullAndRegexp(value, "^(\\d+\\.)+\\d+$") ? FormValidation.ok() : FormValidation
                     .error("Please enter a valid version");
         }
 
-        public FormValidation doCheckLicense(@QueryParameter String value)
+        public FormValidation doCheckLicense(@QueryParameter
+        String value)
         {
             boolean hasLicenseCorrectExtension = StringUtility.validateNotNullAndRegexp(value, "([a-zA-Z]:\\\\)?[\\/\\\\a-zA-Z0-9_.-]+.license$");
             if (!hasLicenseCorrectExtension)
@@ -294,7 +338,8 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckSystemFile(@QueryParameter String value)
+        public FormValidation doCheckSystemFile(@QueryParameter
+        String value)
         {
             if ((value == null) || (value.length() == 0))
             {
