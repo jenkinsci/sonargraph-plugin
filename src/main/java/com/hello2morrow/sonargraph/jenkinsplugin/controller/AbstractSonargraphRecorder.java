@@ -1,5 +1,6 @@
 package com.hello2morrow.sonargraph.jenkinsplugin.controller;
 
+import hudson.maven.MavenModuleSet;
 import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.Result;
@@ -58,10 +59,10 @@ public abstract class AbstractSonargraphRecorder extends Recorder
     public Collection<Action> getProjectActions(AbstractProject<?, ?> project)
     {
         Collection<Action> actions = new ArrayList<Action>();
-        if (project instanceof Project)
+        if (project instanceof Project || project instanceof MavenModuleSet)
         {
-            actions.add(new SonargraphChartAction((Project<?, ?>) project, this));
-            actions.add(new SonargraphHTMLReportAction((Project<?, ?>) project, this));
+            actions.add(new SonargraphChartAction(project, this));
+            actions.add(new SonargraphHTMLReportAction(project, this));
         }
         return actions;
     }
@@ -93,12 +94,12 @@ public abstract class AbstractSonargraphRecorder extends Recorder
         TFile reportFile = new TFile(reportAbsolutePath);
         if (!reportFile.exists())
         {
-        	RecorderLogger.logToConsoleOutput(logger, Level.SEVERE, "Sonargraph analysis cannot be executed as Sonargraph report does not exist.");
-        	build.setResult(Result.ABORTED);
-        	return false;
+            RecorderLogger.logToConsoleOutput(logger, Level.SEVERE, "Sonargraph analysis cannot be executed as Sonargraph report does not exist.");
+            build.setResult(Result.ABORTED);
+            return false;
         }
-        
-		SonargraphBuildAnalyzer sonargraphBuildAnalyzer = new SonargraphBuildAnalyzer(reportFile, logger);
+
+        SonargraphBuildAnalyzer sonargraphBuildAnalyzer = new SonargraphBuildAnalyzer(reportFile, logger);
         sonargraphBuildAnalyzer.changeBuildResultIfMetricValueNotZero(SonargraphMetrics.NUMBER_OF_VIOLATIONS, architectureViolationsAction);
         sonargraphBuildAnalyzer.changeBuildResultIfMetricValueNotZero(SonargraphMetrics.NUMBER_OF_NOT_ASSIGNED_TYPES, unassignedTypesAction);
         sonargraphBuildAnalyzer.changeBuildResultIfMetricValueNotZero(SonargraphMetrics.NUMBER_OF_CYCLIC_WARNINGS, cyclicElementsAction);

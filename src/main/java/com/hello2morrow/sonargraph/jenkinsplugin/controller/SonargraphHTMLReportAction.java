@@ -1,6 +1,6 @@
 package com.hello2morrow.sonargraph.jenkinsplugin.controller;
 
-import hudson.model.Project;
+import hudson.model.AbstractProject;
 
 import java.io.IOException;
 
@@ -16,18 +16,18 @@ import de.schlichtherle.truezip.file.TFile;
 public class SonargraphHTMLReportAction extends InvisibleFromSidebarAction
 {
     /** Project or build that is calling this action. */
-    private final Project<?, ?> project;
+    private final AbstractProject<?, ?> project;
 
     /** Object that defines the post-buld step asociated with this action. */
     private final AbstractSonargraphRecorder builder;
 
-    public SonargraphHTMLReportAction(Project<?, ?> project, AbstractSonargraphRecorder builder)
+    public SonargraphHTMLReportAction(AbstractProject<?, ?> project, AbstractSonargraphRecorder builder)
     {
         this.project = project;
         this.builder = builder;
     }
 
-    public Project<?, ?> getProject()
+    public AbstractProject<?, ?> getProject()
     {
         return project;
     }
