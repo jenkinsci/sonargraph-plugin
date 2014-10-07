@@ -2,7 +2,7 @@ package com.hello2morrow.sonargraph.jenkinsplugin.controller;
 
 import hudson.model.Action;
 import hudson.model.ProminentProjectAction;
-import hudson.model.Project;
+import hudson.model.AbstractProject;
 import hudson.util.Graph;
 
 import java.io.IOException;
@@ -40,7 +40,7 @@ public class SonargraphChartAction implements Action, ProminentProjectAction
     private static final String LONG_TERM = "longterm";
 
     /** Project or build that is calling this action. */
-    private final Project<?, ?> project;
+    private final AbstractProject<?, ?> project;
 
     private Integer defaultGraphicWidth = 400;
     private Integer defaultGraphicHeight = 250;
@@ -51,7 +51,7 @@ public class SonargraphChartAction implements Action, ProminentProjectAction
     private static final String BUILD = "Build";
     private static final String DATE = "Date";
 
-    public SonargraphChartAction(Project<?, ?> project, AbstractSonargraphRecorder builder)
+    public SonargraphChartAction(AbstractProject<?, ?> project, AbstractSonargraphRecorder builder)
     {
         this.project = project;
     }
@@ -134,7 +134,7 @@ public class SonargraphChartAction implements Action, ProminentProjectAction
      * 
      * @return Project or job.
      */
-    public Project<?, ?> getProject()
+    public AbstractProject<?, ?> getProject()
     {
         return project;
     }
