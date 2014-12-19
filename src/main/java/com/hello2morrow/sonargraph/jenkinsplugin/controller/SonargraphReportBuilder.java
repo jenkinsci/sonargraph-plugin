@@ -31,7 +31,6 @@ import org.kohsuke.stapler.StaplerRequest;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.RecorderLogger;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.SonargraphLogger;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.StringUtility;
-import com.hello2morrow.sonargraph.jenkinsplugin.model.ProductVersion;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphProductType;
 
 import de.schlichtherle.truezip.file.TFile;
@@ -367,16 +366,6 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
             for (SonargraphProductType productType : SonargraphProductType.values())
             {
                 items.add(productType.getDisplayName(), productType.getId());
-            }
-            return items;
-        }
-
-        public ListBoxModel doFillVersionItems()
-        {
-            ListBoxModel items = new ListBoxModel();
-            for (ProductVersion version : ProductVersion.values())
-            {
-                items.add(version.getId(), version.getId());
             }
             return items;
         }
