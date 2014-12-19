@@ -316,7 +316,7 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
         public FormValidation doCheckVersion(@QueryParameter
         String value)
         {
-            return StringUtility.validateNotNullAndRegexp(value, "^(\\d+\\.)+\\d+$") ? FormValidation.ok() : FormValidation
+            return StringUtility.validateNotNullAndRegexp(value, "^(\\d+\\.){2}\\d+$") ? FormValidation.ok() : FormValidation
                     .error("Please enter a valid version");
         }
 
