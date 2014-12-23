@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.logging.Level;
 
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.RecorderLogger;
@@ -36,9 +37,12 @@ public abstract class AbstractSonargraphRecorder extends Recorder
     private final String workItemsAction;
     private final String emptyWorkspaceAction;
 
+    private final List<SonargraphMetrics> metricsToDisplay;
+    private final int minimum = 1;
+
     public AbstractSonargraphRecorder(String reportDirectory, String architectureViolationsAction, String unassignedTypesAction,
             String cyclicElementsAction, String thresholdViolationsAction, String architectureWarningsAction, String workspaceWarningsAction,
-            String workItemsAction, String emptyWorkspaceAction)
+            String workItemsAction, String emptyWorkspaceAction, List<SonargraphMetrics> metricsToDisplay)
     {
         this.reportDirectory = reportDirectory;
         this.architectureViolationsAction = architectureViolationsAction;
@@ -49,6 +53,7 @@ public abstract class AbstractSonargraphRecorder extends Recorder
         this.workspaceWarningsAction = workspaceWarningsAction;
         this.workItemsAction = workItemsAction;
         this.emptyWorkspaceAction = emptyWorkspaceAction;
+        this.metricsToDisplay = metricsToDisplay;
     }
 
     /**
@@ -188,5 +193,10 @@ public abstract class AbstractSonargraphRecorder extends Recorder
     public String getEmptyWorkspaceAction()
     {
         return emptyWorkspaceAction;
+    }
+
+    public List<SonargraphMetrics> getMetricsToDisplay()
+    {
+        return metricsToDisplay;
     }
 }

@@ -7,11 +7,13 @@ import hudson.model.AbstractBuild;
 import hudson.util.FormValidation;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.StringUtility;
+import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
 
 import de.schlichtherle.truezip.file.TFile;
 
@@ -28,10 +30,10 @@ public class SonargraphReportAnalyzer extends AbstractSonargraphRecorder
     @DataBoundConstructor
     public SonargraphReportAnalyzer(String reportDirectory, String reportName, String architectureViolationsAction, String unassignedTypesAction,
             String cyclicElementsAction, String thresholdViolationsAction, String architectureWarningsAction, String workspaceWarningsAction,
-            String workItemsAction, String emptyWorkspaceAction)
+            String workItemsAction, String emptyWorkspaceAction, List<SonargraphMetrics> metricsToDisplay)
     {
         super(reportDirectory, architectureViolationsAction, unassignedTypesAction, cyclicElementsAction, thresholdViolationsAction,
-                architectureWarningsAction, workspaceWarningsAction, workItemsAction, emptyWorkspaceAction);
+                architectureWarningsAction, workspaceWarningsAction, workItemsAction, emptyWorkspaceAction, metricsToDisplay);
 
         assert (reportName != null) && (reportName.length() > 0) : "Parameter 'sonargraphReportName' of method 'SonargraphReportAnalyzer' must not be empty";
         this.reportName = reportName;
@@ -76,7 +78,8 @@ public class SonargraphReportAnalyzer extends AbstractSonargraphRecorder
             return ConfigParameters.REPORT_ANALYZER_DISPLAY_NAME.getValue();
         }
 
-        public FormValidation doCheckReportName(@QueryParameter String value)
+        public FormValidation doCheckReportName(@QueryParameter
+        String value)
         {
             return StringUtility.validateNotNullAndRegexp(value, "[\\/\\\\a-zA-Z0-9_.-]+") ? FormValidation.ok() : FormValidation
                     .error("Please enter a valid name for the report");

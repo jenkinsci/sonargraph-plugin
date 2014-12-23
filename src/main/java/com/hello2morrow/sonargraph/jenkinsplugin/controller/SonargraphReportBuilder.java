@@ -32,6 +32,7 @@ import com.hello2morrow.sonargraph.jenkinsplugin.foundation.RecorderLogger;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.SonargraphLogger;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.StringUtility;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.ProductVersion;
+import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphProductType;
 
 import de.schlichtherle.truezip.file.TFile;
@@ -68,10 +69,10 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
     public SonargraphReportBuilder(String mavenInstallation, String systemFile, String reportDirectory, String useSonargraphWorkspace,
             String prepareForSonar, String architectureViolationsAction, String unassignedTypesAction, String cyclicElementsAction,
             String thresholdViolationsAction, String architectureWarningsAction, String workspaceWarningsAction, String workItemsAction,
-            String emptyWorkspaceAction)
+            String emptyWorkspaceAction, List<SonargraphMetrics> metricsToDisplay)
     {
         super(reportDirectory, architectureViolationsAction, unassignedTypesAction, cyclicElementsAction, thresholdViolationsAction,
-                architectureWarningsAction, workspaceWarningsAction, workItemsAction, emptyWorkspaceAction);
+                architectureWarningsAction, workspaceWarningsAction, workItemsAction, emptyWorkspaceAction, metricsToDisplay);
 
         this.mavenInstallation = mavenInstallation;
         this.systemFile = systemFile;

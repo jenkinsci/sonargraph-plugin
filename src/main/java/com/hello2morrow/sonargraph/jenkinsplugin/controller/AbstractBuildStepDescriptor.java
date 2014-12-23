@@ -9,6 +9,7 @@ import hudson.util.ListBoxModel;
 import org.kohsuke.stapler.QueryParameter;
 
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.StringUtility;
+import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
 
 public abstract class AbstractBuildStepDescriptor extends BuildStepDescriptor<Publisher>
 {
@@ -64,6 +65,16 @@ public abstract class AbstractBuildStepDescriptor extends BuildStepDescriptor<Pu
         return createListWithActions();
     }
 
+    public ListBoxModel doFillmetricsToDisplay()
+    {
+        ListBoxModel items = new ListBoxModel();
+        for (SonargraphMetrics metric : SonargraphMetrics.values())
+        {
+            items.add(metric.getDescription(), metric.getStandardName());
+        }
+        return items;
+    }
+
     private ListBoxModel createListWithActions()
     {
         ListBoxModel items = new ListBoxModel();
@@ -74,7 +85,8 @@ public abstract class AbstractBuildStepDescriptor extends BuildStepDescriptor<Pu
         return items;
     }
 
-    public FormValidation doCheckReportDirectory(@QueryParameter String value)
+    public FormValidation doCheckReportDirectory(@QueryParameter
+    String value)
     {
         return StringUtility.validateNotNullAndRegexp(value, "[\\/\\\\a-zA-Z0-9_.-]+") ? FormValidation.ok() : FormValidation
                 .error("Please enter a valid path for the report directory");

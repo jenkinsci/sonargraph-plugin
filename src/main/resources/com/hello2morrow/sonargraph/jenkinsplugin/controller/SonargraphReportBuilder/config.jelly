@@ -43,4 +43,15 @@
 	       <f:select />
         </f:entry>
     </f:section>
+    
+    <f:section title="Metrics">
+	    <f:repeatable var="metric" name="metricsToDisplay" items="${instance.metricsToDisplay}" noAddButton="false" minimum="0">
+		    <fieldset>
+		        <f:entry title="${%Metric}" field="description">
+		            <f:textbox value="${metric.description}" default="" />
+		        </f:entry>
+		    </fieldset>
+		</f:repeatable>
+	</f:section>
+	
 </j:jelly>
