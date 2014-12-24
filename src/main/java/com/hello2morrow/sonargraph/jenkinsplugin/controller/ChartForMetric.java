@@ -24,7 +24,6 @@ public class ChartForMetric extends AbstractDescribableImpl<ChartForMetric>
     public ChartForMetric(final String metricName)
     {
         super();
-
         this.metricName = metricName;
     }
 
@@ -32,7 +31,7 @@ public class ChartForMetric extends AbstractDescribableImpl<ChartForMetric>
      * Returns the name of the metric.
      *
      */
-    public String getChartName()
+    public String getMetricName()
     {
         return metricName;
     }
