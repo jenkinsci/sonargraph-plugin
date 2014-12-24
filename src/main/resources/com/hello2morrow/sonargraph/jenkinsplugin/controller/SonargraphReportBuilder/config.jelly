@@ -45,7 +45,7 @@
     </f:section>
     
     <f:section title="Chart Configuration">
-	    <f:entry title="${%Metrics to display in charts	}"">
+	    <f:entry title="${%Metrics to display in charts	}">
     		<f:repeatableProperty field="metricsToDisplay" />
   		</f:entry>
 	</f:section>

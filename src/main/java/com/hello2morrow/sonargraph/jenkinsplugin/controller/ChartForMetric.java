@@ -12,7 +12,6 @@ import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
 
 public class ChartForMetric extends AbstractDescribableImpl<ChartForMetric>
 {
-
     private final String metricName;
 
     /**
@@ -48,7 +47,7 @@ public class ChartForMetric extends AbstractDescribableImpl<ChartForMetric>
          * Returns the available metrics. These values will be shown in the list
          * box of the config.jelly view part (ChartForMetric/config.jelly).
          */
-        public ListBoxModel doFillDescriptionItems()
+        public ListBoxModel doFillMetricNameItems()
         {
             ListBoxModel items = new ListBoxModel();
             for (SonargraphMetrics metric : SonargraphMetrics.values())
