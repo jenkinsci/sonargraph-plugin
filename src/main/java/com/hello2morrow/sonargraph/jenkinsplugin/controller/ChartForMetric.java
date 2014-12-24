@@ -19,7 +19,7 @@ public class ChartForMetric extends AbstractDescribableImpl<ChartForMetric>
      * Creates a new instance of {@link ChartForMetric}.
      *
      * @param metricName
-     *            the name of the parser to use
+     *            the name of the metric to use
      */
     @DataBoundConstructor
     public ChartForMetric(final String metricName)
@@ -45,10 +45,8 @@ public class ChartForMetric extends AbstractDescribableImpl<ChartForMetric>
     public static class DescriptorImpl extends Descriptor<ChartForMetric>
     {
         /**
-         * Returns the available parsers. These values will be shown in the list
-         * box of the config.jelly view part.
-         *
-         * @return the model of the list box
+         * Returns the available metrics. These values will be shown in the list
+         * box of the config.jelly view part (ChartForMetric/config.jelly).
          */
         public ListBoxModel doFillDescriptionItems()
         {
