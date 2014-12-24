@@ -37,12 +37,11 @@ public abstract class AbstractSonargraphRecorder extends Recorder
     private final String workItemsAction;
     private final String emptyWorkspaceAction;
 
-    private final List<SonargraphMetrics> metricsToDisplay;
-    private final int minimum = 1;
+    private final List<ChartForMetric> metricsToDisplay;
 
     public AbstractSonargraphRecorder(String reportDirectory, String architectureViolationsAction, String unassignedTypesAction,
             String cyclicElementsAction, String thresholdViolationsAction, String architectureWarningsAction, String workspaceWarningsAction,
-            String workItemsAction, String emptyWorkspaceAction, List<SonargraphMetrics> metricsToDisplay)
+            String workItemsAction, String emptyWorkspaceAction, List<ChartForMetric> metricsToDisplay)
     {
         this.reportDirectory = reportDirectory;
         this.architectureViolationsAction = architectureViolationsAction;
@@ -195,7 +194,7 @@ public abstract class AbstractSonargraphRecorder extends Recorder
         return emptyWorkspaceAction;
     }
 
-    public List<SonargraphMetrics> getMetricsToDisplay()
+    public List<ChartForMetric> getMetricsToDisplay()
     {
         return metricsToDisplay;
     }

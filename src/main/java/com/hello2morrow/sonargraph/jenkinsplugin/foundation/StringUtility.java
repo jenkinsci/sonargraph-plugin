@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 public class StringUtility
 {
+    public static final String EMPTY_STRING = "";
     private static SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
     private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 

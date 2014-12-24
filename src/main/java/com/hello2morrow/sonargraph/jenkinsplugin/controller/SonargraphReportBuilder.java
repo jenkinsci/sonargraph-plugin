@@ -32,7 +32,6 @@ import com.hello2morrow.sonargraph.jenkinsplugin.foundation.RecorderLogger;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.SonargraphLogger;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.StringUtility;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.ProductVersion;
-import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphProductType;
 
 import de.schlichtherle.truezip.file.TFile;
@@ -69,7 +68,7 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
     public SonargraphReportBuilder(String mavenInstallation, String systemFile, String reportDirectory, String useSonargraphWorkspace,
             String prepareForSonar, String architectureViolationsAction, String unassignedTypesAction, String cyclicElementsAction,
             String thresholdViolationsAction, String architectureWarningsAction, String workspaceWarningsAction, String workItemsAction,
-            String emptyWorkspaceAction, List<SonargraphMetrics> metricsToDisplay)
+            String emptyWorkspaceAction, List<ChartForMetric> metricsToDisplay)
     {
         super(reportDirectory, architectureViolationsAction, unassignedTypesAction, cyclicElementsAction, thresholdViolationsAction,
                 architectureWarningsAction, workspaceWarningsAction, workItemsAction, emptyWorkspaceAction, metricsToDisplay);
@@ -315,15 +314,13 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
             return activationCode;
         }
 
-        public FormValidation doCheckVersion(@QueryParameter
-        String value)
+        public FormValidation doCheckVersion(@QueryParameter String value)
         {
             return StringUtility.validateNotNullAndRegexp(value, "^(\\d+\\.)+\\d+$") ? FormValidation.ok() : FormValidation
                     .error("Please enter a valid version");
         }
 
-        public FormValidation doCheckLicense(@QueryParameter
-        String value)
+        public FormValidation doCheckLicense(@QueryParameter String value)
         {
             boolean hasLicenseCorrectExtension = StringUtility.validateNotNullAndRegexp(value, "([a-zA-Z]:\\\\)?[\\/\\\\a-zA-Z0-9_.-]+.license$");
             if (!hasLicenseCorrectExtension)
@@ -339,8 +336,7 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckSystemFile(@QueryParameter
-        String value)
+        public FormValidation doCheckSystemFile(@QueryParameter String value)
         {
             if ((value == null) || (value.length() == 0))
             {

@@ -65,7 +65,7 @@ public abstract class AbstractBuildStepDescriptor extends BuildStepDescriptor<Pu
         return createListWithActions();
     }
 
-    public ListBoxModel doFillmetricsToDisplay()
+    public ListBoxModel doFillDescriptionItems()
     {
         ListBoxModel items = new ListBoxModel();
         for (SonargraphMetrics metric : SonargraphMetrics.values())

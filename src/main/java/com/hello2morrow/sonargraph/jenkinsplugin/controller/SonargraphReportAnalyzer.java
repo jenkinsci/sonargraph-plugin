@@ -13,7 +13,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.StringUtility;
-import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
 
 import de.schlichtherle.truezip.file.TFile;
 
@@ -30,7 +29,7 @@ public class SonargraphReportAnalyzer extends AbstractSonargraphRecorder
     @DataBoundConstructor
     public SonargraphReportAnalyzer(String reportDirectory, String reportName, String architectureViolationsAction, String unassignedTypesAction,
             String cyclicElementsAction, String thresholdViolationsAction, String architectureWarningsAction, String workspaceWarningsAction,
-            String workItemsAction, String emptyWorkspaceAction, List<SonargraphMetrics> metricsToDisplay)
+            String workItemsAction, String emptyWorkspaceAction, List<ChartForMetric> metricsToDisplay)
     {
         super(reportDirectory, architectureViolationsAction, unassignedTypesAction, cyclicElementsAction, thresholdViolationsAction,
                 architectureWarningsAction, workspaceWarningsAction, workItemsAction, emptyWorkspaceAction, metricsToDisplay);
@@ -78,8 +77,7 @@ public class SonargraphReportAnalyzer extends AbstractSonargraphRecorder
             return ConfigParameters.REPORT_ANALYZER_DISPLAY_NAME.getValue();
         }
 
-        public FormValidation doCheckReportName(@QueryParameter
-        String value)
+        public FormValidation doCheckReportName(@QueryParameter String value)
         {
             return StringUtility.validateNotNullAndRegexp(value, "[\\/\\\\a-zA-Z0-9_.-]+") ? FormValidation.ok() : FormValidation
                     .error("Please enter a valid name for the report");
