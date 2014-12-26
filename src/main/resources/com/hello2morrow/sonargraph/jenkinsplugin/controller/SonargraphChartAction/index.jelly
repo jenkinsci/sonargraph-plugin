@@ -11,7 +11,6 @@
                     <th style="text-align:left;font-size:16px;font-weight:bold;color:#1122CC">Short Term Trend</th>
                     <th style="text-align:left;font-size:16px;font-weight:bold;color:#1122CC">Long Term Trend (24h Moving Average)</th>
       			</tr>
-      			
       			<j:forEach var="value" items="${it.chartsForMetrics}">
         			<tr>
 	      				<td>
@@ -22,57 +21,6 @@
 	      				</td>
                 	</tr>    
     			</j:forEach>
-      			
-      			<!--
-      			<tr>
-      				<td>
-      					<img src="getPlot?metric=StructuralDebtIndex&amp;type=shortterm" alt="Chart for metric 'Structural Debt Index'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}"/>
-      				</td>
-      				<td>
-      				    <img src="getPlot?metric=StructuralDebtIndex&amp;type=longterm" alt="Chart for long term trend of metric 'Structural Debt Index'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}"/>
-      				</td>
-                </tr>
-                <tr>      				
-      				<td>
-      					<img src="getPlot?metric=NumberOfViolations&amp;type=shortterm" alt="Chart for metric 'Violating Type Dependencies'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}" />
-      				</td>
-      				<td>
-                        <img src="getPlot?metric=NumberOfViolations&amp;type=longterm" alt="Chart for long term trend of metric 'Violating Type Dependencies'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}"/>
-                    </td>
-                </tr>
-                <tr>  
-      				<td>
-      					<img src="getPlot?metric=HighestAverageComponentDependency&amp;type=shortterm" alt="Chart for metric 'Highest ACD'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}" />
-      				</td>
-      				<td>
-                        <img src="getPlot?metric=HighestAverageComponentDependency&amp;type=longterm" alt="Chart for long term trend of metric 'Highest ACD'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}"/>
-                    </td>
-      			</tr>
-      			<tr>
-      				<td>
-      					<img src="getPlot?metric=NumberOfInstructions&amp;type=shortterm" alt="Chart for metric 'Byte Code Instructions'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}" />
-      				</td><td>
-                        <img src="getPlot?metric=NumberOfInstructions&amp;type=longterm" alt="Chart for long term trend of metric 'Byte Code Instructions'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}"/>
-                    </td>
-                </tr>  
-                <tr>
-      				<td>
-      					<img src="getPlot?metric=NumberOfMetricWarnings&amp;type=shortterm" alt="Chart for metric 'Threshold Violations'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}" />
-      				</td>
-      				<td>
-                        <img src="getPlot?metric=NumberOfMetricWarnings&amp;type=longterm" alt="Chart for long term trend of metric 'Threshold Violations'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}"/>
-                    </td>
-                </tr>
-                <tr>  
-      				<td>
-      					<img src="getPlot?metric=BiggestCycleGroup&amp;type=shortterm" alt="Chart for metric 'Biggest Package Cycle Group'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}" />
-      				</td>
-      				<td>
-                        <img src="getPlot?metric=BiggestCycleGroup&amp;type=longterm" alt="Chart for long term trend of metric 'Biggest Package Cycle Group'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}"/>
-                    </td>
-                </tr> 
-                -->
-                 
       		</table>
       	</l:main-panel>
     </l:layout>
