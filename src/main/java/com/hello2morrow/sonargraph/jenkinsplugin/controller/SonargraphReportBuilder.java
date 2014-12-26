@@ -135,6 +135,13 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
             return false;
         }
 
+        if (!super.processMetricsForCharts(build, getMetricsToDisplay()))
+        {
+            RecorderLogger.logToConsoleOutput(listener.getLogger(), Level.SEVERE,
+                    "There was an error trying to save the configuration of metrics to be displayed in charts");
+            return false;
+        }
+
         String sonargraphReportDirectory = new TFile(absoluteReportDir).getAbsolutePath();
         if (super.processSonargraphReport(build, sonargraphReportDirectory, SONARGRAPH_REPORT_FILE_NAME, listener.getLogger()))
         {

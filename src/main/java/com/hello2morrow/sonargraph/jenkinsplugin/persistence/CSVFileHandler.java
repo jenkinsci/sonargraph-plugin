@@ -15,6 +15,7 @@ import java.util.logging.Level;
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.SonargraphLogger;
+import com.hello2morrow.sonargraph.jenkinsplugin.foundation.StringUtility;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.BuildDataPoint;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.IDataPoint;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.IMetricHistoryProvider;
@@ -37,7 +38,6 @@ public class CSVFileHandler implements IMetricHistoryProvider
     private static final int TIMESTAMP_COLUMN = 1;
     private static final int BUILDNUMBER_COLUMN = 0;
     /** Default separator for the CSV file. */
-    public static final char SEPARATOR = ';';
     private static final String BUILDNUMBER_COLUMN_NAME = "buildNumber";
     private static final String TIMESTAMP_COLUMN_NAME = "timestamp";
 
@@ -112,12 +112,12 @@ public class CSVFileHandler implements IMetricHistoryProvider
 
     public String createHeaderLine()
     {
-        StringBuilder headerLine = new StringBuilder(BUILDNUMBER_COLUMN_NAME).append(SEPARATOR);
+        StringBuilder headerLine = new StringBuilder(BUILDNUMBER_COLUMN_NAME).append(StringUtility.CSV_SEPARATOR);
         headerLine.append(TIMESTAMP_COLUMN_NAME);
 
         for (SonargraphMetrics metric : COLUMN_MAPPING.keySet())
         {
-            headerLine.append(SEPARATOR);
+            headerLine.append(StringUtility.CSV_SEPARATOR);
             headerLine.append(metric.getStandardName());
         }
         return headerLine.toString();
@@ -138,7 +138,7 @@ public class CSVFileHandler implements IMetricHistoryProvider
 
         try
         {
-            CSVReader csvReader = new CSVReader(new TFileReader(m_file), SEPARATOR);
+            CSVReader csvReader = new CSVReader(new TFileReader(m_file), StringUtility.CSV_SEPARATOR);
             String[] nextLine;
             int column = COLUMN_MAPPING.get(metric);
             csvReader.readNext(); //We do nothing with the header line.
@@ -230,12 +230,12 @@ public class CSVFileHandler implements IMetricHistoryProvider
     {
         TFileWriter fileWriter = new TFileWriter(m_file, true);
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-        StringBuilder line = new StringBuilder(buildNumber.toString()).append(SEPARATOR);
+        StringBuilder line = new StringBuilder(buildNumber.toString()).append(StringUtility.CSV_SEPARATOR);
 
         line.append(timestamp);
         for (SonargraphMetrics metric : COLUMN_MAPPING.keySet())
         {
-            line.append(SEPARATOR);
+            line.append(StringUtility.CSV_SEPARATOR);
             String value = metricValues.get(metric);
             if (value == null)
             {
@@ -262,7 +262,7 @@ public class CSVFileHandler implements IMetricHistoryProvider
         int realMetricIndex = -1;
         try
         {
-            CSVReader csvReader = new CSVReader(new TFileReader(m_file), SEPARATOR);
+            CSVReader csvReader = new CSVReader(new TFileReader(m_file), StringUtility.CSV_SEPARATOR);
             String[] headerLine = csvReader.readNext();
             realMetricIndex = Arrays.asList(headerLine).indexOf(metric.getStandardName());
             csvReader.close();

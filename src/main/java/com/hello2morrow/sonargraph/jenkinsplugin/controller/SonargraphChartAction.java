@@ -83,7 +83,7 @@ public class SonargraphChartAction implements Action, ProminentProjectAction
             return;
         }
 
-        TFile csvFile = new TFile(project.getRootDir(), ConfigParameters.CSV_FILE_PATH.getValue());
+        TFile csvFile = new TFile(project.getRootDir(), ConfigParameters.METRIC_HISTORY_CSV_FILE_PATH.getValue());
         SonargraphLogger.INSTANCE.log(Level.FINE,
                 "Generating chart for metric '" + metricName + "'. Reading values from '" + csvFile.getNormalizedAbsolutePath() + "'");
         IMetricHistoryProvider csvFileHandler = new CSVFileHandler(csvFile);

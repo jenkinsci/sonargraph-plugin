@@ -9,7 +9,8 @@ public enum ConfigParameters
     REPORT_ANALYZER_DISPLAY_NAME("Sonargraph Report Analysis"),
     JOB_FOLDER("job/"),
     HTML_REPORT_ACTION_URL("sonargraph-html-report"),
-    CSV_FILE_PATH("sonargraph.csv"),
+    METRIC_HISTORY_CSV_FILE_PATH("sonargraph.csv"),
+    CHARTS_FOR_METRICS_CSV_FILE_PATH("charts_for_metrics.csv"),
     SONARGRAPH_HTML_REPORT_FILE_NAME("/sonargraph-report.html"),
     REPORT_HISTORY_FOLDER("sonargraphReportHistory");
 

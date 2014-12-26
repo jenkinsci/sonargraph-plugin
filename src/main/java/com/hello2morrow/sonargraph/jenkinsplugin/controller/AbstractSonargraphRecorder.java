@@ -20,6 +20,7 @@ import java.util.logging.Level;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.RecorderLogger;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.StringUtility;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
+import com.hello2morrow.sonargraph.jenkinsplugin.persistence.CSVChartsForMetricsHandler;
 import com.hello2morrow.sonargraph.jenkinsplugin.persistence.PluginVersionReader;
 import com.hello2morrow.sonargraph.jenkinsplugin.persistence.ReportHistoryFileManager;
 
@@ -114,7 +115,7 @@ public abstract class AbstractSonargraphRecorder extends Recorder
         sonargraphBuildAnalyzer.changeBuildResultIfMetricValueIsZero(SonargraphMetrics.NUMBER_OF_INTERNAL_TYPES, emptyWorkspaceAction);
         Result buildResult = sonargraphBuildAnalyzer.getOverallBuildResult();
 
-        TFile metricHistoryFile = new TFile(build.getProject().getRootDir(), ConfigParameters.CSV_FILE_PATH.getValue());
+        TFile metricHistoryFile = new TFile(build.getProject().getRootDir(), ConfigParameters.METRIC_HISTORY_CSV_FILE_PATH.getValue());
         try
         {
             sonargraphBuildAnalyzer.saveMetricsToCSV(metricHistoryFile, build.getTimestamp().getTimeInMillis(), build.getNumber());
@@ -130,6 +131,26 @@ public abstract class AbstractSonargraphRecorder extends Recorder
                     + "'");
             build.setResult(buildResult);
         }
+        return true;
+    }
+
+    protected boolean processMetricsForCharts(AbstractBuild<?, ?> build, List<ChartForMetric> chartsForMetrics)
+    {
+        assert build != null : "Parameter 'build' of method 'processMetricsForCharts' must not be null";
+        assert chartsForMetrics != null : "Parameter 'chartsForMetrics' of method 'processMetricsForCharts' must not be null";
+
+        TFile chartsForMetricsFile = new TFile(build.getProject().getRootDir(), ConfigParameters.CHARTS_FOR_METRICS_CSV_FILE_PATH.getValue());
+
+        try
+        {
+            CSVChartsForMetricsHandler chartsForMetricsHandler = new CSVChartsForMetricsHandler();
+            chartsForMetricsHandler.writeChartsForMetrics(chartsForMetricsFile, chartsForMetrics);
+        }
+        catch (IOException e)
+        {
+            return false;
+        }
+
         return true;
     }
 
