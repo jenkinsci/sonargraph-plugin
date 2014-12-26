@@ -11,6 +11,19 @@
                     <th style="text-align:left;font-size:16px;font-weight:bold;color:#1122CC">Short Term Trend</th>
                     <th style="text-align:left;font-size:16px;font-weight:bold;color:#1122CC">Long Term Trend (24h Moving Average)</th>
       			</tr>
+      			
+      			<j:forEach var="value" items="${it.chartsForMetrics}">
+        			<tr>
+	      				<td>
+	      					<img src="getPlot?metric=${value}&amp;type=shortterm" alt="Chart for metric 'Structural Debt Index'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}"/>
+	      				</td>
+	      				<td>
+	      				    <img src="getPlot?metric=${value}&amp;type=longterm" alt="Chart for long term trend of metric 'Structural Debt Index'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}"/>
+	      				</td>
+                	</tr>    
+    			</j:forEach>
+      			
+      			<!--
       			<tr>
       				<td>
       					<img src="getPlot?metric=StructuralDebtIndex&amp;type=shortterm" alt="Chart for metric 'Structural Debt Index'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}"/>
@@ -57,7 +70,9 @@
       				<td>
                         <img src="getPlot?metric=BiggestCycleGroup&amp;type=longterm" alt="Chart for long term trend of metric 'Biggest Package Cycle Group'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}"/>
                     </td>
-                </tr>  
+                </tr> 
+                -->
+                 
       		</table>
       	</l:main-panel>
     </l:layout>

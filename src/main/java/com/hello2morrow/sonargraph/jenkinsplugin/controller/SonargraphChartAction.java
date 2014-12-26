@@ -6,6 +6,8 @@ import hudson.model.AbstractProject;
 import hudson.util.Graph;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -22,6 +24,7 @@ import com.hello2morrow.sonargraph.jenkinsplugin.model.IMetricHistoryProvider;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.TimeSeriesPlot;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.XYLineAndShapePlot;
+import com.hello2morrow.sonargraph.jenkinsplugin.persistence.CSVChartsForMetricsHandler;
 import com.hello2morrow.sonargraph.jenkinsplugin.persistence.CSVFileHandler;
 
 import de.schlichtherle.truezip.file.TFile;
@@ -51,9 +54,34 @@ public class SonargraphChartAction implements Action, ProminentProjectAction
     private static final String BUILD = "Build";
     private static final String DATE = "Date";
 
+    private List<String> chartsForMetrics;
+
     public SonargraphChartAction(AbstractProject<?, ?> project, AbstractSonargraphRecorder builder)
     {
         this.project = project;
+    }
+
+    public List<String> getChartsForMetrics()
+    {
+        chartsForMetrics = new ArrayList<String>();
+        CSVChartsForMetricsHandler csvChartsForMetricsHandler = new CSVChartsForMetricsHandler();
+
+        TFile chartsForMetricsFile = new TFile(project.getRootDir(), ConfigParameters.CHARTS_FOR_METRICS_CSV_FILE_PATH.getValue());
+
+        try
+        {
+            String[] chartsForMetricsFromCSV = csvChartsForMetricsHandler.readChartsForMetrics(chartsForMetricsFile);
+            for (String chartForMetric : chartsForMetricsFromCSV)
+            {
+                chartsForMetrics.add(chartForMetric);
+            }
+        }
+        catch (IOException e)
+        {
+            assert false : "Could not read which metrics were configured to be displayed in charts";
+        }
+
+        return chartsForMetrics;
     }
 
     /**
