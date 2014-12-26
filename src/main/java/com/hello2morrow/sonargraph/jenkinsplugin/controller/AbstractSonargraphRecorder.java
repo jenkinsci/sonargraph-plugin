@@ -14,7 +14,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.RecorderLogger;
@@ -38,11 +39,11 @@ public abstract class AbstractSonargraphRecorder extends Recorder
     private final String workItemsAction;
     private final String emptyWorkspaceAction;
 
-    private final List<ChartForMetric> metricsToDisplay;
+    private final Set<ChartForMetric> metricsToDisplay;
 
     public AbstractSonargraphRecorder(String reportDirectory, String architectureViolationsAction, String unassignedTypesAction,
             String cyclicElementsAction, String thresholdViolationsAction, String architectureWarningsAction, String workspaceWarningsAction,
-            String workItemsAction, String emptyWorkspaceAction, List<ChartForMetric> metricsToDisplay)
+            String workItemsAction, String emptyWorkspaceAction, Set<ChartForMetric> metricsToDisplay)
     {
         this.reportDirectory = reportDirectory;
         this.architectureViolationsAction = architectureViolationsAction;
@@ -134,7 +135,7 @@ public abstract class AbstractSonargraphRecorder extends Recorder
         return true;
     }
 
-    protected boolean processMetricsForCharts(AbstractBuild<?, ?> build, List<ChartForMetric> chartsForMetrics)
+    protected boolean processMetricsForCharts(AbstractBuild<?, ?> build, Set<ChartForMetric> chartsForMetrics)
     {
         assert build != null : "Parameter 'build' of method 'processMetricsForCharts' must not be null";
         assert chartsForMetrics != null : "Parameter 'chartsForMetrics' of method 'processMetricsForCharts' must not be null";
@@ -144,7 +145,12 @@ public abstract class AbstractSonargraphRecorder extends Recorder
         try
         {
             CSVChartsForMetricsHandler chartsForMetricsHandler = new CSVChartsForMetricsHandler();
-            chartsForMetricsHandler.writeChartsForMetrics(chartsForMetricsFile, chartsForMetrics);
+            Set<String> metricsAsStrings = new HashSet<String>(chartsForMetrics.size());
+            for (ChartForMetric chartForMetric : chartsForMetrics)
+            {
+                metricsAsStrings.add(chartForMetric.getMetricName());
+            }
+            chartsForMetricsHandler.writeChartsForMetrics(chartsForMetricsFile, metricsAsStrings);
         }
         catch (IOException e)
         {
@@ -215,7 +221,7 @@ public abstract class AbstractSonargraphRecorder extends Recorder
         return emptyWorkspaceAction;
     }
 
-    public List<ChartForMetric> getMetricsToDisplay()
+    public Set<ChartForMetric> getMetricsToDisplay()
     {
         return metricsToDisplay;
     }

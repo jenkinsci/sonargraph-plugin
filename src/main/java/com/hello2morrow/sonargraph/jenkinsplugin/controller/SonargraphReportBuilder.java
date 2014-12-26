@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 
 import net.sf.json.JSONObject;
@@ -68,7 +69,7 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
     public SonargraphReportBuilder(String mavenInstallation, String systemFile, String reportDirectory, String useSonargraphWorkspace,
             String prepareForSonar, String architectureViolationsAction, String unassignedTypesAction, String cyclicElementsAction,
             String thresholdViolationsAction, String architectureWarningsAction, String workspaceWarningsAction, String workItemsAction,
-            String emptyWorkspaceAction, List<ChartForMetric> metricsToDisplay)
+            String emptyWorkspaceAction, Set<ChartForMetric> metricsToDisplay)
     {
         super(reportDirectory, architectureViolationsAction, unassignedTypesAction, cyclicElementsAction, thresholdViolationsAction,
                 architectureWarningsAction, workspaceWarningsAction, workItemsAction, emptyWorkspaceAction, metricsToDisplay);
