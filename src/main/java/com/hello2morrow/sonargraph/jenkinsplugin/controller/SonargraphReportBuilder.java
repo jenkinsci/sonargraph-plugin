@@ -313,6 +313,11 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
         {
             return activationCode;
         }
+        
+        public String getUserHome()
+        {
+        	return System.getProperty("user.home");
+        }
 
         public FormValidation doCheckVersion(@QueryParameter
         String value)
