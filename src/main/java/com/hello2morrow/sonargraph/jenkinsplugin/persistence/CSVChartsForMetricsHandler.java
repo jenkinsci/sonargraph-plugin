@@ -2,7 +2,7 @@ package com.hello2morrow.sonargraph.jenkinsplugin.persistence;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.util.Set;
+import java.util.List;
 
 import au.com.bytecode.opencsv.CSVReader;
 
@@ -14,7 +14,7 @@ import de.schlichtherle.truezip.file.TFileWriter;
 
 public class CSVChartsForMetricsHandler
 {
-    public void writeChartsForMetrics(TFile chartsForMetricsFile, Set<String> metricsAsStrings) throws IOException
+    public void writeChartsForMetrics(TFile chartsForMetricsFile, List<String> metricsAsStrings) throws IOException
     {
         assert metricsAsStrings != null : "Parameter 'chartForMetrics' of method 'writeChartsForMetrics' must not be null";
 

@@ -49,7 +49,7 @@ public class ChartForMetric extends AbstractDescribableImpl<ChartForMetric>
         public ListBoxModel doFillMetricNameItems()
         {
             ListBoxModel items = new ListBoxModel();
-            for (SonargraphMetrics metric : SonargraphMetrics.values())
+            for (SonargraphMetrics metric : SonargraphMetrics.getAvailableMetrics())
             {
                 items.add(metric.getDescription(), metric.getStandardName());
             }

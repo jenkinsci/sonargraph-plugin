@@ -7,7 +7,7 @@ import hudson.model.AbstractBuild;
 import hudson.util.FormValidation;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.List;
 import java.util.logging.Level;
 
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -31,10 +31,10 @@ public class SonargraphReportAnalyzer extends AbstractSonargraphRecorder
     @DataBoundConstructor
     public SonargraphReportAnalyzer(String reportDirectory, String reportName, String architectureViolationsAction, String unassignedTypesAction,
             String cyclicElementsAction, String thresholdViolationsAction, String architectureWarningsAction, String workspaceWarningsAction,
-            String workItemsAction, String emptyWorkspaceAction, Set<ChartForMetric> metricsToDisplay)
+            String workItemsAction, String emptyWorkspaceAction, String replaceDefaultMetrics, List<ChartForMetric> additionalMetricsToDisplay)
     {
         super(reportDirectory, architectureViolationsAction, unassignedTypesAction, cyclicElementsAction, thresholdViolationsAction,
-                architectureWarningsAction, workspaceWarningsAction, workItemsAction, emptyWorkspaceAction, metricsToDisplay);
+                architectureWarningsAction, workspaceWarningsAction, workItemsAction, emptyWorkspaceAction, replaceDefaultMetrics, additionalMetricsToDisplay);
 
         assert (reportName != null) && (reportName.length() > 0) : "Parameter 'sonargraphReportName' of method 'SonargraphReportAnalyzer' must not be empty";
         this.reportName = reportName;
@@ -46,7 +46,7 @@ public class SonargraphReportAnalyzer extends AbstractSonargraphRecorder
         assert listener != null : "Parameter 'listener' of method 'perform' must not be null";
         logExecutionStart(build, listener, SonargraphReportAnalyzer.class);
 
-        if (!super.processMetricsForCharts(build, getMetricsToDisplay()))
+        if (!super.processMetricsForCharts(build, getAdditionalMetricsToDisplay()))
         {
             RecorderLogger.logToConsoleOutput(listener.getLogger(), Level.SEVERE,
                     "There was an error trying to save the configuration of metrics to be displayed in charts");

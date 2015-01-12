@@ -6,10 +6,10 @@ import hudson.model.AbstractProject;
 import hudson.util.Graph;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 
 import jenkins.model.JenkinsLocationConfiguration;
@@ -62,7 +62,7 @@ public class SonargraphChartAction implements Action, ProminentProjectAction
 
     public Collection<String> getChartsForMetrics()
     {
-        Set<String> chartsForMetrics = new HashSet<String>();
+        List<String> chartsForMetrics = new ArrayList<String>();
         CSVChartsForMetricsHandler csvChartsForMetricsHandler = new CSVChartsForMetricsHandler();
 
         TFile chartsForMetricsFile = new TFile(project.getRootDir(), ConfigParameters.CHARTS_FOR_METRICS_CSV_FILE_PATH.getValue());
