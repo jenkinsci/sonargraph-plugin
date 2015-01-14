@@ -70,9 +70,13 @@ public class SonargraphChartAction implements Action, ProminentProjectAction
         try
         {
             String[] chartsForMetricsFromCSV = csvChartsForMetricsHandler.readChartsForMetrics(chartsForMetricsFile);
+
             for (String chartForMetric : chartsForMetricsFromCSV)
             {
-                chartsForMetrics.add(chartForMetric);
+                if (!chartForMetric.isEmpty())
+                {
+                    chartsForMetrics.add(chartForMetric);
+                }
             }
         }
         catch (IOException e)

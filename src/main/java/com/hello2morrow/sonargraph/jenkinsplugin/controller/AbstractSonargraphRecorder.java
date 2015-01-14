@@ -15,6 +15,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -60,7 +61,7 @@ public abstract class AbstractSonargraphRecorder extends Recorder
         this.workItemsAction = workItemsAction;
         this.emptyWorkspaceAction = emptyWorkspaceAction;
         this.replaceDefaultMetrics = replaceDefaultMetrics;
-        this.additionalMetricsToDisplay = additionalMetricsToDisplay;
+        this.additionalMetricsToDisplay = additionalMetricsToDisplay == null ? Collections.<ChartForMetric> emptyList() : additionalMetricsToDisplay;
     }
 
     private static List<ChartForMetric> getDefaultMetrics()
@@ -70,9 +71,9 @@ public abstract class AbstractSonargraphRecorder extends Recorder
         {
             chartMetrics.add(new ChartForMetric(metric.getStandardName()));
         }
-        
+
         //Remove metrics not stored in CSV file
-        
+
         return chartMetrics;
     }
 
@@ -163,7 +164,7 @@ public abstract class AbstractSonargraphRecorder extends Recorder
         try
         {
             CSVChartsForMetricsHandler chartsForMetricsHandler = new CSVChartsForMetricsHandler();
-            List<String> metricsAsStrings = new ArrayList<String>(additionalChartsForMetrics.size());
+            List<String> metricsAsStrings = new ArrayList<String>();
             if (getReplaceDefaultMetrics() == null || !getReplaceDefaultMetrics().trim().equals(Boolean.toString(true)))
             {
                 for (ChartForMetric next : getDefaultMetrics())
@@ -171,9 +172,12 @@ public abstract class AbstractSonargraphRecorder extends Recorder
                     metricsAsStrings.add(next.getMetricName());
                 }
             }
-            for (ChartForMetric chartForMetric : additionalChartsForMetrics)
+            if (getReplaceDefaultMetrics() != null)
             {
-                metricsAsStrings.add(chartForMetric.getMetricName());
+                for (ChartForMetric chartForMetric : additionalChartsForMetrics)
+                {
+                    metricsAsStrings.add(chartForMetric.getMetricName());
+                }
             }
             chartsForMetricsHandler.writeChartsForMetrics(chartsForMetricsFile, metricsAsStrings);
         }
@@ -250,7 +254,7 @@ public abstract class AbstractSonargraphRecorder extends Recorder
     {
         return replaceDefaultMetrics;
     }
-    
+
     public List<ChartForMetric> getAdditionalMetricsToDisplay()
     {
         return additionalMetricsToDisplay;

@@ -22,12 +22,15 @@ public class CSVChartsForMetricsHandler
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
         StringBuilder content = new StringBuilder();
 
-        for (String chartForMetric : metricsAsStrings)
+        if (!metricsAsStrings.isEmpty())
         {
-            content.append(chartForMetric);
-            content.append(StringUtility.CSV_SEPARATOR);
+            for (String chartForMetric : metricsAsStrings)
+            {
+                content.append(chartForMetric);
+                content.append(StringUtility.CSV_SEPARATOR);
+            }
+            content.deleteCharAt(content.length() - 1);
         }
-        content.deleteCharAt(content.length() - 1);
         bufferedWriter.write(content.toString());
         bufferedWriter.newLine();
         bufferedWriter.flush();
