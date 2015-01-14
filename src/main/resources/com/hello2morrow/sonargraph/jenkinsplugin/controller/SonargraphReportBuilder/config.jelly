@@ -45,7 +45,7 @@
     
     <f:advanced title="Advanced Settings">
 	    <f:section title="Chart Configuration">
-	    	<f:entry help="/plugin/sonargraph-plugin/html/html-appendMetrics.html">
+	    	<f:entry description="The default metrics to be displayed are ${instance.defaultMetricsAsStirng}." help="/plugin/sonargraph-plugin/html/html-appendMetrics.html">
             	<f:radio name="replaceDefaultMetrics" title="Append charts for additional metrics to default charts" value="false" checked="${instance.replaceDefaultMetrics != 'true'}"/>
           	</f:entry>
           	<f:entry help="/plugin/sonargraph-plugin/html/html-replaceMetrics.html">

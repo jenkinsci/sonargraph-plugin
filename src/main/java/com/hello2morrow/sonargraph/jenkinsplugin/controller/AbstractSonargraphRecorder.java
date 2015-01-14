@@ -259,4 +259,24 @@ public abstract class AbstractSonargraphRecorder extends Recorder
     {
         return additionalMetricsToDisplay;
     }
+
+    public String getDefaultMetricsAsStirng()
+    {
+        StringBuilder defaultMetricsAsString = new StringBuilder();
+
+        int numberOfDefaultMetrics = DEFAULT_METRICS.size();
+
+        for (int i = 0; i < numberOfDefaultMetrics; i++)
+        {
+            if (i == numberOfDefaultMetrics - 1)
+            {
+                defaultMetricsAsString.append(" and ");
+            }
+            defaultMetricsAsString.append(DEFAULT_METRICS.get(i).getDescription());
+            defaultMetricsAsString.append(", ");
+        }
+        defaultMetricsAsString.replace(defaultMetricsAsString.length() - 2, defaultMetricsAsString.length(), StringUtility.EMPTY_STRING);
+
+        return defaultMetricsAsString.toString();
+    }
 }
