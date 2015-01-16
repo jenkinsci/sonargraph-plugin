@@ -151,6 +151,10 @@ class SonargraphBuildAnalyzer
 
         for (SonargraphMetrics metric : SonargraphMetrics.values())
         {
+            if (metric == SonargraphMetrics.EMPTY)
+            {
+                continue;
+            }
             buildMetricValues.put(metric, m_report.getSystemMetricValue(metric));
         }
 

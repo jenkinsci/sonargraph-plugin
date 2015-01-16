@@ -155,7 +155,7 @@ public abstract class AbstractSonargraphRecorder extends Recorder
         return true;
     }
 
-    protected boolean processMetricsForCharts(AbstractBuild<?, ?> build, List<ChartForMetric> additionalChartsForMetrics)
+    protected final boolean processMetricsForCharts(AbstractBuild<?, ?> build, List<ChartForMetric> additionalChartsForMetrics)
     {
         assert build != null : "Parameter 'build' of method 'processMetricsForCharts' must not be null";
         assert additionalChartsForMetrics != null : "Parameter 'additionalChartsForMetrics' of method 'processMetricsForCharts' must not be null";
@@ -165,6 +165,8 @@ public abstract class AbstractSonargraphRecorder extends Recorder
         {
             CSVChartsForMetricsHandler chartsForMetricsHandler = new CSVChartsForMetricsHandler();
             List<String> metricsAsStrings = new ArrayList<String>();
+            
+            //Add default metrics
             if (getReplaceDefaultMetrics() == null || !getReplaceDefaultMetrics().trim().equals(Boolean.toString(true)))
             {
                 for (ChartForMetric next : getDefaultMetrics())
@@ -172,12 +174,15 @@ public abstract class AbstractSonargraphRecorder extends Recorder
                     metricsAsStrings.add(next.getMetricName());
                 }
             }
-            if (getReplaceDefaultMetrics() != null)
+
+            //Always add additional metrics (if there are any)
+            for (ChartForMetric chartForMetric : additionalChartsForMetrics)
             {
-                for (ChartForMetric chartForMetric : additionalChartsForMetrics)
+                if (chartForMetric.getMetricName().equals(SonargraphMetrics.EMPTY.getStandardName()))
                 {
-                    metricsAsStrings.add(chartForMetric.getMetricName());
+                    continue;
                 }
+                metricsAsStrings.add(chartForMetric.getMetricName());
             }
             chartsForMetricsHandler.writeChartsForMetrics(chartsForMetricsFile, metricsAsStrings);
         }
@@ -260,7 +265,7 @@ public abstract class AbstractSonargraphRecorder extends Recorder
         return additionalMetricsToDisplay;
     }
 
-    public String getDefaultMetricsAsStirng()
+    public String getDefaultMetricsAsString()
     {
         StringBuilder defaultMetricsAsString = new StringBuilder();
 

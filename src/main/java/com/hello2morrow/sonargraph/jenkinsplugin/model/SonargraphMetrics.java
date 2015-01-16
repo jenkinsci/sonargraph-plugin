@@ -15,7 +15,9 @@ import com.hello2morrow.sonargraph.jenkinsplugin.foundation.StringUtility;
  */
 public enum SonargraphMetrics
 {
-    /*---------------- START: Metrics that are going to be in the graphics section ------------------*/
+    EMPTY("", "", true),
+    
+    /*---------------- START: Default metrics that are going to be in the graphics section ------------------*/
 
     STRUCTURAL_DEBT_INDEX("Structural Debt Index (SDI)", "SDI", true),
     NUMBER_OF_VIOLATIONS("Violating Type Dependencies", "Violating Type Dependencies", true),

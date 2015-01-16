@@ -183,14 +183,13 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
 
         if (pomPath != null && !pomPath.isEmpty())
         {
-            mvnCommand.append(" -f ").append(escapePath(absolutePathToPom));
         	TFile pomFile = new TFile(pomPath);
         	if (!pomFile.exists())
         	{
         		pomFile = new TFile(workspacePath, pomPath);
         	}
         	mvnCommand.append(" -f ");
-        	mvnCommand.append(pomFile.getNormalizedAbsolutePath());
+        	mvnCommand.append(escapePath(pomFile.getNormalizedAbsolutePath()));
         }
 
         // FIXME: Why are some modules not found if goal is run on multi-module

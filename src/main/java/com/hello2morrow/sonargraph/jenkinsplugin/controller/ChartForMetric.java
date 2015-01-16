@@ -51,7 +51,14 @@ public class ChartForMetric extends AbstractDescribableImpl<ChartForMetric>
             ListBoxModel items = new ListBoxModel();
             for (SonargraphMetrics metric : SonargraphMetrics.getAvailableMetrics())
             {
-                items.add(metric.getDescription(), metric.getStandardName());
+                if (metric == SonargraphMetrics.EMPTY)
+                {
+                    items.add("<Select a metric>", metric.getStandardName());
+                }
+                else
+                {
+                    items.add(metric.getDescription(), metric.getStandardName());
+                }
             }
             return items;
         }
