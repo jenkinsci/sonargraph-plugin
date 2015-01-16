@@ -6,59 +6,30 @@
     	<l:main-panel>
 			<h1>${%Sonargraph}</h1>
 			<h2><a href="${it.reportURL}">Show most recent Sonargraph Report</a></h2>
-      		<table cellspacing="15">
-                <tr>
-                    <th style="text-align:left;font-size:16px;font-weight:bold;color:#1122CC">Short Term Trend</th>
-                    <th style="text-align:left;font-size:16px;font-weight:bold;color:#1122CC">Long Term Trend (24h Moving Average)</th>
-      			</tr>
-      			<tr>
-      				<td>
-      					<img src="getPlot?metric=StructuralDebtIndex&amp;type=shortterm" alt="Chart for metric 'Structural Debt Index'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}"/>
-      				</td>
-      				<td>
-      				    <img src="getPlot?metric=StructuralDebtIndex&amp;type=longterm" alt="Chart for long term trend of metric 'Structural Debt Index'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}"/>
-      				</td>
-                </tr>
-                <tr>      				
-      				<td>
-      					<img src="getPlot?metric=NumberOfViolations&amp;type=shortterm" alt="Chart for metric 'Violating Type Dependencies'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}" />
-      				</td>
-      				<td>
-                        <img src="getPlot?metric=NumberOfViolations&amp;type=longterm" alt="Chart for long term trend of metric 'Violating Type Dependencies'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}"/>
-                    </td>
-                </tr>
-                <tr>  
-      				<td>
-      					<img src="getPlot?metric=HighestAverageComponentDependency&amp;type=shortterm" alt="Chart for metric 'Highest ACD'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}" />
-      				</td>
-      				<td>
-                        <img src="getPlot?metric=HighestAverageComponentDependency&amp;type=longterm" alt="Chart for long term trend of metric 'Highest ACD'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}"/>
-                    </td>
-      			</tr>
-      			<tr>
-      				<td>
-      					<img src="getPlot?metric=NumberOfInstructions&amp;type=shortterm" alt="Chart for metric 'Byte Code Instructions'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}" />
-      				</td><td>
-                        <img src="getPlot?metric=NumberOfInstructions&amp;type=longterm" alt="Chart for long term trend of metric 'Byte Code Instructions'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}"/>
-                    </td>
-                </tr>  
-                <tr>
-      				<td>
-      					<img src="getPlot?metric=NumberOfMetricWarnings&amp;type=shortterm" alt="Chart for metric 'Threshold Violations'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}" />
-      				</td>
-      				<td>
-                        <img src="getPlot?metric=NumberOfMetricWarnings&amp;type=longterm" alt="Chart for long term trend of metric 'Threshold Violations'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}"/>
-                    </td>
-                </tr>
-                <tr>  
-      				<td>
-      					<img src="getPlot?metric=BiggestCycleGroup&amp;type=shortterm" alt="Chart for metric 'Biggest Package Cycle Group'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}" />
-      				</td>
-      				<td>
-                        <img src="getPlot?metric=BiggestCycleGroup&amp;type=longterm" alt="Chart for long term trend of metric 'Biggest Package Cycle Group'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}"/>
-                    </td>
-                </tr>  
-      		</table>
+      		<j:if test="${it.chartsForMetrics.size() != 0}"> 
+      			<table cellspacing="15">
+	                <tr>
+	                    <th style="text-align:left;font-size:16px;font-weight:bold;color:#1122CC">Short Term Trend</th>
+	                    <th style="text-align:left;font-size:16px;font-weight:bold;color:#1122CC">Long Term Trend (24h Moving Average)</th>
+	      			</tr>
+	      			<j:forEach var="value" items="${it.chartsForMetrics}">
+	        			<tr>
+		      				<td>
+		      					<img src="getPlot?metric=${value}&amp;type=shortterm" alt="Chart for metric 'Structural Debt Index'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}"/>
+		      				</td>
+		      				<td>
+		      				    <img src="getPlot?metric=${value}&amp;type=longterm" alt="Chart for long term trend of metric 'Structural Debt Index'" width="${it.defaultGraphicWidth}" height="${it.defaultGraphicHeight}"/>
+		      				</td>
+	                	</tr>    
+	    			</j:forEach>
+      			</table>
+    		</j:if>
+    		<j:if test="${it.chartsForMetrics.size() == 0}">
+    			<h2 style="text-align:left;font-size:16px;font-weight:bold;color:#C0C0C0">
+    				Sonargraph is now configured to not display any chart. To change this, go to Sonargraph's post-build step and modify the 
+    				charts configuration under 'Advanced Settings...'.
+    			</h2>
+    		</j:if>
       	</l:main-panel>
     </l:layout>
 </j:jelly>
