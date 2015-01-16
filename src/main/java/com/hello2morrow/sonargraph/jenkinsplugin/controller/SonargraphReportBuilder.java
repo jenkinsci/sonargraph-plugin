@@ -31,7 +31,6 @@ import org.kohsuke.stapler.StaplerRequest;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.RecorderLogger;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.SonargraphLogger;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.StringUtility;
-import com.hello2morrow.sonargraph.jenkinsplugin.model.ProductVersion;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphProductType;
 
 import de.schlichtherle.truezip.file.TFile;
@@ -184,8 +183,14 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
 
         if (pomPath != null && !pomPath.isEmpty())
         {
-            String absolutePathToPom = new TFile(workspacePath, pomPath).getNormalizedAbsolutePath();
             mvnCommand.append(" -f ").append(escapePath(absolutePathToPom));
+        	TFile pomFile = new TFile(pomPath);
+        	if (!pomFile.exists())
+        	{
+        		pomFile = new TFile(workspacePath, pomPath);
+        	}
+        	mvnCommand.append(" -f ");
+        	mvnCommand.append(pomFile.getNormalizedAbsolutePath());
         }
 
         // FIXME: Why are some modules not found if goal is run on multi-module
@@ -204,7 +209,11 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
 
         if ((systemFile != null) && (systemFile.length() > 0))
         {
-            TFile sonargraphFile = new TFile(workspacePath, systemFile);
+        	TFile sonargraphFile = new TFile(systemFile);
+        	if (!sonargraphFile.exists())
+        	{
+        		sonargraphFile = new TFile(workspacePath, systemFile);
+        	}
             if (!sonargraphFile.exists())
             {
                 RecorderLogger.logToConsoleOutput(logger, Level.SEVERE,
@@ -297,10 +306,10 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
         @Override
         public boolean configure(StaplerRequest req, JSONObject formData) throws hudson.model.Descriptor.FormException
         {
-            productType = formData.getString("productType");
-            version = formData.getString("version");
-            license = formData.getString("license");
-            activationCode = formData.getString("activationCode");
+            productType = formData.getString("productType").trim();
+            version = formData.getString("version").trim();
+            license = formData.getString("license").trim();
+            activationCode = formData.getString("activationCode").trim();
 
             save();
             return super.configure(req, formData);
@@ -333,8 +342,8 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
 
         public FormValidation doCheckVersion(@QueryParameter String value)
         {
-            return StringUtility.validateNotNullAndRegexp(value, "^(\\d+\\.)+\\d+$") ? FormValidation.ok() : FormValidation
-                    .error("Please enter a valid version");
+            return StringUtility.validateNotNullAndRegexp(value.trim(), "^7.(\\d+\\.)\\d+$") ? FormValidation.ok() : FormValidation
+                    .error("Please enter a valid version. Format '7.x.y', starting from '7.1.9'");
         }
 
         public FormValidation doCheckLicense(@QueryParameter String value)
@@ -381,16 +390,6 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
             for (SonargraphProductType productType : SonargraphProductType.values())
             {
                 items.add(productType.getDisplayName(), productType.getId());
-            }
-            return items;
-        }
-
-        public ListBoxModel doFillVersionItems()
-        {
-            ListBoxModel items = new ListBoxModel();
-            for (ProductVersion version : ProductVersion.values())
-            {
-                items.add(version.getId(), version.getId());
             }
             return items;
         }

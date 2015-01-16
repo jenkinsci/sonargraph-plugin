@@ -5,7 +5,7 @@
     	<f:select/>
   	</f:entry>
   	<f:entry title="Sonargraph Version" field="version" help="/plugin/sonargraph-plugin/html/html-version.html">
-    	<f:select />
+    	<f:textbox />
   	</f:entry>
     <f:entry title="Either Licence File (absolute path) ..." field="license" help="/plugin/sonargraph-plugin/html/html-license-file.html">
     	<f:textbox default="${descriptor.getUserHome()}/.hello2morrow/SonargraphArchitect/SonargraphArchitect.license"/>
