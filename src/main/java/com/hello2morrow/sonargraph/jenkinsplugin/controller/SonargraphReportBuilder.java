@@ -326,6 +326,11 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
             return activationCode;
         }
 
+        public String getUserHome()
+        {
+            return System.getProperty("user.home");
+        }
+
         public FormValidation doCheckVersion(@QueryParameter String value)
         {
             return StringUtility.validateNotNullAndRegexp(value, "^(\\d+\\.)+\\d+$") ? FormValidation.ok() : FormValidation
@@ -334,7 +339,7 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
 
         public FormValidation doCheckLicense(@QueryParameter String value)
         {
-            boolean hasLicenseCorrectExtension = StringUtility.validateNotNullAndRegexp(value, "([a-zA-Z]:\\\\)?[\\/\\\\a-zA-Z0-9_.-]+.license$");
+            boolean hasLicenseCorrectExtension = StringUtility.validateNotNullAndRegexp(value, "([a-zA-Z]:\\\\)?([\\/\\\\a-zA-Z0-9_.-]+)+.license$");
             if (!hasLicenseCorrectExtension)
             {
                 return FormValidation.error("Please enter a valid path for the license");
