@@ -18,7 +18,7 @@
 			Besides controlling the build result, the plugin also generates graphics to monitor the trend of metrics across builds 
             and it will display the full Sonargraph HTML report for each build.
             <br/><br/>
-            NOTE: For the free Jenkins / Sonar license, only the options for "cyclic elements" and "empty workspace" are available.
+            NOTE: For the free Jenkins / SonarQube license, only the options for "cyclic elements" and "empty workspace" are available.
 			<p>
 			 <center><img src="${rootURL}/plugin/sonargraph-plugin/images/Sonargraph-Architect.png"/></center>
 			</p>

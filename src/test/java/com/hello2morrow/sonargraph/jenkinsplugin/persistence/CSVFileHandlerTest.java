@@ -16,6 +16,7 @@ import org.junit.Test;
 
 import au.com.bytecode.opencsv.CSVReader;
 
+import com.hello2morrow.sonargraph.jenkinsplugin.foundation.StringUtility;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.BuildDataPoint;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.IDataPoint;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.IMetricHistoryProvider;
@@ -75,8 +76,8 @@ public class CSVFileHandlerTest
         CSVFileHandler handler = new CSVFileHandler(new TFile(NON_EXISTING_CSV_FILE_PATH));
         String shoudBeTheFirstLine = handler.createHeaderLine();
 
-        CSVReader csvReader = new CSVReader(new TFileReader(new TFile(NON_EXISTING_CSV_FILE_PATH)), CSVFileHandler.SEPARATOR);
-        assertArrayEquals(shoudBeTheFirstLine.split(String.valueOf(CSVFileHandler.SEPARATOR)), csvReader.readNext());
+        CSVReader csvReader = new CSVReader(new TFileReader(new TFile(NON_EXISTING_CSV_FILE_PATH)), StringUtility.CSV_SEPARATOR);
+        assertArrayEquals(shoudBeTheFirstLine.split(String.valueOf(StringUtility.CSV_SEPARATOR)), csvReader.readNext());
         csvReader.close();
     }
 
@@ -158,7 +159,7 @@ public class CSVFileHandlerTest
         buildMetrics.put(SonargraphMetrics.NUMBER_OF_INSTRUCTIONS, "200");
         long timestamp = System.currentTimeMillis();
         csvFileHandler.writeMetricValues(1, timestamp, buildMetrics);
-        CSVReader csvReader = new CSVReader(new TFileReader(nowExistentFile), CSVFileHandler.SEPARATOR);
+        CSVReader csvReader = new CSVReader(new TFileReader(nowExistentFile), StringUtility.CSV_SEPARATOR);
         csvReader.readNext(); //Do nothing with the first line
         String[] line = csvReader.readNext();
         csvReader.close();

@@ -13,12 +13,16 @@ import hudson.tasks.Recorder;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Level;
 
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.RecorderLogger;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.StringUtility;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
+import com.hello2morrow.sonargraph.jenkinsplugin.persistence.CSVChartsForMetricsHandler;
 import com.hello2morrow.sonargraph.jenkinsplugin.persistence.PluginVersionReader;
 import com.hello2morrow.sonargraph.jenkinsplugin.persistence.ReportHistoryFileManager;
 
@@ -26,6 +30,10 @@ import de.schlichtherle.truezip.file.TFile;
 
 public abstract class AbstractSonargraphRecorder extends Recorder
 {
+    private static final List<SonargraphMetrics> DEFAULT_METRICS = Arrays.asList(SonargraphMetrics.STRUCTURAL_DEBT_INDEX,
+            SonargraphMetrics.NUMBER_OF_VIOLATIONS, SonargraphMetrics.NUMBER_OF_INSTRUCTIONS, SonargraphMetrics.NUMBER_OF_METRIC_WARNINGS,
+            SonargraphMetrics.BIGGEST_CYCLE_GROUP, SonargraphMetrics.HIGHEST_AVERAGE_COMPONENT_DEPENDENCY);
+
     private final String reportDirectory;
     private final String architectureViolationsAction;
     private final String unassignedTypesAction;
@@ -36,9 +44,12 @@ public abstract class AbstractSonargraphRecorder extends Recorder
     private final String workItemsAction;
     private final String emptyWorkspaceAction;
 
+    private final String replaceDefaultMetrics;
+    private final List<ChartForMetric> additionalMetricsToDisplay;
+
     public AbstractSonargraphRecorder(String reportDirectory, String architectureViolationsAction, String unassignedTypesAction,
             String cyclicElementsAction, String thresholdViolationsAction, String architectureWarningsAction, String workspaceWarningsAction,
-            String workItemsAction, String emptyWorkspaceAction)
+            String workItemsAction, String emptyWorkspaceAction, String replaceDefaultMetrics, List<ChartForMetric> additionalMetricsToDisplay)
     {
         this.reportDirectory = reportDirectory;
         this.architectureViolationsAction = architectureViolationsAction;
@@ -49,6 +60,21 @@ public abstract class AbstractSonargraphRecorder extends Recorder
         this.workspaceWarningsAction = workspaceWarningsAction;
         this.workItemsAction = workItemsAction;
         this.emptyWorkspaceAction = emptyWorkspaceAction;
+        this.replaceDefaultMetrics = replaceDefaultMetrics;
+        this.additionalMetricsToDisplay = additionalMetricsToDisplay == null ? Collections.<ChartForMetric> emptyList() : additionalMetricsToDisplay;
+    }
+
+    private static List<ChartForMetric> getDefaultMetrics()
+    {
+        List<ChartForMetric> chartMetrics = new ArrayList<ChartForMetric>();
+        for (SonargraphMetrics metric : DEFAULT_METRICS)
+        {
+            chartMetrics.add(new ChartForMetric(metric.getStandardName()));
+        }
+
+        //Remove metrics not stored in CSV file
+
+        return chartMetrics;
     }
 
     /**
@@ -110,7 +136,7 @@ public abstract class AbstractSonargraphRecorder extends Recorder
         sonargraphBuildAnalyzer.changeBuildResultIfMetricValueIsZero(SonargraphMetrics.NUMBER_OF_INTERNAL_TYPES, emptyWorkspaceAction);
         Result buildResult = sonargraphBuildAnalyzer.getOverallBuildResult();
 
-        TFile metricHistoryFile = new TFile(build.getProject().getRootDir(), ConfigParameters.CSV_FILE_PATH.getValue());
+        TFile metricHistoryFile = new TFile(build.getProject().getRootDir(), ConfigParameters.METRIC_HISTORY_CSV_FILE_PATH.getValue());
         try
         {
             sonargraphBuildAnalyzer.saveMetricsToCSV(metricHistoryFile, build.getTimestamp().getTimeInMillis(), build.getNumber());
@@ -126,6 +152,45 @@ public abstract class AbstractSonargraphRecorder extends Recorder
                     + "'");
             build.setResult(buildResult);
         }
+        return true;
+    }
+
+    protected final boolean processMetricsForCharts(AbstractBuild<?, ?> build, List<ChartForMetric> additionalChartsForMetrics)
+    {
+        assert build != null : "Parameter 'build' of method 'processMetricsForCharts' must not be null";
+        assert additionalChartsForMetrics != null : "Parameter 'additionalChartsForMetrics' of method 'processMetricsForCharts' must not be null";
+
+        TFile chartsForMetricsFile = new TFile(build.getProject().getRootDir(), ConfigParameters.CHARTS_FOR_METRICS_CSV_FILE_PATH.getValue());
+        try
+        {
+            CSVChartsForMetricsHandler chartsForMetricsHandler = new CSVChartsForMetricsHandler();
+            List<String> metricsAsStrings = new ArrayList<String>();
+            
+            //Add default metrics
+            if (getReplaceDefaultMetrics() == null || !getReplaceDefaultMetrics().trim().equals(Boolean.toString(true)))
+            {
+                for (ChartForMetric next : getDefaultMetrics())
+                {
+                    metricsAsStrings.add(next.getMetricName());
+                }
+            }
+
+            //Always add additional metrics (if there are any)
+            for (ChartForMetric chartForMetric : additionalChartsForMetrics)
+            {
+                if (chartForMetric.getMetricName().equals(SonargraphMetrics.EMPTY.getStandardName()))
+                {
+                    continue;
+                }
+                metricsAsStrings.add(chartForMetric.getMetricName());
+            }
+            chartsForMetricsHandler.writeChartsForMetrics(chartsForMetricsFile, metricsAsStrings);
+        }
+        catch (IOException e)
+        {
+            return false;
+        }
+
         return true;
     }
 
@@ -188,5 +253,35 @@ public abstract class AbstractSonargraphRecorder extends Recorder
     public String getEmptyWorkspaceAction()
     {
         return emptyWorkspaceAction;
+    }
+
+    public String getReplaceDefaultMetrics()
+    {
+        return replaceDefaultMetrics;
+    }
+
+    public List<ChartForMetric> getAdditionalMetricsToDisplay()
+    {
+        return additionalMetricsToDisplay;
+    }
+
+    public String getDefaultMetricsAsString()
+    {
+        StringBuilder defaultMetricsAsString = new StringBuilder();
+
+        int numberOfDefaultMetrics = DEFAULT_METRICS.size();
+
+        for (int i = 0; i < numberOfDefaultMetrics; i++)
+        {
+            if (i == numberOfDefaultMetrics - 1)
+            {
+                defaultMetricsAsString.append(" and ");
+            }
+            defaultMetricsAsString.append(DEFAULT_METRICS.get(i).getDescription());
+            defaultMetricsAsString.append(", ");
+        }
+        defaultMetricsAsString.replace(defaultMetricsAsString.length() - 2, defaultMetricsAsString.length(), StringUtility.EMPTY_STRING);
+
+        return defaultMetricsAsString.toString();
     }
 }

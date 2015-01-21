@@ -7,10 +7,13 @@ import hudson.model.AbstractBuild;
 import hudson.util.FormValidation;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.logging.Level;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
+import com.hello2morrow.sonargraph.jenkinsplugin.foundation.RecorderLogger;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.StringUtility;
 
 import de.schlichtherle.truezip.file.TFile;
@@ -28,10 +31,10 @@ public class SonargraphReportAnalyzer extends AbstractSonargraphRecorder
     @DataBoundConstructor
     public SonargraphReportAnalyzer(String reportDirectory, String reportName, String architectureViolationsAction, String unassignedTypesAction,
             String cyclicElementsAction, String thresholdViolationsAction, String architectureWarningsAction, String workspaceWarningsAction,
-            String workItemsAction, String emptyWorkspaceAction)
+            String workItemsAction, String emptyWorkspaceAction, String replaceDefaultMetrics, List<ChartForMetric> additionalMetricsToDisplay)
     {
         super(reportDirectory, architectureViolationsAction, unassignedTypesAction, cyclicElementsAction, thresholdViolationsAction,
-                architectureWarningsAction, workspaceWarningsAction, workItemsAction, emptyWorkspaceAction);
+                architectureWarningsAction, workspaceWarningsAction, workItemsAction, emptyWorkspaceAction, replaceDefaultMetrics, additionalMetricsToDisplay);
 
         assert (reportName != null) && (reportName.length() > 0) : "Parameter 'sonargraphReportName' of method 'SonargraphReportAnalyzer' must not be empty";
         this.reportName = reportName;
@@ -42,6 +45,14 @@ public class SonargraphReportAnalyzer extends AbstractSonargraphRecorder
     {
         assert listener != null : "Parameter 'listener' of method 'perform' must not be null";
         logExecutionStart(build, listener, SonargraphReportAnalyzer.class);
+
+        if (!super.processMetricsForCharts(build, getAdditionalMetricsToDisplay()))
+        {
+            RecorderLogger.logToConsoleOutput(listener.getLogger(), Level.SEVERE,
+                    "There was an error trying to save the configuration of metrics to be displayed in charts");
+            return false;
+        }
+
         String absoluteReportFolder = new TFile(build.getWorkspace().getRemote(), getReportDirectory()).getNormalizedAbsolutePath();
         if (super.processSonargraphReport(build, absoluteReportFolder, reportName, listener.getLogger()))
         {

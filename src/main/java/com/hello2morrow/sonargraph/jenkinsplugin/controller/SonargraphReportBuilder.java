@@ -31,7 +31,6 @@ import org.kohsuke.stapler.StaplerRequest;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.RecorderLogger;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.SonargraphLogger;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.StringUtility;
-import com.hello2morrow.sonargraph.jenkinsplugin.model.ProductVersion;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphProductType;
 
 import de.schlichtherle.truezip.file.TFile;
@@ -68,10 +67,10 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
     public SonargraphReportBuilder(String mavenInstallation, String systemFile, String reportDirectory, String useSonargraphWorkspace,
             String prepareForSonar, String architectureViolationsAction, String unassignedTypesAction, String cyclicElementsAction,
             String thresholdViolationsAction, String architectureWarningsAction, String workspaceWarningsAction, String workItemsAction,
-            String emptyWorkspaceAction)
+            String emptyWorkspaceAction, String replaceDefaultMetrics, List<ChartForMetric> additionalMetricsToDisplay)
     {
         super(reportDirectory, architectureViolationsAction, unassignedTypesAction, cyclicElementsAction, thresholdViolationsAction,
-                architectureWarningsAction, workspaceWarningsAction, workItemsAction, emptyWorkspaceAction);
+                architectureWarningsAction, workspaceWarningsAction, workItemsAction, emptyWorkspaceAction, replaceDefaultMetrics, additionalMetricsToDisplay);
 
         this.mavenInstallation = mavenInstallation;
         this.systemFile = systemFile;
@@ -135,6 +134,13 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
             return false;
         }
 
+        if (!super.processMetricsForCharts(build, getAdditionalMetricsToDisplay()))
+        {
+            RecorderLogger.logToConsoleOutput(listener.getLogger(), Level.SEVERE,
+                    "There was an error trying to save the configuration of metrics to be displayed in charts");
+            return false;
+        }
+
         String sonargraphReportDirectory = new TFile(absoluteReportDir).getAbsolutePath();
         if (super.processSonargraphReport(build, sonargraphReportDirectory, SONARGRAPH_REPORT_FILE_NAME, listener.getLogger()))
         {
@@ -161,7 +167,7 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
         }
         else
         {
-            if (mavenInstallation.equals("\"null\""))
+            if ("\"null\"".equals(mavenInstallation))
             {
                 SonargraphLogger.INSTANCE.log(Level.WARNING, "Invalid path to maven installation '" + mavenInstallation
                         + "' configured, using command 'mvn' without path.");
@@ -177,8 +183,13 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
 
         if (pomPath != null && !pomPath.isEmpty())
         {
-            String absolutePathToPom = new TFile(workspacePath, pomPath).getNormalizedAbsolutePath();
-            mvnCommand.append(" -f " + absolutePathToPom);
+        	TFile pomFile = new TFile(pomPath);
+        	if (!pomFile.exists())
+        	{
+        		pomFile = new TFile(workspacePath, pomPath);
+        	}
+        	mvnCommand.append(" -f ");
+        	mvnCommand.append(escapePath(pomFile.getNormalizedAbsolutePath()));
         }
 
         // FIXME: Why are some modules not found if goal is run on multi-module
@@ -197,18 +208,22 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
 
         if ((systemFile != null) && (systemFile.length() > 0))
         {
-            TFile sonargraphFile = new TFile(workspacePath, systemFile);
+        	TFile sonargraphFile = new TFile(systemFile);
+        	if (!sonargraphFile.exists())
+        	{
+        		sonargraphFile = new TFile(workspacePath, systemFile);
+        	}
             if (!sonargraphFile.exists())
             {
                 RecorderLogger.logToConsoleOutput(logger, Level.SEVERE,
                         "Specified Sonargraph system file '" + sonargraphFile.getNormalizedAbsolutePath() + "' does not exist!");
             }
-            mvnCommand.append(PROPERTY_PREFIX).append("file=").append(sonargraphFile.getNormalizedAbsolutePath());
+            mvnCommand.append(PROPERTY_PREFIX).append("file=").append(escapePath(sonargraphFile.getNormalizedAbsolutePath()));
         }
 
         if ((descriptor.getLicense() != null) && (descriptor.getLicense().length() > 0))
         {
-            mvnCommand.append(PROPERTY_PREFIX).append("license=").append(descriptor.getLicense());
+            mvnCommand.append(PROPERTY_PREFIX).append("license=").append(escapePath(descriptor.getLicense()));
         }
         else if ((descriptor.getActivationCode() != null) && (descriptor.getActivationCode().length() > 0))
         {
@@ -219,7 +234,7 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
             RecorderLogger.logToConsoleOutput(logger, Level.SEVERE, "You have to either specify a license file or activation code!");
         }
         mvnCommand.append(PROPERTY_PREFIX).append("prepareForJenkins=true");
-        mvnCommand.append(PROPERTY_PREFIX).append("reportDirectory=").append(absoluteReportDir);
+        mvnCommand.append(PROPERTY_PREFIX).append("reportDirectory=").append(escapePath(absoluteReportDir));
         mvnCommand.append(PROPERTY_PREFIX).append("reportName=").append(SONARGRAPH_REPORT_FILE_NAME);
         mvnCommand.append(PROPERTY_PREFIX).append("reportType=HTML");
         if ((systemFile != null) && (systemFile.length() > 0))
@@ -228,6 +243,11 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
         }
         mvnCommand.append(PROPERTY_PREFIX).append("prepareForSonar=").append(prepareForSonar);
         return mvnCommand.toString();
+    }
+
+    private String escapePath(String path)
+    {
+        return "\"" + path + "\"";
     }
 
     public String getMavenInstallation()
@@ -285,10 +305,10 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
         @Override
         public boolean configure(StaplerRequest req, JSONObject formData) throws hudson.model.Descriptor.FormException
         {
-            productType = formData.getString("productType");
-            version = formData.getString("version");
-            license = formData.getString("license");
-            activationCode = formData.getString("activationCode");
+            productType = formData.getString("productType").trim();
+            version = formData.getString("version").trim();
+            license = formData.getString("license").trim();
+            activationCode = formData.getString("activationCode").trim();
 
             save();
             return super.configure(req, formData);
@@ -314,17 +334,20 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
             return activationCode;
         }
 
-        public FormValidation doCheckVersion(@QueryParameter
-        String value)
+        public String getUserHome()
         {
-            return StringUtility.validateNotNullAndRegexp(value, "^(\\d+\\.)+\\d+$") ? FormValidation.ok() : FormValidation
-                    .error("Please enter a valid version");
+            return System.getProperty("user.home");
         }
 
-        public FormValidation doCheckLicense(@QueryParameter
-        String value)
+        public FormValidation doCheckVersion(@QueryParameter String value)
         {
-            boolean hasLicenseCorrectExtension = StringUtility.validateNotNullAndRegexp(value, "([a-zA-Z]:\\\\)?[\\/\\\\a-zA-Z0-9_.-]+.license$");
+            return StringUtility.validateNotNullAndRegexp(value.trim(), "^7.(\\d+\\.)\\d+$") ? FormValidation.ok() : FormValidation
+                    .error("Please enter a valid version. Format '7.x.y', starting from '7.1.9'");
+        }
+
+        public FormValidation doCheckLicense(@QueryParameter String value)
+        {
+            boolean hasLicenseCorrectExtension = StringUtility.validateNotNullAndRegexp(value, "([a-zA-Z]:\\\\)?([\\/\\\\a-zA-Z0-9_.-]+)+.license$");
             if (!hasLicenseCorrectExtension)
             {
                 return FormValidation.error("Please enter a valid path for the license");
@@ -338,8 +361,7 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckSystemFile(@QueryParameter
-        String value)
+        public FormValidation doCheckSystemFile(@QueryParameter String value)
         {
             if ((value == null) || (value.length() == 0))
             {
@@ -367,16 +389,6 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
             for (SonargraphProductType productType : SonargraphProductType.values())
             {
                 items.add(productType.getDisplayName(), productType.getId());
-            }
-            return items;
-        }
-
-        public ListBoxModel doFillVersionItems()
-        {
-            ListBoxModel items = new ListBoxModel();
-            for (ProductVersion version : ProductVersion.values())
-            {
-                items.add(version.getId(), version.getId());
             }
             return items;
         }

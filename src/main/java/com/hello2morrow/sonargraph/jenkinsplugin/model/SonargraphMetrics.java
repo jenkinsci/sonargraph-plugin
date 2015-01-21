@@ -1,5 +1,10 @@
 package com.hello2morrow.sonargraph.jenkinsplugin.model;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.StringUtility;
 
 /**
@@ -10,7 +15,9 @@ import com.hello2morrow.sonargraph.jenkinsplugin.foundation.StringUtility;
  */
 public enum SonargraphMetrics
 {
-    /*---------------- START: Metrics that are going to be in the graphics section ------------------*/
+    EMPTY("", "", true),
+    
+    /*---------------- START: Default metrics that are going to be in the graphics section ------------------*/
 
     STRUCTURAL_DEBT_INDEX("Structural Debt Index (SDI)", "SDI", true),
     NUMBER_OF_VIOLATIONS("Violating Type Dependencies", "Violating Type Dependencies", true),
@@ -104,5 +111,15 @@ public enum SonargraphMetrics
     public String getShortDescription()
     {
         return m_shortDescription;
+    }
+    
+    public static List<SonargraphMetrics> getAvailableMetrics()
+    {
+        List<SonargraphMetrics> values = new ArrayList<SonargraphMetrics>(Arrays.asList(SonargraphMetrics.values()));
+        values.remove(SonargraphMetrics.AVERAGE_COMPONENT_DEPENDENCY);
+        values.remove(SonargraphMetrics.NORMALIZED_CUMULATIVE_COMPONENT_DEPENDENCY);
+        values.remove(SonargraphMetrics.RELATIVE_AVERAGE_COMPONENT_DEPENDENCY);
+        
+        return Collections.unmodifiableList(values);
     }
 }

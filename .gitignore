@@ -62,6 +62,8 @@ Desktop.ini
 ####################
 doc/
 *.sonar4clipseExternals
+src/test/projects/single-module/crm-domain-example/target.maven/**
 src/test/projects/single-module/crm-domain-example/.sonar/**
 src/test/projects/single-module/crm-domain-example/testReportDir/**
+src/test/projects/single-module/crm-domain-example/target.maven/**
 *.class

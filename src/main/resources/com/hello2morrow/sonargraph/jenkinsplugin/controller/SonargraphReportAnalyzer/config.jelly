@@ -33,4 +33,19 @@
 	       <f:select />
         </f:entry>
     </f:section>
+    
+     <f:advanced title="Advanced Settings">
+        <f:section title="Chart Configuration">
+            <f:entry description="The default metrics to be displayed are ${instance.defaultMetricsAsString}." help="/plugin/sonargraph-plugin/html/html-appendMetrics.html">
+                <f:radio name="replaceDefaultMetrics" title="Append charts for additional metrics to default charts" value="false" checked="${instance.replaceDefaultMetrics != 'true'}"/>
+            </f:entry>
+            <f:entry help="/plugin/sonargraph-plugin/html/html-replaceMetrics.html">
+                <f:radio name="replaceDefaultMetrics" title="Replace default charts" value="true" checked="${instance.replaceDefaultMetrics == 'true'}"/>
+            </f:entry>
+            <f:entry title="${%Metrics to display in charts }">
+                <f:repeatableProperty field="additionalMetricsToDisplay" minimum="1" />
+            </f:entry>
+        </f:section>
+    </f:advanced>
+    
 </j:jelly>
