@@ -7,7 +7,7 @@
 	</parent>
 
 	<artifactId>sonargraph-plugin</artifactId>
-	<version>1.6-SNAPSHOT</version>
+	<version>1.7-SNAPSHOT</version>
 	<name>Sonargraph Plugin</name>
 	<packaging>hpi</packaging>
 
