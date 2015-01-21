@@ -7,7 +7,7 @@
 	</parent>
 
 	<artifactId>sonargraph-plugin</artifactId>
-	<version>1.7-SNAPSHOT</version>
+	<version>1.6.1</version>
 	<name>Sonargraph Plugin</name>
 	<packaging>hpi</packaging>
 
@@ -189,7 +189,7 @@
 		<connection>scm:git:https://github.com/jenkinsci/sonargraph-plugin.git</connection>
 		<developerConnection>scm:git:https://git@github.com/jenkinsci/sonargraph-plugin.git</developerConnection>
 		<url>https://github.com/jenkinsci/sonargraph-plugin</url>
-	  <tag>HEAD</tag>
+	  <tag>sonargraph-plugin-1.6.1</tag>
   </scm>
 
 	<licenses>
