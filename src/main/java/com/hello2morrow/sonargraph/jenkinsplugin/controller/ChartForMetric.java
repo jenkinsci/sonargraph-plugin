@@ -5,6 +5,9 @@ import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
 import hudson.util.ListBoxModel;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.StringUtility;
@@ -49,17 +52,24 @@ public class ChartForMetric extends AbstractDescribableImpl<ChartForMetric>
         public ListBoxModel doFillMetricNameItems()
         {
             ListBoxModel items = new ListBoxModel();
-            for (SonargraphMetrics metric : SonargraphMetrics.getAvailableMetrics())
+            List<SonargraphMetrics> availableMetrics = new ArrayList<SonargraphMetrics>(SonargraphMetrics.getAvailableMetrics());
+            
+            List<SonargraphMetrics> defaultMetrics = SonargraphMetrics.getDefaultMetrics();
+            availableMetrics.removeAll(defaultMetrics);
+
+            items.add("<Select a metric>", SonargraphMetrics.EMPTY.getStandardName());
+            for (SonargraphMetrics metric : availableMetrics)
             {
-                if (metric == SonargraphMetrics.EMPTY)
-                {
-                    items.add("<Select a metric>", metric.getStandardName());
-                }
-                else
-                {
-                    items.add(metric.getDescription(), metric.getStandardName());
-                }
+                items.add(metric.getDescription(), metric.getStandardName());
             }
+            
+            items.add("", SonargraphMetrics.EMPTY.getStandardName());
+            items.add("--------- Default Metrics ---------", SonargraphMetrics.EMPTY.getStandardName());
+            for (SonargraphMetrics metric : defaultMetrics)
+            {
+                items.add(metric.getDescription(), metric.getStandardName());
+            }
+            
             return items;
         }
 

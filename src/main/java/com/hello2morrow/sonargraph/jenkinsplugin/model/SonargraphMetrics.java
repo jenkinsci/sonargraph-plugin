@@ -116,10 +116,18 @@ public enum SonargraphMetrics
     public static List<SonargraphMetrics> getAvailableMetrics()
     {
         List<SonargraphMetrics> values = new ArrayList<SonargraphMetrics>(Arrays.asList(SonargraphMetrics.values()));
+        values.remove(SonargraphMetrics.EMPTY);
         values.remove(SonargraphMetrics.AVERAGE_COMPONENT_DEPENDENCY);
         values.remove(SonargraphMetrics.NORMALIZED_CUMULATIVE_COMPONENT_DEPENDENCY);
         values.remove(SonargraphMetrics.RELATIVE_AVERAGE_COMPONENT_DEPENDENCY);
         
         return Collections.unmodifiableList(values);
+    }
+    
+    public static List<SonargraphMetrics> getDefaultMetrics()
+    {
+        return Collections.unmodifiableList(Arrays.asList(SonargraphMetrics.STRUCTURAL_DEBT_INDEX,
+            SonargraphMetrics.NUMBER_OF_VIOLATIONS, SonargraphMetrics.NUMBER_OF_INSTRUCTIONS, SonargraphMetrics.NUMBER_OF_METRIC_WARNINGS,
+            SonargraphMetrics.BIGGEST_CYCLE_GROUP, SonargraphMetrics.HIGHEST_AVERAGE_COMPONENT_DEPENDENCY));
     }
 }
