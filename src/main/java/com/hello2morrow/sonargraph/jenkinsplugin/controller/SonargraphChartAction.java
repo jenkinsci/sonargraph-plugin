@@ -66,11 +66,19 @@ public class SonargraphChartAction implements Action, ProminentProjectAction
         CSVChartsForMetricsHandler csvChartsForMetricsHandler = new CSVChartsForMetricsHandler();
 
         TFile chartsForMetricsFile = new TFile(project.getRootDir(), ConfigParameters.CHARTS_FOR_METRICS_CSV_FILE_PATH.getValue());
-
+        //File might not exist after updating the plugin
+        if (!chartsForMetricsFile.exists())
+        {
+            for (SonargraphMetrics metric : SonargraphMetrics.getDefaultMetrics())
+            {
+                chartsForMetrics.add(metric.getStandardName());
+            }
+            return chartsForMetrics;
+        }
+        
         try
         {
             String[] chartsForMetricsFromCSV = csvChartsForMetricsHandler.readChartsForMetrics(chartsForMetricsFile);
-
             for (String chartForMetric : chartsForMetricsFromCSV)
             {
                 if (!chartForMetric.isEmpty())

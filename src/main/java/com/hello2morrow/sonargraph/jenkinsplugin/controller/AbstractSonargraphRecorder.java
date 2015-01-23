@@ -13,9 +13,9 @@ import hudson.tasks.Recorder;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -30,10 +30,6 @@ import de.schlichtherle.truezip.file.TFile;
 
 public abstract class AbstractSonargraphRecorder extends Recorder
 {
-    private static final List<SonargraphMetrics> DEFAULT_METRICS = Arrays.asList(SonargraphMetrics.STRUCTURAL_DEBT_INDEX,
-            SonargraphMetrics.NUMBER_OF_VIOLATIONS, SonargraphMetrics.NUMBER_OF_INSTRUCTIONS, SonargraphMetrics.NUMBER_OF_METRIC_WARNINGS,
-            SonargraphMetrics.BIGGEST_CYCLE_GROUP, SonargraphMetrics.HIGHEST_AVERAGE_COMPONENT_DEPENDENCY);
-
     private final String reportDirectory;
     private final String architectureViolationsAction;
     private final String unassignedTypesAction;
@@ -61,13 +57,27 @@ public abstract class AbstractSonargraphRecorder extends Recorder
         this.workItemsAction = workItemsAction;
         this.emptyWorkspaceAction = emptyWorkspaceAction;
         this.replaceDefaultMetrics = replaceDefaultMetrics;
-        this.additionalMetricsToDisplay = additionalMetricsToDisplay == null ? Collections.<ChartForMetric> emptyList() : additionalMetricsToDisplay;
+        if (additionalMetricsToDisplay == null)
+        {
+            this.additionalMetricsToDisplay = Collections.<ChartForMetric> emptyList();
+        }
+        else {
+            this.additionalMetricsToDisplay = new ArrayList<ChartForMetric>(additionalMetricsToDisplay);
+            for (Iterator<ChartForMetric> iter = this.additionalMetricsToDisplay.iterator(); iter.hasNext();)
+            {
+                ChartForMetric next = iter.next();
+                if (SonargraphMetrics.EMPTY.getStandardName().equals(next.getMetricName()))
+                {
+                    iter.remove();
+                }
+            }
+        }
     }
 
     private static List<ChartForMetric> getDefaultMetrics()
     {
         List<ChartForMetric> chartMetrics = new ArrayList<ChartForMetric>();
-        for (SonargraphMetrics metric : DEFAULT_METRICS)
+        for (SonargraphMetrics metric : SonargraphMetrics.getDefaultMetrics())
         {
             chartMetrics.add(new ChartForMetric(metric.getStandardName()));
         }
@@ -178,10 +188,6 @@ public abstract class AbstractSonargraphRecorder extends Recorder
             //Always add additional metrics (if there are any)
             for (ChartForMetric chartForMetric : additionalChartsForMetrics)
             {
-                if (chartForMetric.getMetricName().equals(SonargraphMetrics.EMPTY.getStandardName()))
-                {
-                    continue;
-                }
                 metricsAsStrings.add(chartForMetric.getMetricName());
             }
             chartsForMetricsHandler.writeChartsForMetrics(chartsForMetricsFile, metricsAsStrings);
@@ -269,7 +275,8 @@ public abstract class AbstractSonargraphRecorder extends Recorder
     {
         StringBuilder defaultMetricsAsString = new StringBuilder();
 
-        int numberOfDefaultMetrics = DEFAULT_METRICS.size();
+        List<SonargraphMetrics> defaultMetrics = SonargraphMetrics.getDefaultMetrics();
+        int numberOfDefaultMetrics = defaultMetrics.size();
 
         for (int i = 0; i < numberOfDefaultMetrics; i++)
         {
@@ -277,7 +284,7 @@ public abstract class AbstractSonargraphRecorder extends Recorder
             {
                 defaultMetricsAsString.append(" and ");
             }
-            defaultMetricsAsString.append(DEFAULT_METRICS.get(i).getDescription());
+            defaultMetricsAsString.append(defaultMetrics.get(i).getDescription());
             defaultMetricsAsString.append(", ");
         }
         defaultMetricsAsString.replace(defaultMetricsAsString.length() - 2, defaultMetricsAsString.length(), StringUtility.EMPTY_STRING);
