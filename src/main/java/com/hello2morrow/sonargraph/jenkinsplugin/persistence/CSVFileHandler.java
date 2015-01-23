@@ -46,8 +46,9 @@ public class CSVFileHandler implements IMetricHistoryProvider
     private TFile m_file;
     static
     {
-        /**
+        /**!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
          * CAUTION: Think really hard before changing the ordering of the metrics! It will corrupt the history of previous builds! 
+         * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
          */
         int startIndex = 2;
         COLUMN_MAPPING = new LinkedHashMap<SonargraphMetrics, Integer>();
