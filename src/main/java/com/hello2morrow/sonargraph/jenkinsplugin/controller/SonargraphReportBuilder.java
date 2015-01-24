@@ -134,7 +134,7 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
             return false;
         }
 
-        if (!super.processMetricsForCharts(build, getAdditionalMetricsToDisplay()))
+        if (!super.processMetricsForCharts(build))
         {
             RecorderLogger.logToConsoleOutput(listener.getLogger(), Level.SEVERE,
                     "There was an error trying to save the configuration of metrics to be displayed in charts");
