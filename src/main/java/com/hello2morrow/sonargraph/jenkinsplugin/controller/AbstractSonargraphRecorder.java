@@ -61,7 +61,8 @@ public abstract class AbstractSonargraphRecorder extends Recorder
         {
             this.additionalMetricsToDisplay = Collections.<ChartForMetric> emptyList();
         }
-        else {
+        else 
+        {
             this.additionalMetricsToDisplay = new ArrayList<ChartForMetric>(additionalMetricsToDisplay);
             for (Iterator<ChartForMetric> iter = this.additionalMetricsToDisplay.iterator(); iter.hasNext();)
             {
@@ -81,8 +82,6 @@ public abstract class AbstractSonargraphRecorder extends Recorder
         {
             chartMetrics.add(new ChartForMetric(metric.getStandardName()));
         }
-
-        //Remove metrics not stored in CSV file
 
         return chartMetrics;
     }
@@ -165,10 +164,9 @@ public abstract class AbstractSonargraphRecorder extends Recorder
         return true;
     }
 
-    protected final boolean processMetricsForCharts(AbstractBuild<?, ?> build, List<ChartForMetric> additionalChartsForMetrics)
+    protected final boolean processMetricsForCharts(AbstractBuild<?, ?> build)
     {
         assert build != null : "Parameter 'build' of method 'processMetricsForCharts' must not be null";
-        assert additionalChartsForMetrics != null : "Parameter 'additionalChartsForMetrics' of method 'processMetricsForCharts' must not be null";
 
         TFile chartsForMetricsFile = new TFile(build.getProject().getRootDir(), ConfigParameters.CHARTS_FOR_METRICS_CSV_FILE_PATH.getValue());
         try
@@ -186,7 +184,7 @@ public abstract class AbstractSonargraphRecorder extends Recorder
             }
 
             //Always add additional metrics (if there are any)
-            for (ChartForMetric chartForMetric : additionalChartsForMetrics)
+            for (ChartForMetric chartForMetric : getAdditionalMetricsToDisplay())
             {
                 metricsAsStrings.add(chartForMetric.getMetricName());
             }
@@ -263,11 +261,19 @@ public abstract class AbstractSonargraphRecorder extends Recorder
 
     public String getReplaceDefaultMetrics()
     {
+        if (replaceDefaultMetrics == null)
+        {
+            return Boolean.toString(false);
+        }
         return replaceDefaultMetrics;
     }
 
     public List<ChartForMetric> getAdditionalMetricsToDisplay()
     {
+        if (additionalMetricsToDisplay == null)
+        {
+            return Collections.emptyList();
+        }
         return additionalMetricsToDisplay;
     }
 
