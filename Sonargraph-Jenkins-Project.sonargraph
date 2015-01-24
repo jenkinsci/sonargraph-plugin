@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<context version="7.1.9.203">
+<context version="7.2.1.228">
     <scope type="Project" name="sonargraph-jenkins-project">
+        <element type="Configuration" name="Configuration">
+            <property value="true" name="CycleAnalysisDepthSourceFile"/>
+        </element>
         <element type="TypeFilterReferenceOverridden" name="Filter">
             <element type="IncludeTypePattern" name="**"/>
             <element type="ExcludeTypePattern" name="InjectedTest"/>
@@ -50,9 +53,7 @@
         <workspace>
             <element type="JavaRootDirectory" name="src/main/java"/>
             <element type="JavaRootDirectory" name="target/generated-sources/jaxb"/>
-            <element type="JavaRootDirectory" name="src/test/java"/>
             <element type="JavaRootDirectory" name="target/classes"/>
-            <element type="JavaRootDirectory" name="target/test-classes"/>
         </workspace>
         <itemDefinition>
             <item type="IgnoreWarningFilterItem">
@@ -103,6 +104,34 @@
                 <property value="2013-04-15 10:58:55" name="Date"/>
                 <property value="Constructor" name="ElementType"/>
                 <property value="com.hello2morrow.sonargraph.jenkinsplugin.controller.SonargraphReportBuilder::SonargraphReportBuilder(String, String, String, String, String, String, String, String, String, String, String, String, String){}" name="Pattern"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property value="IsCyclicWarning" name="AttributeId"/>
+                <property value="We ignore that for now." name="Comment"/>
+                <property value="2015-01-24 13:31:58" name="Date"/>
+                <property value="CycleGroup" name="ElementType"/>
+                <property value="424005c014a2b0f8c58156ebd1488842" name="Pattern"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property value="NumberOfParameters" name="AttributeId"/>
+                <property value="Due to the constructor data binding used in Jenkins." name="Comment"/>
+                <property value="2015-01-24 13:33:09" name="Date"/>
+                <property value="Constructor" name="ElementType"/>
+                <property value="com.hello2morrow.sonargraph.jenkinsplugin.controller.SonargraphReportBuilder::SonargraphReportBuilder(String, String, String, String, String, String, String, String, String, String, String, String, String, String, java.util.List){}" name="Pattern"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property value="NumberOfParameters" name="AttributeId"/>
+                <property value="Due to the constructor data binding used in Jenkins." name="Comment"/>
+                <property value="2015-01-24 13:33:09" name="Date"/>
+                <property value="Constructor" name="ElementType"/>
+                <property value="com.hello2morrow.sonargraph.jenkinsplugin.controller.AbstractSonargraphRecorder::AbstractSonargraphRecorder(String, String, String, String, String, String, String, String, String, String, java.util.List){}" name="Pattern"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property value="NumberOfParameters" name="AttributeId"/>
+                <property value="Due to the constructor data binding used in Jenkins." name="Comment"/>
+                <property value="2015-01-24 13:33:09" name="Date"/>
+                <property value="Constructor" name="ElementType"/>
+                <property value="com.hello2morrow.sonargraph.jenkinsplugin.controller.SonargraphReportAnalyzer::SonargraphReportAnalyzer(String, String, String, String, String, String, String, String, String, String, String, java.util.List){}" name="Pattern"/>
             </item>
         </itemDefinition>
     </scope>
@@ -225,35 +254,6 @@
             </item>
         </itemDefinition>
     </scope>
-    <itemDefinition>
-        <item type="CutTypeDependencyItem">
-            <property value="" name="AssignedTo"/>
-            <property value="" name="Comment"/>
-            <property value="2013-06-20 08:57:28" name="Date"/>
-            <property value="com.hello2morrow.sonargraph.jenkinsplugin.controller.AbstractSonargraphRecorder" name="FromType"/>
-            <property value="Medium" name="Priority"/>
-            <property value="sonargraph-jenkins-project" name="SourceScope"/>
-            <property value="com.hello2morrow.sonargraph.jenkinsplugin.controller.SonargraphChartAction" name="ToType"/>
-        </item>
-        <item type="CutTypeDependencyItem">
-            <property value="" name="AssignedTo"/>
-            <property value="" name="Comment"/>
-            <property value="2013-06-20 08:57:35" name="Date"/>
-            <property value="com.hello2morrow.sonargraph.jenkinsplugin.controller.AbstractSonargraphRecorder" name="FromType"/>
-            <property value="Medium" name="Priority"/>
-            <property value="sonargraph-jenkins-project" name="SourceScope"/>
-            <property value="com.hello2morrow.sonargraph.jenkinsplugin.controller.SonargraphBuildAction" name="ToType"/>
-        </item>
-        <item type="CutTypeDependencyItem">
-            <property value="" name="AssignedTo"/>
-            <property value="" name="Comment"/>
-            <property value="2013-06-20 08:57:42" name="Date"/>
-            <property value="com.hello2morrow.sonargraph.jenkinsplugin.controller.AbstractSonargraphRecorder" name="FromType"/>
-            <property value="Medium" name="Priority"/>
-            <property value="sonargraph-jenkins-project" name="SourceScope"/>
-            <property value="com.hello2morrow.sonargraph.jenkinsplugin.controller.SonargraphHTMLReportAction" name="ToType"/>
-        </item>
-    </itemDefinition>
     <attributeConfiguration type="AttributeConfiguration">
         <property value="disabled" name="ExtendedCyclomaticComplexity"/>
         <property value="disabled" name="MaxExtendedCyclomaticComplexityPerMethod"/>
