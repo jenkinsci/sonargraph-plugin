@@ -120,9 +120,9 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
         HashMap<String, String> envVars = new HashMap<String, String>();
         procStarter.cmdAsSingleString(mvnCommand);
         procStarter.stdout(listener.getLogger());
-        procStarter = procStarter.pwd(build.getWorkspace()).envs(build.getEnvironment(listener));
+        envVars.putAll(build.getEnvironment(listener));
         envVars.put(M2_HOME, mavenInstallation);
-        procStarter.envs(envVars);
+        procStarter = procStarter.pwd(build.getWorkspace()).envs(envVars);
         Proc proc = launcher.launch(procStarter);
         int processExitCode = proc.join();
 
