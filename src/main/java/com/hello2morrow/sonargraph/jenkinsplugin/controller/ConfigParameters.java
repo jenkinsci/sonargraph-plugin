@@ -11,7 +11,7 @@ public enum ConfigParameters
     HTML_REPORT_ACTION_URL("sonargraph-html-report"),
     METRIC_HISTORY_CSV_FILE_PATH("sonargraph.csv"),
     CHARTS_FOR_METRICS_CSV_FILE_PATH("charts_for_metrics.csv"),
-    SONARGRAPH_HTML_REPORT_FILE_NAME("/sonargraph-report.html"),
+    SONARGRAPH_HTML_REPORT_FILE_NAME("sonargraph-report.html"),
     REPORT_HISTORY_FOLDER("sonargraphReportHistory");
 
     private String m_value;

@@ -1,6 +1,7 @@
 package com.hello2morrow.sonargraph.jenkinsplugin.controller;
 
 import hudson.Extension;
+import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
@@ -15,8 +16,6 @@ import org.kohsuke.stapler.QueryParameter;
 
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.RecorderLogger;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.StringUtility;
-
-import de.schlichtherle.truezip.file.TFile;
 
 /**
  * Processes a previously generated Sonargraph report.
@@ -34,7 +33,8 @@ public class SonargraphReportAnalyzer extends AbstractSonargraphRecorder
             String workItemsAction, String emptyWorkspaceAction, String replaceDefaultMetrics, List<ChartForMetric> additionalMetricsToDisplay)
     {
         super(reportDirectory, architectureViolationsAction, unassignedTypesAction, cyclicElementsAction, thresholdViolationsAction,
-                architectureWarningsAction, workspaceWarningsAction, workItemsAction, emptyWorkspaceAction, replaceDefaultMetrics, additionalMetricsToDisplay);
+                architectureWarningsAction, workspaceWarningsAction, workItemsAction, emptyWorkspaceAction, replaceDefaultMetrics,
+                additionalMetricsToDisplay);
 
         assert (reportName != null) && (reportName.length() > 0) : "Parameter 'sonargraphReportName' of method 'SonargraphReportAnalyzer' must not be empty";
         this.reportName = reportName;
@@ -53,7 +53,7 @@ public class SonargraphReportAnalyzer extends AbstractSonargraphRecorder
             return false;
         }
 
-        String absoluteReportFolder = new TFile(build.getWorkspace().getRemote(), getReportDirectory()).getNormalizedAbsolutePath();
+        FilePath absoluteReportFolder = new FilePath(build.getWorkspace(), getReportDirectory());
         if (super.processSonargraphReport(build, absoluteReportFolder, reportName, listener.getLogger()))
         {
             addActions(build);
@@ -65,7 +65,7 @@ public class SonargraphReportAnalyzer extends AbstractSonargraphRecorder
     {
         return reportName;
     }
-    
+
     @Override
     public DescriptorImpl getDescriptor()
     {

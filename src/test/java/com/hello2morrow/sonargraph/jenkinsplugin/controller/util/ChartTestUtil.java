@@ -1,5 +1,7 @@
 package com.hello2morrow.sonargraph.jenkinsplugin.controller.util;
 
+import java.io.File;
+
 import org.jfree.chart.ChartFrame;
 import org.jfree.chart.JFreeChart;
 
@@ -10,15 +12,13 @@ import com.hello2morrow.sonargraph.jenkinsplugin.model.TimeSeriesPlot;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.XYLineAndShapePlot;
 import com.hello2morrow.sonargraph.jenkinsplugin.persistence.CSVFileHandler;
 
-import de.schlichtherle.truezip.file.TFile;
-
 public class ChartTestUtil
 {
     private static final String BUILD = "Build";
 
     public void testXYChart(String csvPath, SonargraphMetrics metric, int maximumNumberOfDataPoints)
     {
-        IMetricHistoryProvider csvFileHandler = new CSVFileHandler(new TFile(csvPath));
+        IMetricHistoryProvider csvFileHandler = new CSVFileHandler(new File(csvPath));
         XYLineAndShapePlot plot = new XYLineAndShapePlot(csvFileHandler);
 
         createChart(plot, metric, maximumNumberOfDataPoints, true);
@@ -26,7 +26,7 @@ public class ChartTestUtil
 
     public void testTimeSeriesChart(String csvPath, SonargraphMetrics metric, int maximumNumberOfDataPoints)
     {
-        IMetricHistoryProvider csvFileHandler = new CSVFileHandler(new TFile(csvPath));
+        IMetricHistoryProvider csvFileHandler = new CSVFileHandler(new File(csvPath));
         TimeSeriesPlot plot = new TimeSeriesPlot(csvFileHandler, 25);
         createChart(plot, metric, maximumNumberOfDataPoints, true);
 

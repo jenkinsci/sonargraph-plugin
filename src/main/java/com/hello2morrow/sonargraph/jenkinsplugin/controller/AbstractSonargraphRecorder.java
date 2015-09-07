@@ -1,5 +1,6 @@
 package com.hello2morrow.sonargraph.jenkinsplugin.controller;
 
+import hudson.FilePath;
 import hudson.maven.MavenModuleSet;
 import hudson.model.Action;
 import hudson.model.BuildListener;
@@ -10,6 +11,7 @@ import hudson.model.Project;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Recorder;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -26,8 +28,7 @@ import com.hello2morrow.sonargraph.jenkinsplugin.persistence.CSVChartsForMetrics
 import com.hello2morrow.sonargraph.jenkinsplugin.persistence.PluginVersionReader;
 import com.hello2morrow.sonargraph.jenkinsplugin.persistence.ReportHistoryFileManager;
 
-import de.schlichtherle.truezip.file.TFile;
-
+@SuppressWarnings("unchecked")
 public abstract class AbstractSonargraphRecorder extends Recorder
 {
     private final String reportDirectory;
@@ -61,7 +62,7 @@ public abstract class AbstractSonargraphRecorder extends Recorder
         {
             this.additionalMetricsToDisplay = Collections.<ChartForMetric> emptyList();
         }
-        else 
+        else
         {
             this.additionalMetricsToDisplay = new ArrayList<ChartForMetric>(additionalMetricsToDisplay);
             for (Iterator<ChartForMetric> iter = this.additionalMetricsToDisplay.iterator(); iter.hasNext();)
@@ -107,17 +108,18 @@ public abstract class AbstractSonargraphRecorder extends Recorder
         return BuildStepMonitor.NONE;
     }
 
-    protected boolean processSonargraphReport(AbstractBuild<?, ?> build, String sonargraphReportDirectory, String reportFileName, PrintStream logger)
+    protected boolean processSonargraphReport(AbstractBuild<?, ?> build, FilePath sonargraphReportDirectory, String reportFileName, PrintStream logger)
+            throws IOException, InterruptedException
     {
         assert build != null : "Parameter 'build' of method 'processSonargraphReport' must not be null";
         assert sonargraphReportDirectory != null : "Parameter 'sonargraphReportFile' of method 'processSonargraphReport' must not be null";
 
-        TFile projectRootDir = new TFile(build.getProject().getRootDir());
+        FilePath projectRootDir = new FilePath(build.getProject().getRootDir());
         ReportHistoryFileManager reportHistoryManager = new ReportHistoryFileManager(projectRootDir,
                 ConfigParameters.REPORT_HISTORY_FOLDER.getValue(), logger);
         try
         {
-            reportHistoryManager.storeGeneratedReportDirectory(new TFile(sonargraphReportDirectory), build.getNumber(), logger);
+            reportHistoryManager.storeGeneratedReportDirectory(sonargraphReportDirectory, build.getNumber(), logger);
         }
         catch (IOException ex)
         {
@@ -125,8 +127,8 @@ public abstract class AbstractSonargraphRecorder extends Recorder
             return false;
         }
 
-        String reportAbsolutePath = StringUtility.addXmlExtensionIfNotPreset(new TFile(sonargraphReportDirectory, reportFileName).getAbsolutePath());
-        TFile reportFile = new TFile(reportAbsolutePath);
+        String reportFileNameWithExtension = StringUtility.addXmlExtensionIfNotPreset(reportFileName);
+        FilePath reportFile = new FilePath(sonargraphReportDirectory, reportFileNameWithExtension);
         if (!reportFile.exists())
         {
             RecorderLogger.logToConsoleOutput(logger, Level.SEVERE, "Sonargraph analysis cannot be executed as Sonargraph report does not exist.");
@@ -145,7 +147,7 @@ public abstract class AbstractSonargraphRecorder extends Recorder
         sonargraphBuildAnalyzer.changeBuildResultIfMetricValueIsZero(SonargraphMetrics.NUMBER_OF_INTERNAL_TYPES, emptyWorkspaceAction);
         Result buildResult = sonargraphBuildAnalyzer.getOverallBuildResult();
 
-        TFile metricHistoryFile = new TFile(build.getProject().getRootDir(), ConfigParameters.METRIC_HISTORY_CSV_FILE_PATH.getValue());
+        File metricHistoryFile = new File(build.getProject().getRootDir(), ConfigParameters.METRIC_HISTORY_CSV_FILE_PATH.getValue());
         try
         {
             sonargraphBuildAnalyzer.saveMetricsToCSV(metricHistoryFile, build.getTimestamp().getTimeInMillis(), build.getNumber());
@@ -168,12 +170,12 @@ public abstract class AbstractSonargraphRecorder extends Recorder
     {
         assert build != null : "Parameter 'build' of method 'processMetricsForCharts' must not be null";
 
-        TFile chartsForMetricsFile = new TFile(build.getProject().getRootDir(), ConfigParameters.CHARTS_FOR_METRICS_CSV_FILE_PATH.getValue());
+        File chartsForMetricsFile = new File(build.getProject().getRootDir(), ConfigParameters.CHARTS_FOR_METRICS_CSV_FILE_PATH.getValue());
         try
         {
             CSVChartsForMetricsHandler chartsForMetricsHandler = new CSVChartsForMetricsHandler();
             List<String> metricsAsStrings = new ArrayList<String>();
-            
+
             //Add default metrics
             if (getReplaceDefaultMetrics() == null || !getReplaceDefaultMetrics().trim().equals(Boolean.toString(true)))
             {

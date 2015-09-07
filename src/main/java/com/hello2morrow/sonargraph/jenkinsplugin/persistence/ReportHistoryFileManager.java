@@ -1,5 +1,7 @@
 package com.hello2morrow.sonargraph.jenkinsplugin.persistence;
 
+import hudson.FilePath;
+
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.logging.Level;
@@ -7,8 +9,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.RecorderLogger;
-
-import de.schlichtherle.truezip.file.TFile;
 
 /**
  * Class that handles copies of each generated architect report to calculate trends or
@@ -21,29 +21,30 @@ public class ReportHistoryFileManager
     public static final String SONARGRAPH_JENKINS_REPORT_FILE_NAME_PREFIX = "sonargraph-jenkins-report-build-";
 
     /** Path to the folder containing sonargraph report files generated for every build */
-    private TFile m_sonargraphReportHistoryDir;
+    private FilePath m_sonargraphReportHistoryDir;
 
-    public ReportHistoryFileManager(TFile projectRootDir, String reportHistoryDirName, PrintStream logger)
+    public ReportHistoryFileManager(FilePath projectRootDir, String reportHistoryDirName, PrintStream logger) throws IOException,
+            InterruptedException
     {
         assert projectRootDir != null : "The path to the folder where architect reports are stored must not be null";
         assert logger != null : "Parameter 'logger' of method 'ReportHistoryFileManager' must not be null";
 
-        m_sonargraphReportHistoryDir = new TFile(projectRootDir, reportHistoryDirName);
+        m_sonargraphReportHistoryDir = new FilePath(projectRootDir, reportHistoryDirName);
         if (!m_sonargraphReportHistoryDir.exists())
         {
             try
             {
-                m_sonargraphReportHistoryDir.mkdir(true);
+                m_sonargraphReportHistoryDir.mkdirs();
             }
             catch (IOException ex)
             {
-                RecorderLogger.logToConsoleOutput(logger, Level.SEVERE,
-                        "Failed to create directory '" + m_sonargraphReportHistoryDir.getNormalizedAbsolutePath() + "'");
+                RecorderLogger.logToConsoleOutput(logger, Level.SEVERE, "Failed to create directory '" + m_sonargraphReportHistoryDir.getRemote()
+                        + "'");
             }
         }
     }
 
-    public TFile getReportHistoryDirectory()
+    public FilePath getReportHistoryDirectory()
     {
         return m_sonargraphReportHistoryDir;
     }
@@ -51,11 +52,12 @@ public class ReportHistoryFileManager
     /**
      * Stores a generated architect report in the location defined for this purpose. 
      * @param architectReport the architect report file.
+     * @throws InterruptedException 
      */
-    public void storeGeneratedReport(TFile architectReport, Integer buildNumber, PrintStream logger) throws IOException
+    public void storeGeneratedReport(FilePath architectReport, Integer buildNumber, PrintStream logger) throws IOException, InterruptedException
     {
         assert architectReport != null : "Parameter 'architectReport' of method 'storeGeneratedReport' must not be null";
-        assert architectReport.exists() : "Parameter 'architectReport' must be an existing file. '" + architectReport.getNormalizedAbsolutePath()
+        assert architectReport.exists() : "Parameter 'architectReport' must be an existing file. '" + architectReport.getRemote()
                 + "' does not exist.";
 
         if ((architectReport == null) || (buildNumber == null))
@@ -65,30 +67,31 @@ public class ReportHistoryFileManager
 
         if (!m_sonargraphReportHistoryDir.exists())
         {
-            String msg = "Unable to create directory " + m_sonargraphReportHistoryDir.getAbsolutePath();
+            String msg = "Unable to create directory " + m_sonargraphReportHistoryDir.getRemote();
             RecorderLogger.logToConsoleOutput(logger, Level.SEVERE, msg);
             throw new IOException(msg);
         }
 
         Pattern extensionPattern = Pattern.compile("\\.[a-zA-Z0-9]*$");
-        Matcher extensionMatcher = extensionPattern.matcher(architectReport.getAbsolutePath());
+        Matcher extensionMatcher = extensionPattern.matcher(architectReport.getRemote());
         String extension = extensionMatcher.find() ? extensionMatcher.group() : "";
-        TFile to = new TFile(m_sonargraphReportHistoryDir, SONARGRAPH_JENKINS_REPORT_FILE_NAME_PREFIX + buildNumber + extension);
-        TFile.cp(architectReport, to);
+        FilePath to = new FilePath(m_sonargraphReportHistoryDir, SONARGRAPH_JENKINS_REPORT_FILE_NAME_PREFIX + buildNumber + extension);
+        architectReport.copyTo(to);
     }
 
-    public void storeGeneratedReportDirectory(TFile reportDirectory, Integer buildNumber, PrintStream logger) throws IOException
+    public void storeGeneratedReportDirectory(FilePath reportDirectory, Integer buildNumber, PrintStream logger) throws IOException,
+            InterruptedException
     {
         assert reportDirectory != null : "Parameter 'reportDirectory' of method 'soterdGeneratedReportDirectory' must not be null";
-        assert reportDirectory.exists() : "Parameter 'reportDirectory' must be an existing folder. '" + reportDirectory.getNormalizedAbsolutePath()
+        assert reportDirectory.exists() : "Parameter 'reportDirectory' must be an existing folder. '" + reportDirectory.getRemote()
                 + "' does not exist.";
 
         if (!m_sonargraphReportHistoryDir.exists())
         {
-            String msg = "Unable to create directory " + m_sonargraphReportHistoryDir.getAbsolutePath();
+            String msg = "Unable to create directory " + m_sonargraphReportHistoryDir.getRemote();
             RecorderLogger.logToConsoleOutput(logger, Level.SEVERE, msg);
             throw new IOException(msg);
         }
-        reportDirectory.cp_r(new TFile(m_sonargraphReportHistoryDir, "sonargraph-report-build-" + buildNumber));
+        reportDirectory.copyRecursiveTo(new FilePath(m_sonargraphReportHistoryDir, "sonargraph-report-build-" + buildNumber));
     }
 }

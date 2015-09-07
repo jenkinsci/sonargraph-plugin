@@ -1,7 +1,9 @@
 package com.hello2morrow.sonargraph.jenkinsplugin.controller;
 
+import hudson.FilePath;
 import hudson.model.AbstractBuild;
 
+import java.io.File;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
@@ -10,8 +12,6 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.StringUtility;
-
-import de.schlichtherle.truezip.file.TFile;
 
 public class SonargraphBuildAction extends AbstractHTMLAction
 {
@@ -32,8 +32,8 @@ public class SonargraphBuildAction extends AbstractHTMLAction
     @Override
     public void doDynamic(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException
     {
-        String reportHistoryDir = new TFile(build.getProject().getRootDir(), ConfigParameters.REPORT_HISTORY_FOLDER.getValue()).getAbsolutePath();
-        enableDirectoryBrowserSupport(req, rsp, new TFile(reportHistoryDir, "sonargraph-report-build-" + build.getNumber()).getAbsolutePath());
+        FilePath reportHistoryDir = new FilePath(new FilePath(build.getProject().getRootDir()), ConfigParameters.REPORT_HISTORY_FOLDER.getValue());
+        enableDirectoryBrowserSupport(req, rsp, new FilePath(reportHistoryDir, "sonargraph-report-build-" + build.getNumber()));
     }
 
     public AbstractBuild<?, ?> getBuild()
@@ -57,15 +57,14 @@ public class SonargraphBuildAction extends AbstractHTMLAction
     }
 
     @Override
-    public String getHTMLReport() throws IOException
+    public String getHTMLReport() throws IOException, InterruptedException
     {
-        String projectPath = new TFile(build.getProject().getRootDir()).getAbsolutePath();
-        String reportHistoryFolderAbsolutePath = new TFile(projectPath, ConfigParameters.REPORT_HISTORY_FOLDER.getValue()).getAbsolutePath();
-        String buildReportFolderAbsolutePath = new TFile(reportHistoryFolderAbsolutePath, "sonargraph-report-build-" + build.getNumber())
-                .getAbsolutePath();
+        File projectRootFolder = build.getProject().getRootDir();
+        File reportHistoryFolder = new File(projectRootFolder, ConfigParameters.REPORT_HISTORY_FOLDER.getValue());
+        File reportBuildFolder = new File(reportHistoryFolder, "sonargraph-report-build-" + build.getNumber());
         String reportFileName = recorder instanceof SonargraphReportAnalyzer ? ((SonargraphReportAnalyzer) recorder).getReportName()
                 : ConfigParameters.SONARGRAPH_HTML_REPORT_FILE_NAME.getValue();
-        TFile htmlFile = new TFile(buildReportFolderAbsolutePath, StringUtility.replaceXMLWithHTMLExtension(reportFileName));
-        return readHTMLReport(htmlFile.getAbsolutePath());
+        File reportFile = new File(reportBuildFolder, StringUtility.replaceXMLWithHTMLExtension(reportFileName));
+        return readHTMLReport(new FilePath(reportFile));
     }
 }

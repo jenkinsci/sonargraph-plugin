@@ -1,5 +1,6 @@
 package com.hello2morrow.sonargraph.jenkinsplugin.controller;
 
+import hudson.FilePath;
 import hudson.model.AbstractProject;
 
 import java.io.IOException;
@@ -11,14 +12,12 @@ import org.kohsuke.stapler.StaplerResponse;
 
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.StringUtility;
 
-import de.schlichtherle.truezip.file.TFile;
-
 public class SonargraphHTMLReportAction extends InvisibleFromSidebarAction
 {
     /** Project or build that is calling this action. */
     private final AbstractProject<?, ?> project;
 
-    /** Object that defines the post-buld step asociated with this action. */
+    /** Object that defines the post-build step associated with this action. */
     private final AbstractSonargraphRecorder builder;
 
     public SonargraphHTMLReportAction(AbstractProject<?, ?> project, AbstractSonargraphRecorder builder)
@@ -39,17 +38,17 @@ public class SonargraphHTMLReportAction extends InvisibleFromSidebarAction
 
     public void doDynamic(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException
     {
-        enableDirectoryBrowserSupport(req, rsp, new TFile(project.getWorkspace().getRemote(), builder.getReportDirectory()).getAbsolutePath());
+        enableDirectoryBrowserSupport(req, rsp, new FilePath(project.getSomeWorkspace(), builder.getReportDirectory()));
     }
 
-    public String getHTMLReport() throws IOException
+    public String getHTMLReport() throws IOException, InterruptedException
     {
         String reportRelativePath = builder.getReportDirectory();
-        String reportFolderAbsouletPath = new TFile(project.getWorkspace().getRemote(), reportRelativePath).getNormalizedAbsolutePath();
+        FilePath reportFolderAbsouletPath = new FilePath(project.getSomeWorkspace(), reportRelativePath);
         String reportFileName = builder instanceof SonargraphReportAnalyzer ? ((SonargraphReportAnalyzer) builder).getReportName()
                 : ConfigParameters.SONARGRAPH_HTML_REPORT_FILE_NAME.getValue();
-        TFile htmlFile = new TFile(reportFolderAbsouletPath, StringUtility.replaceXMLWithHTMLExtension(reportFileName));
+        FilePath htmlFile = new FilePath(reportFolderAbsouletPath, StringUtility.replaceXMLWithHTMLExtension(reportFileName));
 
-        return readHTMLReport(htmlFile.getAbsolutePath());
+        return readHTMLReport(htmlFile);
     }
 }

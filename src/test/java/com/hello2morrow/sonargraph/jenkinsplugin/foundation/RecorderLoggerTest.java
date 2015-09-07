@@ -3,6 +3,8 @@ package com.hello2morrow.sonargraph.jenkinsplugin.foundation;
 import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.logging.Level;
@@ -11,13 +13,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.schlichtherle.truezip.file.TFile;
-import de.schlichtherle.truezip.file.TFileReader;
 
 public class RecorderLoggerTest
 {
     private static final String dummyLogFileName = "src/test/resources/dummy.log";
-    private TFile dummyLogFile = new TFile(dummyLogFileName);
+    private File dummyLogFile = new File(dummyLogFileName);
 
     @Before
     public void before() throws IOException
@@ -40,7 +40,7 @@ public class RecorderLoggerTest
     {
         if ((dummyLogFile != null) & dummyLogFile.exists())
         {
-            dummyLogFile.rm();
+            dummyLogFile.delete();
         }
     }
 
@@ -54,7 +54,7 @@ public class RecorderLoggerTest
         RecorderLogger.logToConsoleOutput(logger, Level.SEVERE, testText);
         logger.close();
 
-        TFileReader reader = new TFileReader(dummyLogFile);
+        FileReader reader = new FileReader(dummyLogFile);
         BufferedReader buffReader = new BufferedReader(reader);
 
         String line;

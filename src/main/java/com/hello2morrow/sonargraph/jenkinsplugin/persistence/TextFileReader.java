@@ -2,17 +2,17 @@ package com.hello2morrow.sonargraph.jenkinsplugin.persistence;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
-import de.schlichtherle.truezip.file.TFile;
-import de.schlichtherle.truezip.file.TFileReader;
+import hudson.FilePath;
 
 public class TextFileReader
 {
-    public String readLargeTextFile(String largeTextFilePath) throws IOException
+    public String readLargeTextFile(FilePath largeTextFilePath) throws IOException
     {
         BufferedReader bfReader = null;
         StringBuilder completeTextFile = new StringBuilder();
-        bfReader = new BufferedReader(new TFileReader(new TFile(largeTextFilePath)));
+        bfReader = new BufferedReader(new InputStreamReader(largeTextFilePath.read()));
         String currentLine;
         while ((currentLine = bfReader.readLine()) != null)
         {

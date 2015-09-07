@@ -52,6 +52,7 @@ public class TimeSeriesPlot extends AbstractPlot
         assert metric != null : "Parameter 'metric' of method 'createXYDataset' must not be null";
 
         //For some reason, the class of the time series is required here, otherwise an exception is thrown that a Date instance is expected.
+        @SuppressWarnings("deprecation")
         TimeSeries timeSeries = new TimeSeries(metric.getShortDescription(), FixedMillisecond.class);
 
         List<IDataPoint> dataset = m_datasetProvider.readMetricValues(metric);

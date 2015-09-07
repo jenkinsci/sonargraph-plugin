@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.jenkins-ci.plugins</groupId>
 		<artifactId>plugin</artifactId>
-		<version>1.504</version>
+		<version>1.554.3</version>
 	</parent>
 
 	<artifactId>sonargraph-plugin</artifactId>
@@ -60,13 +60,9 @@
 			<version>1.0.14</version>
 		</dependency>
 		<dependency>
-			<groupId>de.schlichtherle.truezip</groupId>
-			<artifactId>truezip-file</artifactId>
-			<version>7.7.1</version>
-		</dependency>
-		<dependency>
 			<groupId>org.jenkins-ci.main</groupId>
 			<artifactId>maven-plugin</artifactId>
+			<version>2.12</version>
 		</dependency>
 	</dependencies>
 
@@ -145,6 +141,7 @@
 										</versionRange>
 										<goals>
 											<goal>display-info</goal>
+											<goal>enforce</goal>
 										</goals>
 									</pluginExecutionFilter>
 									<action>
@@ -164,6 +161,9 @@
 										</versionRange>
 										<goals>
 											<goal>testCompile</goal>
+											<goal>
+												generateTestStubs
+											</goal>
 										</goals>
 									</pluginExecutionFilter>
 									<action>
@@ -207,6 +207,10 @@
 		<developer>
 			<id>esteban-h2m</id>
 			<name>Esteban Angee</name>
+		</developer>
+		<developer>
+			<id>andreashoyerh2m</id>
+			<name>Andreas Hoyer</name>
 		</developer>
 	</developers>
 </project>

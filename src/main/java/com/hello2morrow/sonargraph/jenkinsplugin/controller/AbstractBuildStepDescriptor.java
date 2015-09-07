@@ -18,6 +18,7 @@ public abstract class AbstractBuildStepDescriptor extends BuildStepDescriptor<Pu
         load();
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public boolean isApplicable(Class<? extends AbstractProject> jobType)
     {

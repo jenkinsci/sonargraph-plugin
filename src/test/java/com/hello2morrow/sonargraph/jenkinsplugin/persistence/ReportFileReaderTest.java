@@ -3,14 +3,15 @@ package com.hello2morrow.sonargraph.jenkinsplugin.persistence;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import hudson.FilePath;
+import hudson.remoting.VirtualChannel;
+
+import java.io.IOException;
 
 import org.junit.Test;
 
-import com.hello2morrow.sonargraph.jenkinsplugin.model.IReportReader;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphReport;
-
-import de.schlichtherle.truezip.file.TFile;
 
 public class ReportFileReaderTest
 {
@@ -19,13 +20,13 @@ public class ReportFileReaderTest
     private static final String nonExistingFile = "src/test/resources/report_error.xml";
 
     @Test
-    public void testReadSonargraphReport()
+    public void testReadSonargraphReport() throws IOException, InterruptedException
     {
         IReportReader reader = new ReportFileReader();
-        assertNull(reader.readSonargraphReport(new TFile(fakeDir)));
-        assertNull(reader.readSonargraphReport(new TFile(nonExistingFile)));
+        assertNull(reader.readSonargraphReport(new FilePath((VirtualChannel) null, fakeDir)));
+        assertNull(reader.readSonargraphReport(new FilePath((VirtualChannel) null, nonExistingFile)));
 
-        SonargraphReport sonargraphReport = reader.readSonargraphReport(new TFile(reportFileName));
+        SonargraphReport sonargraphReport = reader.readSonargraphReport(new FilePath((VirtualChannel) null, reportFileName));
 
         assertNotNull(sonargraphReport.getSystemMetricValue(SonargraphMetrics.NUMBER_OF_VIOLATIONS));
         assertNotNull(sonargraphReport.getSystemMetricValue(SonargraphMetrics.NUMBER_OF_NOT_ASSIGNED_TYPES));
@@ -62,10 +63,10 @@ public class ReportFileReaderTest
     }
 
     @Test
-    public void testSourceFileCycleIgnoredForBiggestPackageCycleAnalysis()
+    public void testSourceFileCycleIgnoredForBiggestPackageCycleAnalysis() throws IOException, InterruptedException
     {
         IReportReader reader = new ReportFileReader();
-        SonargraphReport sonargraphReport = reader.readSonargraphReport(new TFile(
+        SonargraphReport sonargraphReport = reader.readSonargraphReport(new FilePath((VirtualChannel) null,
                 "./src/test/resources/sonargraph-architect-report_different_cyclegroups.xml"));
 
         assertEquals("23", sonargraphReport.getSystemMetricValue(SonargraphMetrics.NUMBER_OF_CYCLIC_ELEMENTS));

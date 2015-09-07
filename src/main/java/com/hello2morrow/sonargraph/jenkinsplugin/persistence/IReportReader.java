@@ -15,12 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hello2morrow.sonargraph.jenkinsplugin.model;
+package com.hello2morrow.sonargraph.jenkinsplugin.persistence;
 
-import de.schlichtherle.truezip.file.TFile;
+import java.io.IOException;
 
+import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphReport;
+
+import hudson.FilePath;
 
 public interface IReportReader
 {
-    SonargraphReport readSonargraphReport(TFile sonargraphReport);
+    SonargraphReport readSonargraphReport(FilePath sonargraphReport) throws IOException, InterruptedException;
 }

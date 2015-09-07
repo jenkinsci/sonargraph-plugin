@@ -1,5 +1,6 @@
 package com.hello2morrow.sonargraph.jenkinsplugin.persistence;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -11,8 +12,6 @@ import java.util.Random;
 
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
 
-import de.schlichtherle.truezip.file.TFile;
-
 public class LargeCsvFileCreator
 {
     private static final long TIME_SPACING_MILLIS = 1000 * 60 * 60 * 3; //sec * min * hour * x
@@ -20,10 +19,10 @@ public class LargeCsvFileCreator
 
     public static void main(String[] args) throws IOException
     {
-        TFile csvFile = new TFile("./src/test/resources/LargeCsvFile.csv");
+        File csvFile = new File("./src/test/resources/LargeCsvFile.csv");
         if (csvFile.exists())
         {
-            csvFile.rm();
+            csvFile.delete();
         }
         CSVFileHandler fileHandler = new CSVFileHandler(csvFile);
 
