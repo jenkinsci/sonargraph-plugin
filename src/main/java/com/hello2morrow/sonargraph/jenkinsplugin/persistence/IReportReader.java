@@ -15,29 +15,15 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *******************************************************************************/
-package com.hello2morrow.sonargraph.jenkinsplugin.model;
+package com.hello2morrow.sonargraph.jenkinsplugin.persistence;
 
-public enum SonargraphProductType
+import java.io.IOException;
+
+import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphReport;
+
+import hudson.FilePath;
+
+public interface IReportReader
 {
-    ARCHITECT("SonargraphArchitect", "Sonargraph Architect"), QUALITY("SonargraphQuality", "Sonargraph Quality");
-
-    private String m_id;
-    private String m_displayName;
-
-    private SonargraphProductType(String id, String displayName)
-    {
-        m_id = id;
-        m_displayName = displayName;
-    }
-
-    public String getId()
-    {
-        return m_id;
-    }
-
-    public String getDisplayName()
-    {
-        return m_displayName;
-    }
-
+    SonargraphReport readSonargraphReport(FilePath sonargraphReport) throws IOException, InterruptedException;
 }

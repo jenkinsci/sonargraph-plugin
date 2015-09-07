@@ -1,5 +1,23 @@
+/*******************************************************************************
+ * Jenkins Sonargraph Plugin
+ * Copyright (C) 2009-2015 hello2morrow GmbH
+ * mailto: info AT hello2morrow DOT com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ *******************************************************************************/
 package com.hello2morrow.sonargraph.jenkinsplugin.persistence;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -11,8 +29,6 @@ import java.util.Random;
 
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
 
-import de.schlichtherle.truezip.file.TFile;
-
 public class LargeCsvFileCreator
 {
     private static final long TIME_SPACING_MILLIS = 1000 * 60 * 60 * 3; //sec * min * hour * x
@@ -20,10 +36,10 @@ public class LargeCsvFileCreator
 
     public static void main(String[] args) throws IOException
     {
-        TFile csvFile = new TFile("./src/test/resources/LargeCsvFile.csv");
+        File csvFile = new File("./src/test/resources/LargeCsvFile.csv");
         if (csvFile.exists())
         {
-            csvFile.rm();
+            csvFile.delete();
         }
         CSVFileHandler fileHandler = new CSVFileHandler(csvFile);
 

@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<context version="7.2.1.228">
+<context version="7.2.3.235">
     <scope type="Project" name="sonargraph-jenkins-project">
-        <element type="Configuration" name="Configuration">
-            <property value="true" name="CycleAnalysisDepthSourceFile"/>
-        </element>
+        <element type="Configuration" name="Configuration"/>
         <element type="TypeFilterReferenceOverridden" name="Filter">
             <element type="IncludeTypePattern" name="**"/>
             <element type="ExcludeTypePattern" name="InjectedTest"/>
@@ -28,6 +26,7 @@
                 <dependency toName="External|External::Layer|Common" type="AllowedDependency"/>
                 <dependency toName="External|External::Layer|JSON" type="AllowedDependency"/>
                 <dependency toName="External|External::Layer|Jenkins" type="AllowedDependency"/>
+                <dependency toName="External|External::Layer|Common::Subsystem|Java IO File" type="AllowedDependency"/>
             </element>
             <element type="Layer" name="Persistence">
                 <element type="TypeFilter" name="Assignment">
@@ -43,6 +42,8 @@
                 <dependency toName="External|External::Layer|Common" type="AllowedDependency"/>
                 <dependency toName="External|External::Layer|JAXB" type="AllowedDependency"/>
                 <dependency toName="Project|sonargraph-jenkins-project::Layer|Model" type="AllowedDependency"/>
+                <dependency toName="External|External::Layer|Common::Subsystem|Java IO File" type="AllowedDependency"/>
+                <dependency toName="External|External::Layer|Jenkins::Subsystem|hudson" type="AllowedDependency"/>
             </element>
             <element type="Layer" name="Model">
                 <element type="TypeFilter" name="Assignment">

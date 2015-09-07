@@ -1,7 +1,26 @@
+/*******************************************************************************
+ * Jenkins Sonargraph Plugin
+ * Copyright (C) 2009-2015 hello2morrow GmbH
+ * mailto: info AT hello2morrow DOT com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ *******************************************************************************/
 package com.hello2morrow.sonargraph.jenkinsplugin.controller;
 
+import hudson.FilePath;
 import hudson.model.Result;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -11,13 +30,11 @@ import java.util.logging.Level;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.RecorderLogger;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.SonargraphNumberFormat;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.IMetricHistoryProvider;
-import com.hello2morrow.sonargraph.jenkinsplugin.model.IReportReader;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphReport;
 import com.hello2morrow.sonargraph.jenkinsplugin.persistence.CSVFileHandler;
+import com.hello2morrow.sonargraph.jenkinsplugin.persistence.IReportReader;
 import com.hello2morrow.sonargraph.jenkinsplugin.persistence.ReportFileReader;
-
-import de.schlichtherle.truezip.file.TFile;
 
 /**
  * Class that analyzes the values found for the metrics and takes action
@@ -47,8 +64,10 @@ class SonargraphBuildAnalyzer
     /**
      * Constructor.
      * @param architectReportPath Absolute path to the Sonargraph architect report.
+     * @throws InterruptedException 
+     * @throws IOException 
      */
-    public SonargraphBuildAnalyzer(TFile architectReportPath, OutputStream logger)
+    public SonargraphBuildAnalyzer(FilePath architectReportPath, OutputStream logger) throws IOException, InterruptedException
     {
         assert architectReportPath != null : "The path for the Sonargraph architect report must not be null";
         assert logger != null : "Parameter 'logger' of method 'SonargraphBuildAnalyzer' must not be null";
@@ -144,7 +163,7 @@ class SonargraphBuildAnalyzer
     /**
      * Appends all gathered metrics to the sonargraph CSV file.
      */
-    public void saveMetricsToCSV(TFile metricHistoryFile, long timeOfBuild, Integer buildNumber) throws IOException
+    public void saveMetricsToCSV(File metricHistoryFile, long timeOfBuild, Integer buildNumber) throws IOException
     {
         IMetricHistoryProvider fileHandler = new CSVFileHandler(metricHistoryFile);
         HashMap<SonargraphMetrics, String> buildMetricValues = new HashMap<SonargraphMetrics, String>();

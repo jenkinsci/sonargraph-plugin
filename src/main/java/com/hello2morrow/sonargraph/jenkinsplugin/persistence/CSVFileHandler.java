@@ -1,6 +1,26 @@
+/*******************************************************************************
+ * Jenkins Sonargraph Plugin
+ * Copyright (C) 2009-2015 hello2morrow GmbH
+ * mailto: info AT hello2morrow DOT com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ *******************************************************************************/
 package com.hello2morrow.sonargraph.jenkinsplugin.persistence;
 
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -24,10 +44,6 @@ import com.hello2morrow.sonargraph.jenkinsplugin.model.NotExistingDataPoint;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphReport;
 
-import de.schlichtherle.truezip.file.TFile;
-import de.schlichtherle.truezip.file.TFileReader;
-import de.schlichtherle.truezip.file.TFileWriter;
-
 /**
  * Handles operations on a CSV file.
  * @author esteban
@@ -43,7 +59,7 @@ public class CSVFileHandler implements IMetricHistoryProvider
 
     private static final Map<SonargraphMetrics, Integer> COLUMN_MAPPING;
 
-    private TFile m_file;
+    private File m_file;
     static
     {
         /**!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -88,7 +104,7 @@ public class CSVFileHandler implements IMetricHistoryProvider
         COLUMN_MAPPING.put(SonargraphMetrics.HIGHEST_RELATIVE_AVERAGE_COMPONENT_DEPENDENCY, startIndex++);
     }
 
-    public CSVFileHandler(TFile csvFile)
+    public CSVFileHandler(File csvFile)
     {
         m_file = csvFile;
         if (!m_file.exists())
@@ -96,7 +112,7 @@ public class CSVFileHandler implements IMetricHistoryProvider
             try
             {
                 m_file.createNewFile();
-                TFileWriter fileWriter = new TFileWriter(m_file, true);
+                FileWriter fileWriter = new FileWriter(m_file, true);
                 BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
                 bufferedWriter.write(createHeaderLine());
                 bufferedWriter.newLine();
@@ -105,8 +121,7 @@ public class CSVFileHandler implements IMetricHistoryProvider
             }
             catch (IOException ex)
             {
-                SonargraphLogger.INSTANCE.log(Level.SEVERE,
-                        "Failed to create CSV file '" + m_file.getNormalizedAbsolutePath() + "': " + ex.getMessage());
+                SonargraphLogger.INSTANCE.log(Level.SEVERE, "Failed to create CSV file '" + m_file.getAbsolutePath() + "': " + ex.getMessage());
             }
         }
     }
@@ -139,7 +154,7 @@ public class CSVFileHandler implements IMetricHistoryProvider
 
         try
         {
-            CSVReader csvReader = new CSVReader(new TFileReader(m_file), StringUtility.CSV_SEPARATOR);
+            CSVReader csvReader = new CSVReader(new FileReader(m_file), StringUtility.CSV_SEPARATOR);
             String[] nextLine;
             int column = COLUMN_MAPPING.get(metric);
             csvReader.readNext(); //We do nothing with the header line.
@@ -157,8 +172,8 @@ public class CSVFileHandler implements IMetricHistoryProvider
         }
         catch (IOException ioe)
         {
-            SonargraphLogger.INSTANCE.log(Level.WARNING, "Exception occurred while reading from file '" + m_file.getNormalizedAbsolutePath() + "':\n"
-                    + ioe.getMessage());
+            SonargraphLogger.INSTANCE.log(Level.WARNING,
+                    "Exception occurred while reading from file '" + m_file.getAbsolutePath() + "':\n" + ioe.getMessage());
 
         }
         return sonargraphDataset;
@@ -207,21 +222,21 @@ public class CSVFileHandler implements IMetricHistoryProvider
         catch (NumberFormatException ex)
         {
             SonargraphLogger.INSTANCE.log(Level.WARNING, "The value of metric '" + metric.getStandardName() + "' for build number '" + nextLine[0]
-                    + "' is not a valid number. Found '" + stringValue + "' but expected a Number. File '" + m_file.getNormalizedAbsolutePath()
+                    + "' is not a valid number. Found '" + stringValue + "' but expected a Number. File '" + m_file.getAbsolutePath()
                     + "' might be corrupt:" + "\n" + ex.getMessage());
             sonargraphDataset.add(new InvalidDataPoint(buildNumber));
         }
         catch (ParseException ex)
         {
             SonargraphLogger.INSTANCE.log(Level.WARNING, "The value of metric '" + metric.getStandardName() + "' for build number '" + nextLine[0]
-                    + "' is not a valid number. Found '" + stringValue + "' but expected a Number. File '" + m_file.getNormalizedAbsolutePath()
+                    + "' is not a valid number. Found '" + stringValue + "' but expected a Number. File '" + m_file.getAbsolutePath()
                     + "' might be corrupt:" + "\n" + ex.getMessage());
             sonargraphDataset.add(new InvalidDataPoint(buildNumber));
         }
         catch (ArrayIndexOutOfBoundsException ex)
         {
             SonargraphLogger.INSTANCE.log(Level.WARNING, "The value of metric '" + metric.getStandardName() + "' for build number '" + nextLine[0]
-                    + "' was not found. File '" + m_file.getNormalizedAbsolutePath() + "' might be corrupt:" + "\n" + ex.getMessage());
+                    + "' was not found. File '" + m_file.getAbsolutePath() + "' might be corrupt:" + "\n" + ex.getMessage());
             sonargraphDataset.add(new NotExistingDataPoint(buildNumber));
         }
 
@@ -229,7 +244,7 @@ public class CSVFileHandler implements IMetricHistoryProvider
 
     public void writeMetricValues(Integer buildNumber, long timestamp, Map<SonargraphMetrics, String> metricValues) throws IOException
     {
-        TFileWriter fileWriter = new TFileWriter(m_file, true);
+        FileWriter fileWriter = new FileWriter(m_file, true);
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
         StringBuilder line = new StringBuilder(buildNumber.toString()).append(StringUtility.CSV_SEPARATOR);
 
@@ -263,7 +278,7 @@ public class CSVFileHandler implements IMetricHistoryProvider
         int realMetricIndex = -1;
         try
         {
-            CSVReader csvReader = new CSVReader(new TFileReader(m_file), StringUtility.CSV_SEPARATOR);
+            CSVReader csvReader = new CSVReader(new FileReader(m_file), StringUtility.CSV_SEPARATOR);
             String[] headerLine = csvReader.readNext();
             realMetricIndex = Arrays.asList(headerLine).indexOf(metric.getStandardName());
             csvReader.close();
@@ -284,7 +299,7 @@ public class CSVFileHandler implements IMetricHistoryProvider
 
     public String getStorageName()
     {
-        return m_file.getNormalizedAbsolutePath();
+        return m_file.getAbsolutePath();
     }
 
 }

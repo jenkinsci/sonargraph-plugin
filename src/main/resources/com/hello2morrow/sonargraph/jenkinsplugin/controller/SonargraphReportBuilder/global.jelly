@@ -7,7 +7,7 @@
   	<f:entry title="Sonargraph Version" field="version" help="/plugin/sonargraph-plugin/html/html-version.html">
     	<f:textbox />
   	</f:entry>
-    <f:entry title="Either Licence File (absolute path) ..." field="license" help="/plugin/sonargraph-plugin/html/html-license-file.html">
+    <f:entry title="Either License File (absolute path) ..." field="license" help="/plugin/sonargraph-plugin/html/html-license-file.html">
     	<f:textbox default="${descriptor.getUserHome()}/.hello2morrow/SonargraphArchitect/SonargraphArchitect.license"/>
   	</f:entry>
   	<f:entry title="... or Activation Code (requires Internet access)" field="activationCode" help="/plugin/sonargraph-plugin/html/html-activation-code.html">

@@ -1,8 +1,8 @@
 #
-#Fri Apr 05 14:40:35 COT 2013
-sonar.inactive.directories=
+#Thu Sep 03 17:20:50 CEST 2015
+sonar.inactive.directories=src/test/java|target/test-classes
 sonar.buildunit.name=(Default Build Unit)
-sonar.active.directories=src/main/java|src/main/resources|src/test/java|src/test/resources|target/classes|target/generated-sources/jaxb|target/test-classes
+sonar.active.directories=src/main/java|src/main/resources|src/test/resources|target/classes|target/generated-sources/jaxb|target/generated-sources/localizer
 sonar.project.name=sonargraph-jenkins-project
 sonar.context.file=Sonargraph-Jenkins-Project.sonargraph
 sonar.violation.marker=Error

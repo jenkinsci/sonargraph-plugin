@@ -1,8 +1,28 @@
+/*******************************************************************************
+ * Jenkins Sonargraph Plugin
+ * Copyright (C) 2009-2015 hello2morrow GmbH
+ * mailto: info AT hello2morrow DOT com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ *******************************************************************************/
 package com.hello2morrow.sonargraph.jenkinsplugin.persistence;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import hudson.FilePath;
+import hudson.remoting.VirtualChannel;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 
@@ -10,20 +30,18 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.schlichtherle.truezip.file.TFile;
-
 public class ReportHistoryFileManagerTest
 {
-    private static final String reportFileName = "src/test/resources/sonargraph-sonar-report.xml";
+    private static final String reporFileName = "src/test/resources/sonargraph-sonar-report.xml";
     private static final String archReportHistoryPath = "src/test/resources/temp";
     private static final String buildReportDirectoryPath = "src/test/resources/report";
-    private TFile sonargraphReportFile;
+    private FilePath sonargraphReporFile;
     private static final String dummyLogFileName = "src/test/resources/dummy.log";
-    private TFile dummyLogFile = new TFile(dummyLogFileName);
+    private File dummyLogFile = new File(dummyLogFileName);
     private PrintStream m_logger;;
 
     @Before
-    public void before() throws IOException
+    public void before() throws IOException, InterruptedException
     {
         removeFiles();
         if (!dummyLogFile.exists())
@@ -34,7 +52,7 @@ public class ReportHistoryFileManagerTest
     }
 
     @After
-    public void tearDown() throws IOException
+    public void tearDown() throws IOException, InterruptedException
     {
         if (m_logger != null)
         {
@@ -43,58 +61,72 @@ public class ReportHistoryFileManagerTest
         removeFiles();
     }
 
-    private void removeFiles() throws IOException
+    private void removeFiles() throws IOException, InterruptedException
     {
-        if ((sonargraphReportFile != null) && sonargraphReportFile.exists())
+        if ((sonargraphReporFile != null) && sonargraphReporFile.exists())
         {
-            sonargraphReportFile.rm();
+            sonargraphReporFile.delete();
         }
-        TFile historyDir = new TFile(archReportHistoryPath);
+        File historyDir = new File(archReportHistoryPath);
         if (historyDir.exists())
         {
-            historyDir.rm_r();
+            rm_r(historyDir);
         }
-        TFile buildReportDir = new TFile(buildReportDirectoryPath);
+        File buildReportDir = new File(buildReportDirectoryPath);
         if (buildReportDir.exists())
         {
-            buildReportDir.rm_r();
+            rm_r(buildReportDir);
         }
         if ((dummyLogFile != null) && dummyLogFile.exists())
         {
-            dummyLogFile.rm();
+            dummyLogFile.delete();
         }
     }
 
-    @Test
-    public void testStoreGeneratedReport() throws IOException
+    private static void rm_r(File directoryToBeDeleted)
     {
-        ReportHistoryFileManager rhfm = new ReportHistoryFileManager(new TFile(archReportHistoryPath), "sonargraphReportHistory", m_logger);
-        Integer buildNumber = 1;
-        sonargraphReportFile = new TFile(rhfm.getReportHistoryDirectory(), ReportHistoryFileManager.SONARGRAPH_JENKINS_REPORT_FILE_NAME_PREFIX
-                + buildNumber + ".xml");
-        assertFalse(sonargraphReportFile.exists());
-
-        rhfm.storeGeneratedReport(new TFile(reportFileName), buildNumber, m_logger);
-        assertTrue(sonargraphReportFile.exists());
+        if (directoryToBeDeleted.isDirectory())
+        {
+            for (File c : directoryToBeDeleted.listFiles())
+            {
+                rm_r(c);
+            }
+        }
+        directoryToBeDeleted.delete();
     }
 
     @Test
-    public void testStoreGeneratedReportDirectory() throws IOException
+    public void testStoreGeneratedReport() throws IOException, InterruptedException
     {
-        ReportHistoryFileManager rhfm = new ReportHistoryFileManager(new TFile(archReportHistoryPath), "sonargraphReportHistory", m_logger);
-        TFile buildReportDirectory = new TFile(buildReportDirectoryPath);
+        ReportHistoryFileManager rhfm = new ReportHistoryFileManager(new FilePath((VirtualChannel) null, archReportHistoryPath),
+                "sonargraphReportHistory", m_logger);
+        Integer buildNumber = 1;
+        sonargraphReporFile = new FilePath(rhfm.getReportHistoryDirectory(), ReportHistoryFileManager.SONARGRAPH_JENKINS_REPORT_FILE_NAME_PREFIX
+                + buildNumber + ".xml");
+        assertFalse(sonargraphReporFile.exists());
+
+        rhfm.storeGeneratedReport(new FilePath((VirtualChannel) null, reporFileName), buildNumber, m_logger);
+        assertTrue(sonargraphReporFile.exists());
+    }
+
+    @Test
+    public void testStoreGeneratedReportDirectory() throws IOException, InterruptedException
+    {
+        ReportHistoryFileManager rhfm = new ReportHistoryFileManager(new FilePath((VirtualChannel) null, archReportHistoryPath),
+                "sonargraphReportHistory", m_logger);
+        FilePath buildReportDirectory = new FilePath((VirtualChannel) null, buildReportDirectoryPath);
         if (!buildReportDirectory.exists())
         {
-            buildReportDirectory.mkdir();
+            buildReportDirectory.mkdirs();
         }
-        TFile testFile = new TFile(buildReportDirectory.getPath(), "testFile.xml");
-        if (!testFile.exists())
+        File tesFile = new File(buildReportDirectory.getRemote(), "tesFile.xml");
+        if (!tesFile.exists())
         {
-            testFile.createNewFile();
+            tesFile.createNewFile();
         }
         rhfm.storeGeneratedReportDirectory(buildReportDirectory, 1, m_logger);
-        String buildReportDirInHistory = "/sonargraph-report-build-1";
-        assertTrue(new TFile(rhfm.getReportHistoryDirectory(), buildReportDirInHistory).exists());
-        assertTrue(new TFile(rhfm.getReportHistoryDirectory() + buildReportDirInHistory, "/testFile.xml").exists());
+        String buildReportDirInHistory = "sonargraph-report-build-1";
+        assertTrue(new FilePath(rhfm.getReportHistoryDirectory(), buildReportDirInHistory).exists());
+        assertTrue(new File(rhfm.getReportHistoryDirectory() + "/" + buildReportDirInHistory, "tesFile.xml").exists());
     }
 }

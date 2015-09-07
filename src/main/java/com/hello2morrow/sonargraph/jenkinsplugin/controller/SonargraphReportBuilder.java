@@ -1,6 +1,24 @@
+/*******************************************************************************
+ * Jenkins Sonargraph Plugin
+ * Copyright (C) 2009-2015 hello2morrow GmbH
+ * mailto: info AT hello2morrow DOT com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ *******************************************************************************/
 package com.hello2morrow.sonargraph.jenkinsplugin.controller;
 
 import hudson.Extension;
+import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Launcher.ProcStarter;
 import hudson.Proc;
@@ -8,7 +26,7 @@ import hudson.maven.MavenModuleSet;
 import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
-import hudson.model.Hudson;
+import hudson.model.Computer;
 import hudson.model.Project;
 import hudson.tasks.Builder;
 import hudson.tasks.Maven;
@@ -16,12 +34,12 @@ import hudson.tasks.Maven.MavenInstallation;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
-import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 
+import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -32,8 +50,6 @@ import com.hello2morrow.sonargraph.jenkinsplugin.foundation.RecorderLogger;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.SonargraphLogger;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.StringUtility;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphProductType;
-
-import de.schlichtherle.truezip.file.TFile;
 
 /**
  * This class contains all the functionality of the build step.
@@ -46,18 +62,17 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
     private static final String PROPERTY_PREFIX = " -Dsonargraph.";
     private static final String SONARGRAPH_REPORT_FILE_NAME = "sonargraph-report";
 
-    private final String mavenInstallation;
-    private final String systemFile;
-    private final String useSonargraphWorkspace;
-    private final String prepareForSonar;
+    private static final String MAVEN3_EXECUTABLE_NAME = "mvn";
 
     private static final String GROUP_ID = "com.hello2morrow.sonargraph";
     private static final String ARTIFACT_ID = "maven-sonargraph-plugin";
     private static final String ARCHITECT_GOAL = "architect-report";
     private static final String QUALITY_GOAL = "quality-report-direct-parsing-mode";
 
-    private final String pathToExecutable = "/bin";
-    private static final String M2_HOME = "M2_HOME";
+    private final String mavenInstallation;
+    private final String systemFile;
+    private final String useSonargraphWorkspace;
+    private final String prepareForSonar;
 
     /**
      * Constructor. Fields in the config.jelly must match the parameters in this
@@ -70,7 +85,8 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
             String emptyWorkspaceAction, String replaceDefaultMetrics, List<ChartForMetric> additionalMetricsToDisplay)
     {
         super(reportDirectory, architectureViolationsAction, unassignedTypesAction, cyclicElementsAction, thresholdViolationsAction,
-                architectureWarningsAction, workspaceWarningsAction, workItemsAction, emptyWorkspaceAction, replaceDefaultMetrics, additionalMetricsToDisplay);
+                architectureWarningsAction, workspaceWarningsAction, workItemsAction, emptyWorkspaceAction, replaceDefaultMetrics,
+                additionalMetricsToDisplay);
 
         this.mavenInstallation = mavenInstallation;
         this.systemFile = systemFile;
@@ -112,17 +128,13 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
             pathToPom = ((MavenModuleSet) project).getRootPOM(null);
         }
 
-        String absoluteReportDir = new TFile(build.getWorkspace().getRemote(), getReportDirectory()).getNormalizedAbsolutePath();
-        String mvnCommand = createMvnCommand(build.getWorkspace().getRemote(), pathToPom, System.getProperty("os.name", "unknown").trim()
-                .toLowerCase(), getDescriptor(), listener.getLogger());
+        FilePath absoluteReportDir = new FilePath(build.getWorkspace(), getReportDirectory());
+        String mvnCommand = createMvnCommand(launcher, build, pathToPom, getDescriptor(), listener);
 
         ProcStarter procStarter = launcher.new ProcStarter();
-        HashMap<String, String> envVars = new HashMap<String, String>();
         procStarter.cmdAsSingleString(mvnCommand);
         procStarter.stdout(listener.getLogger());
-        envVars.putAll(build.getEnvironment(listener));
-        envVars.put(M2_HOME, mavenInstallation);
-        procStarter = procStarter.pwd(build.getWorkspace()).envs(envVars);
+        procStarter = procStarter.pwd(build.getWorkspace());
         Proc proc = launcher.launch(procStarter);
         int processExitCode = proc.join();
 
@@ -141,7 +153,7 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
             return false;
         }
 
-        String sonargraphReportDirectory = new TFile(absoluteReportDir).getAbsolutePath();
+        FilePath sonargraphReportDirectory = absoluteReportDir;
         if (super.processSonargraphReport(build, sonargraphReportDirectory, SONARGRAPH_REPORT_FILE_NAME, listener.getLogger()))
         {
             //only add the actions after the processing has been successful
@@ -156,40 +168,25 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
         return true;
     }
 
-    private String createMvnCommand(String workspacePath, String pomPath, String operatingSystem, DescriptorImpl descriptor, PrintStream logger)
+    private String createMvnCommand(Launcher launcher, AbstractBuild<?, ?> build, String pomPath, DescriptorImpl descriptor, BuildListener listener)
+            throws IOException, InterruptedException
     {
-        String absoluteReportDir = new TFile(workspacePath, getReportDirectory()).getNormalizedAbsolutePath();
-        String pathToMvn = null;
+        String pathToMvn = getMavenExecutable(launcher, build, listener);
 
-        if ((mavenInstallation != null) && !mavenInstallation.equals("\"null\""))
-        {
-            pathToMvn = new TFile(mavenInstallation + pathToExecutable, "mvn").getAbsolutePath();
-        }
-        else
-        {
-            if ("\"null\"".equals(mavenInstallation))
-            {
-                SonargraphLogger.INSTANCE.log(Level.WARNING, "Invalid path to maven installation '" + mavenInstallation
-                        + "' configured, using command 'mvn' without path.");
-            }
-            pathToMvn = "mvn";
-        }
+        FilePath workspacePath = build.getWorkspace();
+        FilePath absoluteReportDir = new FilePath(workspacePath, getReportDirectory());
 
         StringBuilder mvnCommand = new StringBuilder(pathToMvn);
-        if (operatingSystem.startsWith("windows"))
-        {
-            mvnCommand.append(".bat");
-        }
 
         if (pomPath != null && !pomPath.isEmpty())
         {
-        	TFile pomFile = new TFile(pomPath);
-        	if (!pomFile.exists())
-        	{
-        		pomFile = new TFile(workspacePath, pomPath);
-        	}
-        	mvnCommand.append(" -f ");
-        	mvnCommand.append(escapePath(pomFile.getNormalizedAbsolutePath()));
+            FilePath pomFile = new FilePath(workspacePath, pomPath);
+            if (!pomFile.exists())
+            {
+                pomFile = new FilePath(workspacePath, pomPath);
+            }
+            mvnCommand.append(" -f ");
+            mvnCommand.append(escapePath(pomFile.getRemote()));
         }
 
         // FIXME: Why are some modules not found if goal is run on multi-module
@@ -208,17 +205,17 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
 
         if ((systemFile != null) && (systemFile.length() > 0))
         {
-        	TFile sonargraphFile = new TFile(systemFile);
-        	if (!sonargraphFile.exists())
-        	{
-        		sonargraphFile = new TFile(workspacePath, systemFile);
-        	}
+            FilePath sonargraphFile = new FilePath(workspacePath, systemFile);
             if (!sonargraphFile.exists())
             {
-                RecorderLogger.logToConsoleOutput(logger, Level.SEVERE,
-                        "Specified Sonargraph system file '" + sonargraphFile.getNormalizedAbsolutePath() + "' does not exist!");
+                sonargraphFile = new FilePath(workspacePath, systemFile);
             }
-            mvnCommand.append(PROPERTY_PREFIX).append("file=").append(escapePath(sonargraphFile.getNormalizedAbsolutePath()));
+            if (!sonargraphFile.exists())
+            {
+                RecorderLogger.logToConsoleOutput(listener.getLogger(), Level.SEVERE,
+                        "Specified Sonargraph system file '" + sonargraphFile.getRemote() + "' does not exist!");
+            }
+            mvnCommand.append(PROPERTY_PREFIX).append("file=").append(escapePath(sonargraphFile.getRemote()));
         }
 
         if ((descriptor.getLicense() != null) && (descriptor.getLicense().length() > 0))
@@ -231,10 +228,10 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
         }
         else
         {
-            RecorderLogger.logToConsoleOutput(logger, Level.SEVERE, "You have to either specify a license file or activation code!");
+            RecorderLogger.logToConsoleOutput(listener.getLogger(), Level.SEVERE, "You have to either specify a license file or activation code!");
         }
         mvnCommand.append(PROPERTY_PREFIX).append("prepareForJenkins=true");
-        mvnCommand.append(PROPERTY_PREFIX).append("reportDirectory=").append(escapePath(absoluteReportDir));
+        mvnCommand.append(PROPERTY_PREFIX).append("reportDirectory=").append(escapePath(absoluteReportDir.getRemote()));
         mvnCommand.append(PROPERTY_PREFIX).append("reportName=").append(SONARGRAPH_REPORT_FILE_NAME);
         mvnCommand.append(PROPERTY_PREFIX).append("reportType=HTML");
         if ((systemFile != null) && (systemFile.length() > 0))
@@ -243,6 +240,38 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
         }
         mvnCommand.append(PROPERTY_PREFIX).append("prepareForSonar=").append(prepareForSonar);
         return mvnCommand.toString();
+    }
+
+    private String getMavenExecutable(Launcher launcher, AbstractBuild<?, ?> build, BuildListener listener) throws IOException, InterruptedException
+    {
+        String pathToMvn = null;
+
+        MavenInstallation[] installations = Jenkins.getInstance().getDescriptorByType(Maven.DescriptorImpl.class).getInstallations();
+
+        SonargraphLogger.INSTANCE.log(Level.FINE, "There are " + installations.length + " Maven installations on "
+                + Computer.currentComputer().getDisplayName());
+        for (MavenInstallation installation : installations)
+        {
+            MavenInstallation translatedInstallation = installation.forNode(Computer.currentComputer().getNode(), listener);
+            translatedInstallation = translatedInstallation.forEnvironment(build.getEnvironment(listener));
+            SonargraphLogger.INSTANCE.log(Level.FINE, "Maven installation " + translatedInstallation.getName() + " with home "
+                    + translatedInstallation.getHome());
+            if (installation.getName().equals(mavenInstallation))
+            {
+                pathToMvn = translatedInstallation.getExecutable(launcher);
+                SonargraphLogger.INSTANCE.log(Level.FINE, "Using Maven installation " + translatedInstallation.getName() + " with home "
+                        + translatedInstallation.getHome());
+                break;
+            }
+        }
+
+        if (pathToMvn == null)
+        {
+            pathToMvn = MAVEN3_EXECUTABLE_NAME;
+            SonargraphLogger.INSTANCE.log(Level.WARNING, "Can't get path to maven installation '" + mavenInstallation
+                    + "', using command 'mvn' without path.");
+        }
+        return pathToMvn;
     }
 
     private String escapePath(String path)
@@ -353,7 +382,7 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
                 return FormValidation.error("Please enter a valid path for the license");
             }
 
-            TFile licenseFile = new TFile(value);
+            File licenseFile = new File(value);
             if (!licenseFile.exists())
             {
                 return FormValidation.error("Please specify a path of an existing license file");
@@ -375,10 +404,11 @@ public class SonargraphReportBuilder extends AbstractSonargraphRecorder
         public ListBoxModel doFillMavenInstallationItems()
         {
             ListBoxModel items = new ListBoxModel();
-            MavenInstallation[] installations = Hudson.getInstance().getDescriptorByType(Maven.DescriptorImpl.class).getInstallations();
+            MavenInstallation[] installations = Jenkins.getInstance().getDescriptorByType(Maven.DescriptorImpl.class).getInstallations();
             for (MavenInstallation installation : installations)
             {
-                items.add(installation.getName(), installation.getHome());
+                // use name as value instead of home because home is node dependent and must be resolved later
+                items.add(installation.getName(), installation.getName());
             }
             return items;
         }

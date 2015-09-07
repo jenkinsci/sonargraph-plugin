@@ -1,16 +1,34 @@
+/*******************************************************************************
+ * Jenkins Sonargraph Plugin
+ * Copyright (C) 2009-2015 hello2morrow GmbH
+ * mailto: info AT hello2morrow DOT com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ *******************************************************************************/
 package com.hello2morrow.sonargraph.jenkinsplugin.persistence;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import hudson.FilePath;
+import hudson.remoting.VirtualChannel;
+
+import java.io.IOException;
 
 import org.junit.Test;
 
-import com.hello2morrow.sonargraph.jenkinsplugin.model.IReportReader;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphMetrics;
 import com.hello2morrow.sonargraph.jenkinsplugin.model.SonargraphReport;
-
-import de.schlichtherle.truezip.file.TFile;
 
 public class ReportFileReaderTest
 {
@@ -19,13 +37,13 @@ public class ReportFileReaderTest
     private static final String nonExistingFile = "src/test/resources/report_error.xml";
 
     @Test
-    public void testReadSonargraphReport()
+    public void testReadSonargraphReport() throws IOException, InterruptedException
     {
         IReportReader reader = new ReportFileReader();
-        assertNull(reader.readSonargraphReport(new TFile(fakeDir)));
-        assertNull(reader.readSonargraphReport(new TFile(nonExistingFile)));
+        assertNull(reader.readSonargraphReport(new FilePath((VirtualChannel) null, fakeDir)));
+        assertNull(reader.readSonargraphReport(new FilePath((VirtualChannel) null, nonExistingFile)));
 
-        SonargraphReport sonargraphReport = reader.readSonargraphReport(new TFile(reportFileName));
+        SonargraphReport sonargraphReport = reader.readSonargraphReport(new FilePath((VirtualChannel) null, reportFileName));
 
         assertNotNull(sonargraphReport.getSystemMetricValue(SonargraphMetrics.NUMBER_OF_VIOLATIONS));
         assertNotNull(sonargraphReport.getSystemMetricValue(SonargraphMetrics.NUMBER_OF_NOT_ASSIGNED_TYPES));
@@ -62,10 +80,10 @@ public class ReportFileReaderTest
     }
 
     @Test
-    public void testSourceFileCycleIgnoredForBiggestPackageCycleAnalysis()
+    public void testSourceFileCycleIgnoredForBiggestPackageCycleAnalysis() throws IOException, InterruptedException
     {
         IReportReader reader = new ReportFileReader();
-        SonargraphReport sonargraphReport = reader.readSonargraphReport(new TFile(
+        SonargraphReport sonargraphReport = reader.readSonargraphReport(new FilePath((VirtualChannel) null,
                 "./src/test/resources/sonargraph-architect-report_different_cyclegroups.xml"));
 
         assertEquals("23", sonargraphReport.getSystemMetricValue(SonargraphMetrics.NUMBER_OF_CYCLIC_ELEMENTS));

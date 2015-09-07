@@ -1,6 +1,24 @@
+/*******************************************************************************
+ * Jenkins Sonargraph Plugin
+ * Copyright (C) 2009-2015 hello2morrow GmbH
+ * mailto: info AT hello2morrow DOT com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ *******************************************************************************/
 package com.hello2morrow.sonargraph.jenkinsplugin.controller;
 
 import hudson.Extension;
+import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
@@ -15,8 +33,6 @@ import org.kohsuke.stapler.QueryParameter;
 
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.RecorderLogger;
 import com.hello2morrow.sonargraph.jenkinsplugin.foundation.StringUtility;
-
-import de.schlichtherle.truezip.file.TFile;
 
 /**
  * Processes a previously generated Sonargraph report.
@@ -34,7 +50,8 @@ public class SonargraphReportAnalyzer extends AbstractSonargraphRecorder
             String workItemsAction, String emptyWorkspaceAction, String replaceDefaultMetrics, List<ChartForMetric> additionalMetricsToDisplay)
     {
         super(reportDirectory, architectureViolationsAction, unassignedTypesAction, cyclicElementsAction, thresholdViolationsAction,
-                architectureWarningsAction, workspaceWarningsAction, workItemsAction, emptyWorkspaceAction, replaceDefaultMetrics, additionalMetricsToDisplay);
+                architectureWarningsAction, workspaceWarningsAction, workItemsAction, emptyWorkspaceAction, replaceDefaultMetrics,
+                additionalMetricsToDisplay);
 
         assert (reportName != null) && (reportName.length() > 0) : "Parameter 'sonargraphReportName' of method 'SonargraphReportAnalyzer' must not be empty";
         this.reportName = reportName;
@@ -53,7 +70,7 @@ public class SonargraphReportAnalyzer extends AbstractSonargraphRecorder
             return false;
         }
 
-        String absoluteReportFolder = new TFile(build.getWorkspace().getRemote(), getReportDirectory()).getNormalizedAbsolutePath();
+        FilePath absoluteReportFolder = new FilePath(build.getWorkspace(), getReportDirectory());
         if (super.processSonargraphReport(build, absoluteReportFolder, reportName, listener.getLogger()))
         {
             addActions(build);
@@ -65,7 +82,7 @@ public class SonargraphReportAnalyzer extends AbstractSonargraphRecorder
     {
         return reportName;
     }
-    
+
     @Override
     public DescriptorImpl getDescriptor()
     {
